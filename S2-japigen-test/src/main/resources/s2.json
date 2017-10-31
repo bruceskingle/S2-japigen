@@ -1,0 +1,366 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"version": "1.0.0",
+		"title": "Swagger Petstore",
+		"license": {
+			"name": "MIT"
+		}
+	},
+	"servers": [
+		{
+			"url": "http://petstore.swagger.io/v1"
+		}
+	],
+	"paths": {
+		"/pets": {
+			"get": {
+				"summary": "List all pets",
+				"operationId": "listPets",
+				"tags": [
+					"pets"
+				],
+				"parameters": [
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "How many items to return at one time (max 100)",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "An paged array of pets",
+						"headers": {
+							"x-next": {
+								"description": "A link to the next page of responses",
+								"schema": {
+									"type": "string"
+								}
+							}
+						},
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Pets"
+								}
+							}
+						}
+					},
+					"default": {
+						"description": "unexpected error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"summary": "Create a pet",
+				"operationId": "createPets",
+				"tags": [
+					"pets"
+				],
+				"responses": {
+					"201": {
+						"description": "Null response"
+					},
+					"default": {
+						"description": "unexpected error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pets/{petId}": {
+			"get": {
+				"summary": "Info for a specific pet",
+				"operationId": "showPetById",
+				"tags": [
+					"pets"
+				],
+				"parameters": [
+					{
+						"name": "petId",
+						"in": "path",
+						"required": true,
+						"description": "The id of the pet to retrieve",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Expected response to a valid request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Pets"
+								}
+							}
+						}
+					},
+					"default": {
+						"description": "unexpected error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"FundamentalObject": {
+				"type": "object",
+				"required": [
+					"hashType"
+				],
+				"properties": {
+					"hashType": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 2
+					},
+					"signingCert": {
+						"type": "string",
+						"format": "Hash"
+					},
+					"signature": {
+						"type": "string",
+						"format": "Signature"
+					},
+					"fundamentalPayloadType": {
+						"type": "string"
+					},
+					"fundamentalPayload": {
+						"oneOf": [
+							{
+								"$ref": "#/components/schemas/SecurityContext"
+							},
+							{
+								"$ref": "#/components/schemas/SecurityContextMember"
+							}
+						],
+						"discriminator": {
+							"propertyName": "fundamentalPayloadType"
+						}
+					}
+				}
+			},
+			"SecurityContext": {
+				"type": "object",
+				"required": [
+					"symmetricCipher",
+					"asymmetricCipher",
+					"encodedPublicKey",
+					"encryptedPrivateKey",
+					"principalMembersSequence",
+					"securityContextMemberSequence"
+				],
+				"properties": {
+					"symmetricCipher": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 3
+					},
+					"asymmetricCipher": {
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 2
+					},
+					"encodedPublicKey": {
+						"type": "string",
+						"format": "bytes"
+					},
+					"encryptedPrivateKey": {
+						"type": "string",
+						"format": "bytes"
+					},
+					"principalMembersSequence": {
+						"type": "string",
+						"format": "Hash"
+					},
+					"securityContextMemberSequence": {
+						"type": "string",
+						"format": "Hash"
+					}
+				}
+			},
+			"VersionedObject": {
+        "type": "object",
+        "required": [
+          "prevHash",
+          "baseHash"
+        ],
+        "properties": {
+          "prevHash": {
+            "type": "string",
+            "format": "Hash"
+          },
+          "baseHash": {
+            "type": "string",
+            "format": "Hash"
+          }
+        }
+      },
+			"MembershipStatus": {
+				"type": "string",
+				"enum": [
+					"NONE",
+					"MEMBER",
+					"OWNER"
+				]
+			},
+			"SecurityContextMember": {
+			 "allOf": [
+          {
+            "$ref": "#/components/schemas/VersionedObject"
+          },
+          {
+      				"type": "object",
+      				"required": [
+      					"securityContextHash",
+      					"memberHash",
+      					"memberCertHash",
+      					"wrappedKey",
+      					"membershipStatus"
+      				],
+      				"properties": {
+      					"securityContextHash": {
+      						"type": "string",
+      						"format": "Hash"
+      					},
+                "memberHash": {
+                  "type": "string",
+                  "format": "Hash"
+                },
+                "memberCertHash": {
+                  "type": "string",
+                  "format": "Hash"
+                },
+                "wrappedKey": {
+                  "type": "string",
+                  "format": "bytes"
+                },
+                "membershipStatus": {
+                  "$ref": "#/components/schemas/MembershipStatus"
+                }
+              }
+    				}
+    			]
+			},
+      "ApplicationObject": {
+          "allOf": [
+          {
+            "$ref": "#/components/schemas/VersionedObject"
+          },
+          {
+            "type": "object",
+            "required": [
+              "securityContextHash",
+              "encryptedPayload"
+            ],
+            "properties": {
+              "securityContextHash": {
+                "type": "string",
+                "format": "Hash"
+              },
+              "encryptedPayload": {
+                "type": "string",
+                "format": "bytes"
+              }
+            }
+          }
+        ]
+      },
+			
+			
+			
+			"TestNestedAllOneOf": {
+          "allOf": [
+          {
+            "$ref": "#/components/schemas/VersionedObject"
+          },
+          {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SecurityContext"
+              },
+              {
+                "$ref": "#/components/schemas/SecurityContextMember"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "fundamentalPayloadType"
+            }
+          }
+        ]
+      },
+      
+      "TestNestedOneAllOf": {
+          "oneOf": [
+          {
+            "$ref": "#/components/schemas/VersionedObject"
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SecurityContext"
+              },
+              {
+                "$ref": "#/components/schemas/SecurityContextMember"
+              }
+            ]
+          }
+        ],
+            "discriminator": {
+              "propertyName": "fundamentalPayloadType"
+            }
+      },
+
+			
+			"Pets": {
+				"type": "array",
+				"items": {
+					"$ref": "#/components/schemas/Pet"
+				}
+			},
+			"Error": {
+				"required": [
+					"code",
+					"message"
+				],
+				"properties": {
+					"code": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"message": {
+						"type": "string"
+					}
+				}
+			}
+		}
+	}
+}
