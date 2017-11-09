@@ -8,6 +8,10 @@
   <artifactId>S2-japigen-parser</artifactId>
   
   <dependencies>
+    <dependency>
+      <groupId>org.symphonyoss.s2.common</groupId>
+      <artifactId>S2-common-core</artifactId>
+    </dependency>
     <!-- <dependency>
 	    <groupId>com.networknt</groupId>
 	    <artifactId>json-schema-validator</artifactId>
@@ -17,5 +21,9 @@
        <groupId>com.github.java-json-tools</groupId>
        <artifactId>json-schema-validator</artifactId>
      </dependency>
+    <dependency>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
+    </dependency>
   </dependencies>
 </project>

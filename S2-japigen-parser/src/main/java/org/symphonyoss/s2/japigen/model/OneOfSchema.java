@@ -29,9 +29,9 @@ public class OneOfSchema extends AbstractContainerSchema
 {
   private ParserContext discriminator_;
 
-  public OneOfSchema(Model model, ParserContext context)
+  public OneOfSchema(ModelElement parent, ParserContext context)
   {
-    super(model, context, "OneOf");
+    super(parent, context, "OneOf");
     
     discriminator_ = context.getParent().get("discriminator");
     

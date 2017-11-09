@@ -24,52 +24,72 @@
 package org.symphonyoss.s2.japigen.model;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.s2.japigen.parser.GenerationContext;
+import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public class Model
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+public class Model extends ModelElement
 {
   private static final String COMPONENTS = "components";
-  private static final String SCHEMAS = "schemas";
 
-  private static Logger log_ = LoggerFactory.getLogger(Model.class);
-  
-  private ParserContext parserContext_;
-  private Version openapi_;
-  private Map<String, ObjectOrReferenceSchema> schemaMap_ = new HashMap<>();
+  private static Logger       log_       = LoggerFactory.getLogger(Model.class);
+
+  private Version             openapi_;
+  private Map<String, String> modelMap_ = new HashMap<>();
+    
 
   public Model(ParserContext parserContext)
   {
-    parserContext_ = parserContext;
-    openapi_ = new Version(parserContext.getJsonNode().get("openapi").asText());
+    super(null, parserContext, "Model");
+    
+    
+    openapi_ = new Version(this, parserContext.get("openapi"));
+    add(openapi_);
+    
+    ParserContext japigen = parserContext.get("x-japigen");
+    if(japigen != null)
+    {
       
-    parseComponents(parserContext.get(COMPONENTS));
-  }
-
-  private void parseComponents(ParserContext components)
-  {
-    parseSchemas(components.get(SCHEMAS));
-  }
-
-  private void parseSchemas(ParserContext schemas)
-  {
-    for(ParserContext schema : schemas)
-      parseSchema(schema);
+      
+      JsonNode jsonNode = japigen.getJsonNode();
+      
+      if(jsonNode instanceof ObjectNode)
+      {
+        Iterator<Entry<String, JsonNode>> it = jsonNode.fields();
+        
+        while(it.hasNext())
+        {
+          Entry<String, JsonNode> entry = it.next();
+          
+          modelMap_.put(entry.getKey(), entry.getValue().asText());
+        }
+      }
+    }
+    
+    add(COMPONENTS, new Components(this, parserContext.get(COMPONENTS)));
   }
   
-  private void parseSchema(ParserContext schema)
+  @Override
+  public Model getModel()
   {
-     log_.debug("Found schema \"" + schema.getName() + "\" at " + schema.getPath());
-     
-     Schema objectSchema = Field.createSchema(this, schema);
-     
-     if(objectSchema instanceof ObjectOrReferenceSchema)
-       schemaMap_.put(schema.getPath(), (ObjectOrReferenceSchema) objectSchema);
-     else
-       schema.error("Expected an Object Schema but found " + objectSchema);
+    return this;
   }
 
+  public void generate(GenerationContext generationContext) throws GenerationException
+  {
+    Map<String, Object> dataModel = new HashMap<>();
+    
+    dataModel.putAll(modelMap_);
+    
+    generate(generationContext, dataModel);
+  }
 }

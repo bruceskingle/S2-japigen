@@ -25,14 +25,14 @@ package org.symphonyoss.s2.japigen.model;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public class Field extends Schema
+public class Field extends AbstractSchema
 {
   private final boolean required_;
   private final Type    type_;
   
-  public Field(Model model, ParserContext context, Type type, boolean required)
+  public Field(ModelElement parent, ParserContext context, Type type, boolean required)
   {
-    super(model, context, type.getType() + "Field");
+    super(parent, context, type.getType() + "Field");
     required_ = required;
     type_ = type;
   }
@@ -42,12 +42,12 @@ public class Field extends Schema
     return required_;
   }
 
-  public static Schema create(Model model, ParserContext context, boolean required)
+  public static AbstractSchema create(ModelElement parent, ParserContext context, boolean required)
   {
-    Schema schema = Schema.createSchema(model, context);
+    AbstractSchema schema = AbstractSchema.createSchema(parent, context);
     
     if(schema instanceof Type)
-      return new Field(model, context, (Type)schema, required);
+      return new Field(parent, context, (Type)schema, required);
     
     return schema;
   }
@@ -55,6 +55,6 @@ public class Field extends Schema
   @Override
   public String toString()
   {
-    return type_.toString(new ValueMap<String, Object>().insert("required", required_, null));
+    return toString(new ValueMap<String, Object>().insert("required", required_, null));
   }
 }

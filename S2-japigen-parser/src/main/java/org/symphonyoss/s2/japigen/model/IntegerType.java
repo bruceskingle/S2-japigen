@@ -32,9 +32,9 @@ public class IntegerType extends Type
   private final long minimum_;
   private final long maximum_;
   
-  public IntegerType(Model model, ParserContext context)
+  public IntegerType(ModelElement parent, ParserContext context)
   {
-    super(model, context, "Integer");
+    super(parent, context, "Integer");
     
     
     switch(getFormat())
@@ -61,7 +61,7 @@ public class IntegerType extends Type
     }
     
     minimum_ = context.getLongNode("minimum", defaultMinimum_);
-    maximum_ = context.getLongNode("minimum", defaultMaximum_);
+    maximum_ = context.getLongNode("maximum", defaultMaximum_);
   }
 
   public long getMinimum()

@@ -32,9 +32,9 @@ public class DoubleType extends Type
   private final double minimum_;
   private final double maximum_;
   
-  public DoubleType(Model model, ParserContext context)
+  public DoubleType(ModelElement parent, ParserContext context)
   {
-    super(model, context, "Double");
+    super(parent, context, "Double");
     
     
     switch(getFormat())

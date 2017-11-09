@@ -29,18 +29,23 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.model.Model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
 public class Parser
 {
+  private static Logger log_ = LoggerFactory.getLogger(Parser.class);
+
   private JsonSchema  schema_;
   
   public Parser() throws JsonProcessingException, ProcessingException, IOException
@@ -48,24 +53,32 @@ public class Parser
     schema_ = getJsonSchemaFromClasspath("openapiv3.schema.json");
   }
 
-  public Model parse(RootParserContext parserContext) throws IOException, ProcessingException
+  public Model parse(RootParserContext rootParserContext) throws IOException, ProcessingException
   {
-    parserContext.info("Parsing %s...", parserContext.getInputSource());
+    rootParserContext.prologue();
     ObjectMapper mapper = new ObjectMapper();
-    JsonNode rootNode = mapper.readTree(parserContext.getInputStream());
+    JsonNode rootNode = mapper.readTree(rootParserContext.getInputStream());
     
     ProcessingReport report = schema_.validate(rootNode);
     
     if(report.isSuccess())
     {
-      System.out.println("That seems OK");
-      System.out.println(report);
+      log_.info("Schema validation passed.");
     }
     else
     {
-      System.err.println(report);
+      rootParserContext.error("Schema validation FAILED:");
+      log_.error(report.toString());
+//      for(ProcessingMessage messge : report)
+//      {
+//        log_.error(messge.getMessage());
+//        log_.error(messge.asJson().toString());
+//      }
     }
-    Model model = new Model(new ParserContext(rootNode));
+    
+    Model model = new Model(new ParserContext(rootParserContext, rootNode));
+    
+    rootParserContext.epilogue("Parsing");
     
     return model;
   }

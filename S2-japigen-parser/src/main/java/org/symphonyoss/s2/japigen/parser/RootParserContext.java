@@ -24,39 +24,53 @@
 package org.symphonyoss.s2.japigen.parser;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.symphonyoss.s2.common.fault.CodingFault;
+import org.symphonyoss.s2.common.fault.ProgramFault;
+import org.symphonyoss.s2.japigen.model.Model;
 
-public class RootParserContext extends ParserContext
+public class RootParserContext// extends ParserContext
 {
-  private final File inputFile_;
-  private JsonNode rootJsonNode_;
-  private InputStream inputStream_;
+  private static Logger log_ = LoggerFactory.getLogger(RootParserContext.class);
 
-  public RootParserContext(File inputFile, InputStream inputStream)
-  {
-    super(null);
-    
-    inputFile_ = inputFile;
-    inputStream_ = inputStream;
-  }
+  private final String          inputSource_;
+  private InputStream           inputStream_;
+  private int                   errorCnt_;
+  private URL                   url_;
+  private ModelSetParserContext modelSetParserContext_;
 
-  public void setRootJsonNode(JsonNode rootJsonNode)
+  public RootParserContext(ModelSetParserContext modelSetParserContext, URL url) throws IOException
   {
-    rootJsonNode_ = rootJsonNode;
+    modelSetParserContext_ = modelSetParserContext;
+    url_ = url;
+    inputStream_ = url.openStream();
+    inputSource_ = url.toString();
   }
   
-  @Override
-  public RootParserContext getRootParserContext()
+  public RootParserContext(File inputFile, InputStream inputStream)
   {
-    return this;
+    inputStream_ = inputStream;
+    inputSource_ = inputFile.getAbsolutePath();
+    try
+    {
+      url_ = inputFile.toURI().toURL();
+    }
+    catch (MalformedURLException e)
+    {
+      throw new CodingFault(e);
+    }
   }
-
-  @Override
-  public JsonNode getJsonNode()
+  
+  public URL getUrl()
   {
-    return rootJsonNode_;
+    return url_;
   }
 
   public InputStream getInputStream()
@@ -66,6 +80,58 @@ public class RootParserContext extends ParserContext
 
   public String getInputSource()
   {
-    return inputFile_.getAbsolutePath();
+    return inputSource_;
+  }
+  
+  public void error(String format, Object ...args)
+  {
+    log_.error(format, args);
+    errorCnt_++;
+  }
+  
+  public void epilogue(String action)
+  {
+    if(errorCnt_ == 0)
+      log_.info("{} of {} completed OK.", action, getInputSource());
+    else
+      log_.error("{} of {} completed with {} errors.", action, getInputSource(), errorCnt_);
+  }
+  
+  public void prologue()
+  {
+    log_.info("Parsing {}...", getInputSource());
+  }
+
+  public void addReferencedModel(URI uri, ParserContext context)
+  {
+    try
+    {
+      URL url = uri.isAbsolute()
+        ? uri.toURL()
+        : new URL(url_, uri.toString());
+        
+        modelSetParserContext_.addReferencedModel(url);
+    }
+    catch (IOException e)
+    {
+      context.error("Invalid URI \"%s\" (%s)", uri, e.getMessage());
+    }
+  }
+  
+  public Model getModel(URI uri)
+  {
+    
+    try
+    {
+      URL url = uri.isAbsolute()
+        ? uri.toURL()
+        : new URL(url_, uri.toString());
+        
+        return modelSetParserContext_.getModel(url);
+    }
+    catch (MalformedURLException e)
+    {
+      throw new ProgramFault(e);
+    }
   }
 }

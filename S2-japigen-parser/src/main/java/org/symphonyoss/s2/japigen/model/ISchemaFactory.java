@@ -28,5 +28,5 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
 @FunctionalInterface
 public interface ISchemaFactory
 {
-  Schema create(Model model, ParserContext context, ParserContext node);
+  AbstractSchema create(ModelElement parent, ParserContext context, ParserContext node);
 }

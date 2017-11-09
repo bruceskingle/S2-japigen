@@ -41,10 +41,10 @@ public class ParserContext implements Iterable<ParserContext>
   private final JsonNode          jsonNode_;
   private final String            name_;
 
-  protected ParserContext(JsonNode rootNode)
+  /* package */ ParserContext(RootParserContext rootParserContext, JsonNode rootNode)
   {
     parent_ = this;
-    rootParserContext_ = null; // Actually "this", but RootParserContext overrides getRootParserContext()
+    rootParserContext_ = rootParserContext;
     path_ = "#";
     jsonNode_ = rootNode;
     name_ = "/";
@@ -67,7 +67,9 @@ public class ParserContext implements Iterable<ParserContext>
   public ParserContext get(String name)
   {
     if(jsonNode_.get(name) == null)
+    {
       return null;
+    }
     
     return new ParserContext(this, name, jsonNode_.get(name));
   }
@@ -142,7 +144,7 @@ public class ParserContext implements Iterable<ParserContext>
 
   public void error(String format, Object ...args)
   {
-    log_.error(String.format("ERROR: %s%nat %s", String.format(format, args), path_));
+    rootParserContext_.error(String.format("ERROR: %s%nat %s", String.format(format, args), path_));
   }
   
   public void info(String format, Object ...args)
@@ -195,5 +197,21 @@ public class ParserContext implements Iterable<ParserContext>
     }
     
     return defaultValue;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "ParserContext(" + jsonNode_ + ")";
+  }
+
+  public String getText(String name)
+  {
+    JsonNode jsonNode = getJsonNode().get(name);
+    
+    if(jsonNode == null)
+      return null;
+    
+    return jsonNode.asText();
   }
 }

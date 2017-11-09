@@ -25,8 +25,9 @@ package org.symphonyoss.s2.japigen.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public class Version
+public class Version extends ModelElement
 {
   Logger log_ = LoggerFactory.getLogger(Version.class);
   
@@ -34,9 +35,11 @@ public class Version
   private int minor_ = 0;
   private int patch_ = 0;
   
-  public Version(String s)
+  public Version(Model parent, ParserContext parserContext)
   {
-    String[] parts = s.split("\\.");
+    super(parent, parserContext, "Version");
+
+    String[] parts = parserContext.getJsonNode().asText().split("\\.");
     
     if(parts.length == 3)
     {

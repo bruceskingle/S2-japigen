@@ -31,13 +31,13 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
  * @author Bruce Skingle
  *
  */
-public class ArraySchema extends ObjectOrReferenceSchema
+public class ArraySchema extends Schema
 {
-  private final Schema items_;
+  private final AbstractSchema items_;
   
-  public ArraySchema(Model model, ParserContext context)
+  public ArraySchema(ModelElement parent, ParserContext context)
   {
-    super(model, context, "Array");
+    super(parent, context, "Array");
 
     ParserContext items = context.get("items");
     if(items==null)
@@ -47,12 +47,12 @@ public class ArraySchema extends ObjectOrReferenceSchema
     }
     else
     {
-      items_ = Schema.createSchema(model, items);
+      items_ = AbstractSchema.createSchema(parent, items);
         
     }
   }
 
-  public Schema getItems()
+  public AbstractSchema getItems()
   {
     return items_;
   }

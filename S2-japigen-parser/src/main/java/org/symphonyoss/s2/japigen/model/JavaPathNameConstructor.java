@@ -23,14 +23,30 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import org.symphonyoss.s2.japigen.parser.ParserContext;
+import java.io.File;
+import java.util.Map;
 
-public class AllOfSchema extends AbstractContainerSchema
+public class JavaPathNameConstructor extends PathNameConstructor
 {
-  private ParserContext discriminator_;
+  private String packageVar_;
 
-  public AllOfSchema(ModelElement parent, ParserContext context)
+  public JavaPathNameConstructor(String packageVar)
   {
-    super(parent, context, "AllOf");
+    packageVar_ = packageVar;
+  }
+
+  @Override
+  public String constructFile(Map<String, Object> dataModel, String language, String templateName,
+      ModelElement modelElement)
+  {
+    return constructFile(language, convertPath(dataModel.get(packageVar_)), templateName, modelElement.getCamelCapitalizedName());
+  }
+
+  private Object convertPath(Object object)
+  {
+    if(object == null)
+      return null;
+    
+    return object.toString().replaceAll("\\.", File.separator);
   }
 }

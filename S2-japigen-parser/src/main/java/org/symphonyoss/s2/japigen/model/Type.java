@@ -25,13 +25,13 @@ package org.symphonyoss.s2.japigen.model;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public class Type extends ObjectOrReferenceSchema
+public class Type extends Schema
 {
   private final String  format_;
   
-  public Type(Model model, ParserContext context, String type)
+  public Type(ModelElement parent, ParserContext context, String type)
   {
-    super(model, context, type);
+    super(parent, context, type);
     format_ = context.getTextNode("format");
   }
 
@@ -40,27 +40,27 @@ public class Type extends ObjectOrReferenceSchema
     return format_;
   }
 
-  public static Schema create(Model model, ParserContext context, ParserContext node)
+  public static AbstractSchema create(ModelElement parent, ParserContext context, ParserContext node)
   {
     switch(node.getJsonNode().asText())
     {
       case "object":
-        return new ObjectSchema(model, context);
+        return new ObjectSchema(parent, context);
         
       case "array":
-        return new ArraySchema(model, context);
+        return new ArraySchema(parent, context);
         
       case "integer":
-        return new IntegerType(model, context);
+        return new IntegerType(parent, context);
         
       case "number":
-        return new DoubleType(model, context);
+        return new DoubleType(parent, context);
         
       case "string":
-        return new StringType(model, context);
+        return new StringType(parent, context);
         
       case "boolean":
-        return new BooleanType(model, context);
+        return new BooleanType(parent, context);
         
       default:
         context.error("Type \"%s\" is of unknown type \"%s\"", context.getName(), node.getJsonNode().asText());

@@ -28,9 +28,9 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
 public class StringType extends Type
 {
 
-  public StringType(Model model, ParserContext context)
+  public StringType(ModelElement parent, ParserContext context)
   {
-    super(model, context, "String");
+    super(parent, context, "String");
   }
 
 }

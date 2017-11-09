@@ -23,14 +23,10 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import org.symphonyoss.s2.japigen.parser.ParserContext;
+import java.util.Map;
 
-public class ObjectOrReferenceSchema extends Schema
+@FunctionalInterface
+public interface IPathNameConstructor
 {
-
-  public ObjectOrReferenceSchema(Model model, ParserContext context, String type)
-  {
-    super(model, context, type);
-  }
-
+  String  constructFile(Map<String, Object> dataModel, String language, String templateName, ModelElement modelElement);
 }

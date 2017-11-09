@@ -25,12 +25,12 @@ package org.symphonyoss.s2.japigen.model;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public class AllOfSchema extends AbstractContainerSchema
+public class ReferenceOrSchema extends AbstractSchema
 {
-  private ParserContext discriminator_;
 
-  public AllOfSchema(ModelElement parent, ParserContext context)
+  public ReferenceOrSchema(ModelElement parent, ParserContext context, String type)
   {
-    super(parent, context, "AllOf");
+    super(parent, context, type);
   }
+
 }

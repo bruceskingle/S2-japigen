@@ -23,39 +23,29 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public abstract class AbstractContainerSchema extends ObjectOrReferenceSchema
+public abstract class AbstractContainerSchema extends Schema
 {
-  private List<ObjectOrReferenceSchema> children_ = new ArrayList<>();
-    
-  public AbstractContainerSchema(Model model, ParserContext context, String type)
+  public AbstractContainerSchema(ModelElement parent, ParserContext context, String type)
   {
-    super(model, context, type);
+    super(parent, context, type);
     
     for(ParserContext child : context)
     {
-      Schema childSchema = createSchema(child);
+      AbstractSchema childSchema = createSchema(child);
       
-      if(childSchema instanceof ObjectOrReferenceSchema)
-        children_.add((ObjectOrReferenceSchema) childSchema);
+      if(childSchema instanceof ReferenceOrSchema)
+        add((ReferenceOrSchema) childSchema);
       else
-        child.error("Expected an Object Schema, but found " + childSchema);
+        child.error("Expected an ObjectOrReferenceSchema, but found " + childSchema);
         
     }
-  }
-
-  public List<ObjectOrReferenceSchema> getChildren()
-  {
-    return children_;
   }
   
   @Override
   public String toString()
   {
-    return super.toString(children_);
+    return super.toString(getChildren());
   }
 }

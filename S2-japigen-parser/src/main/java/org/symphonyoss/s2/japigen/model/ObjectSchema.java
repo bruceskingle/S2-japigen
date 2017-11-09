@@ -23,9 +23,7 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
@@ -36,14 +34,13 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
  * @author Bruce Skingle
  *
  */
-public class ObjectSchema extends ObjectOrReferenceSchema
+public class ObjectSchema extends Schema
 {
   private Set<String>  requiredButUndefinedSet_ = new HashSet<>();
-  private List<Schema> children_               = new ArrayList<>();
-  
-  public ObjectSchema(Model model, ParserContext context)
+    
+  public ObjectSchema(ModelElement parent, ParserContext context)
   {
-    super(model, context, "Object");
+    super(parent, context, "Object");
     
     ParserContext requiredFields = context.get("required");
     if(requiredFields != null)
@@ -70,10 +67,10 @@ public class ObjectSchema extends ObjectOrReferenceSchema
       {
         String fieldName = child.getName();
         boolean required = requiredButUndefinedSet_.remove(fieldName);
-        Schema field = Field.create(model, child, required);
+        AbstractSchema field = Field.create(parent, child, required);
         
         if(field != null)
-          children_.add(field);
+          add(field);
       }
     }
     

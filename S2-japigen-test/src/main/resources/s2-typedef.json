@@ -1,0 +1,51 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.0.1",
+    "title": "Symphony 2.0 Typedefs",
+    "license": {
+      "name": "Apache2"
+    }
+  },
+  "x-japigen": {
+    "javaGenPackage":  "com.symphony.s2.common.types.japigen",
+    "javaFacadePackage":  "com.symphony.s2.common.types.japigen.facade"
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Instant": {
+        "description": "A nanosecond resolution timestamp, compatible with the Java8 definition of Instant.",
+        "type": "object",
+        "required": [
+          "secs"
+        ],
+        "properties": {
+          "secs": {
+            "description": "Seconds measured from the standard Java epoch of 1970-01-01T00:00:00Z where instants after the epoch have positive values, and earlier instants have negative values.",
+            "type": "integer",
+            "format": "int64"
+          },
+          "nanos": {
+            "description": "Nanosecond-of-second, which will always be between 0 and 999,999,999",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 999999999
+          }
+        }
+      },
+      "HashType": {
+        "description": "A Hash type ID.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2
+      },
+      "Hash": {
+        "description": "A Hash value, encoded as Base64.",
+        "type": "string",
+        "format": "bytes"
+      }
+    }
+  }
+}

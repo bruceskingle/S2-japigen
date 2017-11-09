@@ -23,14 +23,38 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public class AllOfSchema extends AbstractContainerSchema
+public class Schemas extends ModelElement
 {
-  private ParserContext discriminator_;
+  private static Logger log_ = LoggerFactory.getLogger(Schemas.class);
+  
+  private Map<String, ReferenceOrSchema> schemaMap_ = new HashMap<>();
 
-  public AllOfSchema(ModelElement parent, ParserContext context)
+  
+  public Schemas(Components parent, ParserContext parserContext)
   {
-    super(parent, context, "AllOf");
+    super(parent, parserContext, "Schemas");
+    
+    for(ParserContext schema : parserContext)
+    {
+      log_.debug("Found schema \"" + schema.getName() + "\" at " + schema.getPath());
+      
+      AbstractSchema objectSchema = Field.createSchema(this, schema);
+      
+      if(objectSchema instanceof ReferenceOrSchema)
+      {
+        schemaMap_.put(schema.getPath(), (ReferenceOrSchema) objectSchema);
+        add(schema.getName(), objectSchema);
+      }
+      else
+        schema.error("Expected an Object Schema but found " + objectSchema);
+    }
   }
+
 }

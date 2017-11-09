@@ -21,16 +21,10 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.model;
+package org.symphonyoss.s2.japigen;
 
-import org.symphonyoss.s2.japigen.parser.ParserContext;
-
-public class AllOfSchema extends AbstractContainerSchema
+public class JAPIGEN
 {
-  private ParserContext discriminator_;
-
-  public AllOfSchema(ModelElement parent, ParserContext context)
-  {
-    super(parent, context, "AllOf");
-  }
+  public static final String JAVA_GEN_PACKAGE = "javaGenPackage";
+  public static final String JAVA_FACADE_PACKAGE = "javaFacadePackage";
 }

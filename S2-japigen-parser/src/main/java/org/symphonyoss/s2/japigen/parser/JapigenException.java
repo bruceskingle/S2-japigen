@@ -21,16 +21,40 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.model;
+package org.symphonyoss.s2.japigen.parser;
 
-import org.symphonyoss.s2.japigen.parser.ParserContext;
-
-public class AllOfSchema extends AbstractContainerSchema
+/**
+ * A generic japigen Exception.
+ * 
+ * @author Bruce Skingle
+ *
+ */
+public class JapigenException extends Exception
 {
-  private ParserContext discriminator_;
+  private static final long serialVersionUID = 1L;
 
-  public AllOfSchema(ModelElement parent, ParserContext context)
+  public JapigenException()
   {
-    super(parent, context, "AllOf");
   }
+
+  public JapigenException(String message)
+  {
+    super(message);
+  }
+
+  public JapigenException(Throwable cause)
+  {
+    super(cause);
+  }
+
+  public JapigenException(String message, Throwable cause)
+  {
+    super(message, cause);
+  }
+
+  public JapigenException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+  {
+    super(message, cause, enableSuppression, writableStackTrace);
+  }
+
 }
