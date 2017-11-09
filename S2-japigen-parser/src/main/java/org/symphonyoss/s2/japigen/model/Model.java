@@ -23,6 +23,8 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,6 +32,7 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
@@ -45,7 +48,9 @@ public class Model extends ModelElement
 
   private Version             openapi_;
   private Map<String, String> modelMap_ = new HashMap<>();
-    
+  private SimpleDateFormat    yearFormat_ = new SimpleDateFormat("yyyy");
+  private SimpleDateFormat    yearMonthFormat_ = new SimpleDateFormat("yyyy-MM");
+  private SimpleDateFormat    dateFormat_ = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
 
   public Model(ParserContext parserContext)
   {
@@ -74,6 +79,12 @@ public class Model extends ModelElement
         }
       }
     }
+    
+    Date now = new Date();
+    
+    modelMap_.put(JAPIGEN.YEAR, yearFormat_.format(now));
+    modelMap_.put(JAPIGEN.YEAR_MONTH, yearMonthFormat_.format(now));
+    modelMap_.put(JAPIGEN.DATE, dateFormat_.format(now));
     
     add(COMPONENTS, new Components(this, parserContext.get(COMPONENTS)));
   }

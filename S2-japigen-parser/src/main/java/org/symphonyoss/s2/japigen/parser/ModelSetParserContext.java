@@ -29,19 +29,9 @@ import java.net.URL;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Map;
 
-import org.symphonyoss.s2.common.fault.TransactionFault;
 import org.symphonyoss.s2.japigen.model.Model;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-
-import freemarker.cache.FileTemplateLoader;
-import freemarker.cache.TemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.Version;
 
 public class ModelSetParserContext
 {
@@ -52,16 +42,23 @@ public class ModelSetParserContext
   private Deque<Model>                generateQueue_      = new LinkedList<>();
   private Map<URL, Model>             modelMap_           = new HashMap<>();
     
-  public void addGenerationSource(File file) throws IOException
+  public void addGenerationSource(File file) throws ParsingException
   {
-    URL url = file.toURI().toURL();
-    
-    RootParserContext context = new RootParserContext(this, url);
-    generationContexts_.put(url, context);
-    parseQueue_.add(context);
+    try
+    {
+      URL url = file.toURI().toURL();
+      
+      RootParserContext context = new RootParserContext(this, url);
+      generationContexts_.put(url, context);
+      parseQueue_.add(context);
+    }
+    catch(IOException e)
+    {
+      throw new ParsingException(e);
+    }
   }
   
-  public void parse() throws JsonProcessingException, ProcessingException, IOException
+  public void parse() throws ParsingException
   {
     Parser parser = new Parser();
     RootParserContext context;
@@ -83,7 +80,7 @@ public class ModelSetParserContext
     }
   }
 
-  public void addReferencedModel(URL url) throws IOException
+  public void addReferencedModel(URL url) throws ParsingException
   {
     if(!referencedContexts_.containsKey(url))
     {

@@ -29,13 +29,14 @@ import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.JapigenException;
 import org.symphonyoss.s2.japigen.parser.ModelSetParserContext;
 
-public class TestParser
+public class S2Parser
 {
   public static void main(String[] argv) throws JapigenException
   {
     ModelSetParserContext modelSetContext = new ModelSetParserContext();
     
-    modelSetContext.addGenerationSource(new File("src/main/Resources/test/oneOfEverything.json"));
+    modelSetContext.addGenerationSource(new File("src/main/Resources/s2-typedef.json"));
+    //modelSetContext.addGenerationSource(new File("src/main/Resources/s2.json"));
     
     modelSetContext.parse();
     
@@ -44,5 +45,14 @@ public class TestParser
     generationContext.addProformaTemplateDirectory(new File("../S2-japigen-template-java/src/main/resources/japigen/proforma"));
     
     modelSetContext.generate(generationContext);
+    
+//    Parser parser = new Parser();
+//    Model  s2TypedefModel  = parser.parse("src/main/Resources/s2-typedef.json");
+//    
+//    Model  s2Model  = parser.parse("src/main/Resources/s2.json");
+//    
+//    Model  petModel  = parser.parse("src/main/Resources/petStore.json");
+//    
+//    Model  testModel  = parser.parse("src/main/Resources/testCases.json");
   }
 }

@@ -46,12 +46,19 @@ public class RootParserContext// extends ParserContext
   private URL                   url_;
   private ModelSetParserContext modelSetParserContext_;
 
-  public RootParserContext(ModelSetParserContext modelSetParserContext, URL url) throws IOException
+  public RootParserContext(ModelSetParserContext modelSetParserContext, URL url) throws ParsingException
   {
-    modelSetParserContext_ = modelSetParserContext;
-    url_ = url;
-    inputStream_ = url.openStream();
-    inputSource_ = url.toString();
+    try
+    {
+      modelSetParserContext_ = modelSetParserContext;
+      url_ = url;
+      inputStream_ = url.openStream();
+      inputSource_ = url.toString();
+    }
+    catch(IOException e)
+    {
+      throw new ParsingException(e);
+    }
   }
   
   public RootParserContext(File inputFile, InputStream inputStream)
@@ -102,7 +109,7 @@ public class RootParserContext// extends ParserContext
     log_.info("Parsing {}...", getInputSource());
   }
 
-  public void addReferencedModel(URI uri, ParserContext context)
+  public void addReferencedModel(URI uri, ParserContext context) throws ParsingException
   {
     try
     {

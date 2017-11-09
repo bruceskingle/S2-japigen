@@ -39,19 +39,26 @@ public class GenerationContext
   private MultiDirTemplateLoader templateLoader_         = new MultiDirTemplateLoader();
   private MultiDirTemplateLoader proformaTemplateLoader_ = new MultiDirTemplateLoader();
   private File                   targetDir_;
+  private File                   proformaDir_;
   private File                   copyDir_;
   private Set<String>            languages_              = new HashSet<>();
   private Configuration          config_;
-  private Configuration proformaConfig_;
+  private Configuration          proformaConfig_;
 
-  public GenerationContext(String targetDirName, String copyDirName) throws GenerationException
+  public GenerationContext(String targetDirName, String proformaDirName, String copyDirName) throws GenerationException
   {
-    this(new File(targetDirName), copyDirName == null ? null : new File(copyDirName));
+    this(new File(targetDirName), proformaDirName == null ? new File(targetDirName) : new File(proformaDirName),
+        copyDirName == null ? null : new File(copyDirName));
   }
   
-  public GenerationContext(File targetDir, File copyDir) throws GenerationException
+  public GenerationContext(File targetDir, File proformaDir, File copyDir) throws GenerationException
   {
     validateDir(targetDir);
+    
+    if(proformaDir != null)
+    {
+      validateDir(proformaDir);
+    }
     
     if(copyDir != null)
     {
@@ -59,6 +66,7 @@ public class GenerationContext
     }
     
     targetDir_ = targetDir;
+    proformaDir_ = proformaDir;
     copyDir_ = copyDir;
     
     config_ = new Configuration(new Version(2, 3, 25));
@@ -179,6 +187,11 @@ public class GenerationContext
   public File getTargetDir()
   {
     return targetDir_;
+  }
+
+  public File getProformaDir()
+  {
+    return proformaDir_;
   }
 
   public File getCopyDir()

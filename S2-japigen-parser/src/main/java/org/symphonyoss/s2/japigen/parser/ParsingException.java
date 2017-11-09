@@ -1,5 +1,5 @@
-/**
- * GENERATED CODE - DO NOT EDIT OR CHECK IN TO SOURCE CODE CONTROL
+/*
+ *
  *
  * Copyright 2017 Symphony Communication Services, LLC.
  *
@@ -19,44 +19,36 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
- * Generated from
- *		Template groupId		 org.symphonyoss.s2.japigen
- *           artifactId S2-japigen-template-java
- *		Template dir			   Integer
- *		Template file		   _ModelObject.java.ftl
- *		Template version	   1.0
  */
 
-package ${javaGenPackage};
+package org.symphonyoss.s2.japigen.parser;
 
-<#switch model.format>
- <#case "int32">
-  <#assign javaType="Integer">
-  <#break>
-  
- <#default>
-  <#assign javaType="Long">
-</#switch>  
-
-
-<#if model.description??>
-/*
-  ${model.description}
-*/
-</#if>
-@SuppressWarnings("unused")
-public class ${model.camelCapitalizedName}ModelObject
+public class ParsingException extends JapigenException
 {
-	private ${javaType} value_;
-	
-	public ${model.camelCapitalizedName}ModelObject(${javaType} value)
+  private static final long serialVersionUID = 1L;
+
+  public ParsingException()
   {
-    value_ = value;
   }
-  
-  public ${javaType} getValue()
+
+  public ParsingException(String message)
   {
-    return value_;
+    super(message);
   }
+
+  public ParsingException(Throwable cause)
+  {
+    super(cause);
+  }
+
+  public ParsingException(String message, Throwable cause)
+  {
+    super(message, cause);
+  }
+
+  public ParsingException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+  {
+    super(message, cause, enableSuppression, writableStackTrace);
+  }
+
 }

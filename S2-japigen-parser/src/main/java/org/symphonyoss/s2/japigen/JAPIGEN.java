@@ -25,6 +25,14 @@ package org.symphonyoss.s2.japigen;
 
 public class JAPIGEN
 {
+  /* Root property names in the template data model */
+  
+  public static final String MODEL = "model";
+  
   public static final String JAVA_GEN_PACKAGE = "javaGenPackage";
   public static final String JAVA_FACADE_PACKAGE = "javaFacadePackage";
+  
+  public static final String YEAR = "year";
+  public static final String YEAR_MONTH = "yearMonth";
+  public static final String DATE = "date";
 }

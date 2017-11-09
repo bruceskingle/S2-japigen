@@ -237,14 +237,14 @@ public class ModelElement
       
       if(!templates.isEmpty())
       {
-        generate(generationContext, dataModel, templates, language, templatePathBuilderMap_, generationContext.getFreemarkerConfig());
+        generate(generationContext, dataModel, templates, language, templatePathBuilderMap_, generationContext.getFreemarkerConfig(), generationContext.getTargetDir(), null);
       }
       
       templates = generationContext.getProformaTemplatesFor(language, getType());
       
       if(!templates.isEmpty())
       {
-        generate(generationContext, dataModel, templates, language, proformaPathBuilderMap_, generationContext.getProformaConfig());
+        generate(generationContext, dataModel, templates, language, proformaPathBuilderMap_, generationContext.getProformaConfig(), generationContext.getProformaDir(), generationContext.getCopyDir());
       }
     }
     
@@ -252,7 +252,8 @@ public class ModelElement
   }
   
   private void generate(GenerationContext generationContext, Map<String, Object> dataModel, Set<String> templates,
-      String language, Map<String, IPathNameConstructor> pathBuilderMap, Configuration freemarkerConfig) throws GenerationException
+      String language, Map<String, IPathNameConstructor> pathBuilderMap, Configuration freemarkerConfig,
+      File targetDir, File copyDir) throws GenerationException
   {
     IPathNameConstructor pathBuilder = pathBuilderMap.get(language);
     
@@ -280,7 +281,7 @@ public class ModelElement
           
           Template template = freemarkerConfig.getTemplate(templateName);
           
-          generate(generationContext, template, className, dataModel);
+          generate(generationContext, template, className, dataModel, targetDir, copyDir);
 
         } catch (IOException e)
         {
@@ -292,9 +293,10 @@ public class ModelElement
   }
 
   private void generate(GenerationContext generationContext, Template template,
-      String className, Map<String, Object> dataModel) throws GenerationException
+      String className, Map<String, Object> dataModel,
+      File targetDir, File copyDir) throws GenerationException
   {
-    File genPath = new File(generationContext.getTargetDir(), className);
+    File genPath = new File(targetDir, className);
     
     genPath.getParentFile().mkdirs();
     
@@ -311,17 +313,17 @@ public class ModelElement
       throw new GenerationException(e);
     }
     
-    File copyDir = generationContext.getCopyDir();
     if(copyDir != null)
     {
       File copyPath = new File(copyDir, className);
     
       if(copyPath.exists())
       {
-        log_.info("Proforma " + genPath + " exists, not copying");
+        log_.info("Proforma " + copyPath + " exists, not copying");
       }
       else
       {
+        copyPath.getParentFile().mkdirs();
         try
         {
           Files.copy(genPath, copyPath);

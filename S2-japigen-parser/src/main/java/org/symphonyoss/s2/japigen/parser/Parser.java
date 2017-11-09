@@ -25,7 +25,6 @@ package org.symphonyoss.s2.japigen.parser;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -33,11 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.model.Model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
@@ -48,71 +45,73 @@ public class Parser
 
   private JsonSchema  schema_;
   
-  public Parser() throws JsonProcessingException, ProcessingException, IOException
+  public Parser() throws ParsingException
   {
     schema_ = getJsonSchemaFromClasspath("openapiv3.schema.json");
   }
 
-  public Model parse(RootParserContext rootParserContext) throws IOException, ProcessingException
+  public Model parse(RootParserContext rootParserContext) throws ParsingException
   {
-    rootParserContext.prologue();
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode rootNode = mapper.readTree(rootParserContext.getInputStream());
-    
-    ProcessingReport report = schema_.validate(rootNode);
-    
-    if(report.isSuccess())
+    try
     {
-      log_.info("Schema validation passed.");
+      rootParserContext.prologue();
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode rootNode = mapper.readTree(rootParserContext.getInputStream());
+      
+      ProcessingReport report = schema_.validate(rootNode);
+      
+      if(report.isSuccess())
+      {
+        log_.info("Schema validation passed.");
+      }
+      else
+      {
+        rootParserContext.error("Schema validation FAILED:");
+        log_.error(report.toString());
+  //      for(ProcessingMessage messge : report)
+  //      {
+  //        log_.error(messge.getMessage());
+  //        log_.error(messge.asJson().toString());
+  //      }
+      }
+      
+      Model model = new Model(new ParserContext(rootParserContext, rootNode));
+      
+      rootParserContext.epilogue("Parsing");
+      
+      return model;
     }
-    else
+    catch(ProcessingException | IOException e)
     {
-      rootParserContext.error("Schema validation FAILED:");
-      log_.error(report.toString());
-//      for(ProcessingMessage messge : report)
-//      {
-//        log_.error(messge.getMessage());
-//        log_.error(messge.asJson().toString());
-//      }
+      throw new ParsingException(e);
     }
-    
-    Model model = new Model(new ParserContext(rootParserContext, rootNode));
-    
-    rootParserContext.epilogue("Parsing");
-    
-    return model;
   }
   
-  public JsonSchema getJsonSchemaFromClasspath(String name) throws ProcessingException, JsonProcessingException, IOException
+  public JsonSchema getJsonSchemaFromClasspath(String name) throws ParsingException
   {
     JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
     InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
-    
-//    try
-//    {
-//      byte[] buf = new byte[1024];
-//      int nbytes;
-//      while((nbytes = is.read(buf))>0)
-//        System.err.write(buf, 0, nbytes);
-//    }
-//    catch(IOException e)
-//    {
-//      e.printStackTrace();
-//    }
-    
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode jsonNode = mapper.readTree(is);
 
-      
-    return factory.getJsonSchema(jsonNode);
+    try
+    {
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode jsonNode = mapper.readTree(is);
+  
+        
+      return factory.getJsonSchema(jsonNode);
+    }
+    catch (IOException | ProcessingException e)
+    {
+      throw new ParsingException(e);
+    }
   }
 
-  public Model parse(String fileName) throws FileNotFoundException, IOException, ProcessingException
+  public Model parse(String fileName) throws ParsingException
   {
     return parse(new File(fileName));
   }
 
-  public Model parse(File file) throws FileNotFoundException, IOException, ProcessingException
+  public Model parse(File file) throws ParsingException
   {
     
     
@@ -121,6 +120,10 @@ public class Parser
       RootParserContext parserContext = new RootParserContext(file, in);
       
       return parse(parserContext);
+    }
+    catch (IOException e)
+    {
+      throw new ParsingException(e);
     }
   }
 }

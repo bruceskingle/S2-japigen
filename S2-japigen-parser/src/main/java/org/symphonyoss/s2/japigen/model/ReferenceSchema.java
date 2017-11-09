@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.ParsingException;
 
 /**
  * A schema defined as
@@ -84,7 +85,7 @@ public class ReferenceSchema extends ReferenceOrSchema
         context.getRootParserContext().addReferencedModel(baseUri_, context);
       }
     }
-    catch (URISyntaxException e)
+    catch (URISyntaxException | ParsingException e)
     {
       context.error("Invalid URI \"%s\"", node.getJsonNode().asText());
     }

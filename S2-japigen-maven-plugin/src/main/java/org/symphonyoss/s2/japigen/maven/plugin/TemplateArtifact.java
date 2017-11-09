@@ -23,20 +23,20 @@
 
 package org.symphonyoss.s2.japigen.maven.plugin;
 
-import org.apache.maven.plugins.annotations.Parameter;
+//import org.apache.maven.plugins.annotations.Parameter;
 
 public class TemplateArtifact
 {
-  @Parameter(property="groupId")
+//  @Parameter(property="groupId")
   private String  groupId = "TEMPLATE ARTIFACT GROUP ID MUST BE DEFINED";
   
-  @Parameter(property="artifactId")
+//  @Parameter(property="artifactId")
   private String  artifactId  = "TEMPLATE ARTIFACT ID MUST BE DEFINED";
   
-  @Parameter(property="version")
+//  @Parameter(property="version")
   private String  version = "TEMPLATE ARTIFACT VERSION MUST BE DEFINED";
   
-  @Parameter(property="prefix")
+//  @Parameter(property="prefix")
   private String  prefix = "japigen";
   
   public String getGroupId()

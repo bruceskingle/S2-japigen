@@ -1,0 +1,73 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.0.1",
+    "title": "Japigen Test Types",
+    "license": {
+      "name": "Apache2"
+    }
+  },
+  "x-japigen": {
+    "javaGenPackage":  "com.symphony.s2.japigen.test.oneofeverything",
+    "javaFacadePackage":  "com.symphony.s2.japigen.test.oneofeverything.facade"
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Int": {
+        "description": "A default integer.",
+        "type": "integer"
+      },
+      "Int64": {
+        "description": "A 64 bit integer.",
+        "type": "integer",
+        "format": "int64"
+      },
+      "Int64Min": {
+        "description": "A 64 bit integer with a minimum.",
+        "type": "integer",
+        "format": "int64",
+        "minimum": -123
+      },
+      "Int64Max": {
+        "description": "A 64 bit integer with a maximum.",
+        "type": "integer",
+        "format": "int64",
+        "maximum": 80000
+      },
+      "Int64MinMax": {
+        "description": "A 64 bit integer with a minimum and maximum.",
+        "type": "integer",
+        "format": "int64",
+        "minimum": -123,
+        "maximum": 80000
+      },
+      "Instant": {
+        "description": "A nanosecond resolution timestamp, compatible with the Java8 definition of Instant.",
+        "type": "object",
+        "required": [
+          "secs"
+        ],
+        "properties": {
+          "secs": {
+            "description": "Seconds measured from the standard Java epoch of 1970-01-01T00:00:00Z where instants after the epoch have positive values, and earlier instants have negative values.",
+            "type": "integer",
+            "format": "int64"
+          },
+          "nanos": {
+            "description": "Nanosecond-of-second, which will always be between 0 and 999,999,999",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 999999999
+          }
+        }
+      },
+      "Hash": {
+        "description": "A Hash value, encoded as Base64.",
+        "type": "string",
+        "format": "bytes"
+      }
+    }
+  }
+}
