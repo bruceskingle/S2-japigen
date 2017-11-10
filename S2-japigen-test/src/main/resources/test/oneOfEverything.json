@@ -14,7 +14,7 @@
   "paths": {},
   "components": {
     "schemas": {
-      "Int": {
+      "DefInt": {
         "description": "A default integer.",
         "type": "integer"
       },
@@ -42,6 +42,96 @@
         "minimum": -123,
         "maximum": 80000
       },
+      
+      "Int32": {
+        "description": "A 32 bit integer.",
+        "type": "integer",
+        "format": "int32"
+      },
+      "Int32Min": {
+        "description": "A 32 bit integer with a minimum.",
+        "type": "integer",
+        "format": "int32",
+        "minimum": -123
+      },
+      "Int32Max": {
+        "description": "A 32 bit integer with a maximum.",
+        "type": "integer",
+        "format": "int32",
+        "maximum": 80000
+      },
+      "Int32MinMax": {
+        "description": "A 32 bit integer with a minimum and maximum.",
+        "type": "integer",
+        "format": "int32",
+        "minimum": -123,
+        "maximum": 80000
+      },
+      
+      "DefDouble": {
+        "description": "A default double.",
+        "type": "number"
+      },
+      "DoubleNoLimits": {
+        "description": "A Double.",
+        "type": "number",
+        "format": "double"
+      },
+      "DoubleMin": {
+        "description": "A Double with a minimum.",
+        "type": "number",
+        "format": "double",
+        "minimum": -123.25
+      },
+      "DoubleMax": {
+        "description": "A Double with a maximum.",
+        "type": "number",
+        "format": "double",
+        "maximum": 80000.25
+      },
+      "DoubleMinMax": {
+        "description": "A Double with a minimum and maximum.",
+        "type": "number",
+        "format": "double",
+        "minimum": -123.25,
+        "maximum": 80000.25
+      },
+      
+      "DefFloat": {
+        "description": "A Float.",
+        "type": "number",
+        "format": "float"
+      },
+      "FloatMin": {
+        "description": "A Float with a minimum.",
+        "type": "number",
+        "format": "float",
+        "minimum": -123.25
+      },
+      "FloatMax": {
+        "description": "A Float with a maximum.",
+        "type": "number",
+        "format": "float",
+        "maximum": 80000.25
+      },
+      "FloatMinMax": {
+        "description": "A Float with a minimum and maximum.",
+        "type": "number",
+        "format": "float",
+        "minimum": -123.25,
+        "maximum": 80000.25
+      },
+      
+      "DefString": {
+        "description": "A default String.",
+        "type": "string"
+      },
+      "ByteString": {
+        "description": "A byte String.",
+        "type": "string",
+        "format": "byte"
+      },
+      
       "Instant": {
         "description": "A nanosecond resolution timestamp, compatible with the Java8 definition of Instant.",
         "type": "object",

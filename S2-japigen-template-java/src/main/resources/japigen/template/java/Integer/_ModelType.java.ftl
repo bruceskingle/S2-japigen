@@ -40,24 +40,4 @@ package ${javaGenPackage};
   <#assign javaType="Long">
 </#switch>  
 
-
-<#if model.description??>
-/**
- * ${model.description}
- */
-</#if>
-@SuppressWarnings("unused")
-public class ${model.camelCapitalizedName}ModelType
-{
-	private ${javaType} value_;
-	
-	public ${model.camelCapitalizedName}ModelType(${javaType} value)
-  {
-    value_ = value;
-  }
-  
-  public ${javaType} getValue()
-  {
-    return value_;
-  }
-}
+<#include "../Double/TemplateNumeric.ftl">

@@ -44,7 +44,7 @@
       "Hash": {
         "description": "A Hash value, encoded as Base64.",
         "type": "string",
-        "format": "bytes"
+        "format": "byte"
       }
     }
   }

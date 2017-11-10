@@ -101,13 +101,14 @@ public class MultiDirTemplateLoader implements TemplateLoader
     templatedirs_.push(dir);
   }
 
-  public Set<String> getTemplatesFor(String language, String type)
+  public Set<String> getTemplatesFor(String templateOrProforma, String language, String type)
   {
     Set<String> result = new HashSet<>();
     
     for(File dir : templatedirs_)
     {
-      File l = new File(dir, language);
+      File tORp = new File(dir, templateOrProforma);
+      File l = new File(tORp, language);
       
       if(l.isDirectory())
       {
@@ -117,7 +118,7 @@ public class MultiDirTemplateLoader implements TemplateLoader
         if(templates != null && templates.length>0)
         {
           for(String t : templates)
-            result.add(language + File.separatorChar + type + File.separatorChar + t);
+            result.add(templateOrProforma + File.separatorChar + language + File.separatorChar + type + File.separatorChar + t);
         }
       }
     }

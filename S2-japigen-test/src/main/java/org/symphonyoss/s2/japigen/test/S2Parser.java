@@ -41,9 +41,8 @@ public class S2Parser
     modelSetContext.parse();
     
     GenerationContext generationContext = new GenerationContext("target/generated-sources", "target/proforma-sources", "target/proforma-copy");
-    generationContext.addTemplateDirectory(new File("../S2-japigen-template-java/src/main/resources/japigen/template"));
-    generationContext.addProformaTemplateDirectory(new File("../S2-japigen-template-java/src/main/resources/japigen/proforma"));
-    
+    generationContext.addTemplateDirectory(new File("../S2-japigen-template-java/src/main/resources/japigen"));
+        
     modelSetContext.generate(generationContext);
     
 //    Parser parser = new Parser();

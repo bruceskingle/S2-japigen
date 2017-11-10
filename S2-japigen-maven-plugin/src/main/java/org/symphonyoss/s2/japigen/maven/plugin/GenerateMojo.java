@@ -119,14 +119,10 @@ public class GenerateMojo extends AbstractMojo
     }
     
     japigenDir          = new File(japigenRoot, "japigen");
-    File proformaDir     = new File(japigenDir,   "proforma");
-    File templateDir     = new File(japigenDir,   "template");
     
     log = getLog();
     
     log.info( "Generating sources--------------------------------------------------------------------------");
-    log.info( "proformaDir          = " + proformaDir);
-    log.info( "templateDir          = " + templateDir);
     log.info( "targetDir            = " + targetDir);
     log.info( "proformaTargetDir    = " + proformaTargetDir);
     log.info( "proformaCopyDir      = " + proformaCopyDir);
@@ -183,10 +179,9 @@ public class GenerateMojo extends AbstractMojo
       modelSetContext.parse();
       
       GenerationContext generationContext = new GenerationContext(
-          targetDir, proformaDir, proformaCopyDir);
+          targetDir, proformaTargetDir, proformaCopyDir);
       
-      generationContext.addTemplateDirectory(templateDir);
-      generationContext.addProformaTemplateDirectory(proformaDir);
+      generationContext.addTemplateDirectory(japigenDir);
       
       modelSetContext.generate(generationContext);
     }

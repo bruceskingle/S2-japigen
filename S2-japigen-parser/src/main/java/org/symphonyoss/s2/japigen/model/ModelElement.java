@@ -233,18 +233,20 @@ public class ModelElement
     
     for(String language : generationContext.getLanguages())
     {
-      Set<String> templates = generationContext.getTemplatesFor(language, getType());
+      Set<String> templates = generationContext.getTemplatesFor(JAPIGEN.TEMPLATE, language, getType());
       
       if(!templates.isEmpty())
       {
+        dataModel.remove(JAPIGEN.IS_FACADE);
         generate(generationContext, dataModel, templates, language, templatePathBuilderMap_, generationContext.getFreemarkerConfig(), generationContext.getTargetDir(), null);
       }
       
-      templates = generationContext.getProformaTemplatesFor(language, getType());
+      templates = generationContext.getTemplatesFor(JAPIGEN.PROFORMA, language, getType());
       
       if(!templates.isEmpty())
       {
-        generate(generationContext, dataModel, templates, language, proformaPathBuilderMap_, generationContext.getProformaConfig(), generationContext.getProformaDir(), generationContext.getCopyDir());
+        dataModel.put(JAPIGEN.IS_FACADE, "true");
+        generate(generationContext, dataModel, templates, language, proformaPathBuilderMap_, generationContext.getFreemarkerConfig(), generationContext.getProformaDir(), generationContext.getCopyDir());
       }
     }
     

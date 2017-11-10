@@ -27,10 +27,8 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 public class DoubleType extends Type
 {
-  private final double defaultMinimum_;
-  private final double defaultMaximum_;
-  private final double minimum_;
-  private final double maximum_;
+  private final Double minimum_;
+  private final Double maximum_;
   
   public DoubleType(ModelElement parent, ParserContext context)
   {
@@ -40,36 +38,24 @@ public class DoubleType extends Type
     switch(getFormat())
     {
       case "float":
-        defaultMinimum_ = Float.MIN_VALUE;
-        defaultMaximum_ = Float.MAX_VALUE;
-        break;
-        
       case "double":
-        defaultMinimum_ = Double.MIN_VALUE;
-        defaultMaximum_ = Double.MAX_VALUE;
-        break;
-        
       case "":
-        defaultMinimum_ = Double.MIN_VALUE;
-        defaultMaximum_ = Double.MAX_VALUE;
         break;
         
       default:
-        defaultMinimum_ = Double.MIN_VALUE;
-        defaultMaximum_ = Double.MAX_VALUE;
         context.error("Unknown format \"%s\"", getFormat());
     }
     
-    minimum_ = context.getDoubleNode("minimum", defaultMinimum_);
-    maximum_ = context.getDoubleNode("minimum", defaultMaximum_);
+    minimum_ = context.getDoubleNode("minimum");
+    maximum_ = context.getDoubleNode("maximum");
   }
 
-  public double getMinimum()
+  public Double getMinimum()
   {
     return minimum_;
   }
 
-  public double getMaximum()
+  public Double getMaximum()
   {
     return maximum_;
   }
@@ -78,7 +64,7 @@ public class DoubleType extends Type
   public String toString()
   {
     return super.toString(new ValueMap<String, Object>()
-        .append("minimum", minimum_, defaultMinimum_)
-        .append("maximum", maximum_, defaultMaximum_));
+        .append("minimum", minimum_)
+        .append("maximum", maximum_));
   }
 }

@@ -71,6 +71,37 @@ public class ValueMap<K,V> implements Iterable<ValueMap.Entry<K,V>>
     return this;
   }
   
+  public ValueMap<K,V> insert(K name, V value)
+  {
+    return put(name, value, true);
+  }
+  
+  public ValueMap<K,V> append(K name, V value)
+  {
+    return put(name, value, false);
+  }
+  
+  private ValueMap<K,V> put(K name, V value, boolean insert)
+  {
+    Entry<K,V> entry = entryMap_.get(name);
+    
+    if(entry == null)
+    {
+      entry = new Entry<K,V>(name, value);
+      
+      if(insert)
+        entrySet_.add(0, entry);
+      else
+        entrySet_.add(entry);
+    }
+    else
+    {
+      entry.setValue(value);
+    }
+    
+    return this;
+  }
+  
   public static class Entry<K,V>
   {
     private K key_;

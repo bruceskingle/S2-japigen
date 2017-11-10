@@ -32,12 +32,12 @@ package ${javaFacadePackage};
 import ${javaGenPackage}.${model.camelCapitalizedName}ModelType;
 
 <#switch model.format>
- <#case "int32">
-  <#assign javaType="Integer">
+ <#case "float">
+  <#assign javaType="Float">
   <#break>
   
  <#default>
-  <#assign javaType="Long">
-</#switch>  
+  <#assign javaType="Double">
+</#switch>
 
-<#include "../Double/ProformaNumeric.ftl">
+<#include "ProformaNumeric.ftl">

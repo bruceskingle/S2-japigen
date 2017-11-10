@@ -30,6 +30,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.symphonyoss.s2.common.fault.TransactionFault;
+import org.symphonyoss.s2.japigen.JAPIGEN;
 
 import freemarker.template.Configuration;
 import freemarker.template.Version;
@@ -37,13 +38,11 @@ import freemarker.template.Version;
 public class GenerationContext
 {
   private MultiDirTemplateLoader templateLoader_         = new MultiDirTemplateLoader();
-  private MultiDirTemplateLoader proformaTemplateLoader_ = new MultiDirTemplateLoader();
   private File                   targetDir_;
   private File                   proformaDir_;
   private File                   copyDir_;
   private Set<String>            languages_              = new HashSet<>();
   private Configuration          config_;
-  private Configuration          proformaConfig_;
 
   public GenerationContext(String targetDirName, String proformaDirName, String copyDirName) throws GenerationException
   {
@@ -74,14 +73,6 @@ public class GenerationContext
     config_.setTemplateLoader(templateLoader_);
     config_.setDefaultEncoding("UTF-8");
     config_.setLocale(Locale.US);
-    
-    proformaConfig_ = new Configuration(new Version(2, 3, 25));
-    
-    proformaConfig_.setTemplateLoader(proformaTemplateLoader_);
-    proformaConfig_.setDefaultEncoding("UTF-8");
-    proformaConfig_.setLocale(Locale.US);
-    
-    
   }
   
   private void validateDir(File targetDir) throws GenerationException
@@ -116,17 +107,6 @@ public class GenerationContext
   {
     addTemplateDirectory(dir, templateLoader_);
   }
-  
-  /**
-   * This is analogous to copying the templates into a working directory so later additions
-   * take precedence over earlier ones.
-   * 
-   * @param file A template directory.
-   */
-  public void addProformaTemplateDirectory(File dir)
-  {
-    addTemplateDirectory(dir, proformaTemplateLoader_);
-  }
 
 
   public void addTemplateDirectory(File dir, MultiDirTemplateLoader templateLoader)
@@ -147,36 +127,39 @@ public class GenerationContext
           + "\"", e);
     }
     
-    File[] languages = dir.listFiles();
+    addLanguages(dir, JAPIGEN.TEMPLATE);
+    addLanguages(dir, JAPIGEN.PROFORMA);
     
-    if(languages != null)
+    
+  }
+  
+  private void addLanguages(File dir, String proforma)
+  {
+    File   dd = new File(dir, proforma);
+    
+    if(dd.isDirectory())
     {
-      for(File f : languages)
+      File[] languages = dd.listFiles();
+      
+      if(languages != null)
       {
-        if(f.isDirectory())
-          languages_.add(f.getName());
+        for(File f : languages)
+        {
+          if(f.isDirectory())
+            languages_.add(f.getName());
+        }
       }
     }
   }
-  
+
   public Configuration getFreemarkerConfig()
   {
     return config_;
   }
 
-  public Configuration getProformaConfig()
+  public Set<String> getTemplatesFor(String templateOrProforma, String language, String type)
   {
-    return proformaConfig_;
-  }
-
-  public Set<String> getTemplatesFor(String language, String type)
-  {
-    return templateLoader_.getTemplatesFor(language, type);
-  }
-  
-  public Set<String> getProformaTemplatesFor(String language, String type)
-  {
-    return proformaTemplateLoader_.getTemplatesFor(language, type);
+    return templateLoader_.getTemplatesFor(templateOrProforma, language, type);
   }
 
   public Set<String> getLanguages()

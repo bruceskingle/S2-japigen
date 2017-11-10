@@ -27,49 +27,22 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 public class IntegerType extends Type
 {
-  private final long defaultMinimum_;
-  private final long defaultMaximum_;
-  private final long minimum_;
-  private final long maximum_;
+  private final Long minimum_;
+  private final Long maximum_;
   
   public IntegerType(ModelElement parent, ParserContext context)
   {
     super(parent, context, "Integer");
-    
-    
-    switch(getFormat())
-    {
-      case "int32":
-        defaultMinimum_ = Integer.MIN_VALUE;
-        defaultMaximum_ = Integer.MAX_VALUE;
-        break;
-        
-      case "int64":
-        defaultMinimum_ = Long.MIN_VALUE;
-        defaultMaximum_ = Long.MAX_VALUE;
-        break;
-        
-      case "":
-        defaultMinimum_ = Long.MIN_VALUE;
-        defaultMaximum_ = Long.MAX_VALUE;
-        break;
-        
-      default:
-        defaultMinimum_ = Long.MIN_VALUE;
-        defaultMaximum_ = Long.MAX_VALUE;
-        context.error("Unknown format \"%s\"", getFormat());
-    }
-    
-    minimum_ = context.getLongNode("minimum", defaultMinimum_);
-    maximum_ = context.getLongNode("maximum", defaultMaximum_);
+    minimum_ = context.getLongNode("minimum");
+    maximum_ = context.getLongNode("maximum");
   }
 
-  public long getMinimum()
+  public Long getMinimum()
   {
     return minimum_;
   }
 
-  public long getMaximum()
+  public Long getMaximum()
   {
     return maximum_;
   }
@@ -78,7 +51,7 @@ public class IntegerType extends Type
   public String toString()
   {
     return super.toString(new ValueMap<String, Object>()
-        .append("minimum", minimum_, defaultMinimum_)
-        .append("maximum", maximum_, defaultMaximum_));
+        .append("minimum", minimum_)
+        .append("maximum", maximum_));
   }
 }

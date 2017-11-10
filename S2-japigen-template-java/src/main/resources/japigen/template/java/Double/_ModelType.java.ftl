@@ -1,4 +1,6 @@
 /**
+ * GENERATED CODE - DO NOT EDIT OR CHECK IN TO SOURCE CODE CONTROL
+ *
  * Copyright ${year} Symphony Communication Services, LLC.
  *
  * Licensed to The Symphony Software Foundation (SSF) under one
@@ -18,26 +20,24 @@
  * specific language governing permissions and limitations
  * under the License.
  *
- * Proforma generated from
+ * Generated from
  *		Template groupId		 org.symphonyoss.s2.japigen
  *           artifactId S2-japigen-template-java
- *		Template dir			   Integer
- *		Template file		   _.java.ftl
+ *		Template dir			   Double
+ *		Template file		   _ModelType.java.ftl
  *		Template version	   1.0
  *  At                  ${date}
  */
 
-package ${javaFacadePackage};
-
-import ${javaGenPackage}.${model.camelCapitalizedName}ModelType;
+package ${javaGenPackage};
 
 <#switch model.format>
- <#case "int32">
-  <#assign javaType="Integer">
+ <#case "float">
+  <#assign javaType="Float">
   <#break>
   
  <#default>
-  <#assign javaType="Long">
+  <#assign javaType="Double">
 </#switch>  
 
-<#include "../Double/ProformaNumeric.ftl">
+<#include "TemplateNumeric.ftl">

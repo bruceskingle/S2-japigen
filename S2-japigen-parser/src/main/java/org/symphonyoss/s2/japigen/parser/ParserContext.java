@@ -168,6 +168,21 @@ public class ParserContext implements Iterable<ParserContext>
     return "";
   }
 
+  public Long getLongNode(String fieldName)
+  {
+    JsonNode node = jsonNode_.get(fieldName);
+    
+    if(node != null)
+    {
+      if(!node.isNumber())
+        error("Expected \"%s\" to be a long value not %s", fieldName, node.getNodeType());
+      
+      return node.asLong();
+    }
+    
+    return null;
+  }
+  
   public long getLongNode(String fieldName, long defaultValue)
   {
     JsonNode node = jsonNode_.get(fieldName);
@@ -181,6 +196,22 @@ public class ParserContext implements Iterable<ParserContext>
     }
     
     return defaultValue;
+  }
+
+  public Double getDoubleNode(String fieldName)
+  {
+    JsonNode node = jsonNode_.get(fieldName);
+    
+    if(node != null)
+    {
+
+      if(!node.isNumber())
+        error("Expected \"%s\" to be a double value not %s", fieldName, node.getNodeType());
+      
+      return node.asDouble();
+    }
+    
+    return null;
   }
 
   public double getDoubleNode(String fieldName, double defaultValue)

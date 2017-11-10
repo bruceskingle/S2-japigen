@@ -25,6 +25,10 @@ package org.symphonyoss.s2.japigen;
 
 public class JAPIGEN
 {
+  /* General Constants */
+  public static final String TEMPLATE = "template";
+  public static final String PROFORMA = "proforma";
+  
   /* Root property names in the template data model */
   
   public static final String MODEL = "model";
@@ -35,4 +39,6 @@ public class JAPIGEN
   public static final String YEAR = "year";
   public static final String YEAR_MONTH = "yearMonth";
   public static final String DATE = "date";
+
+  public static final String IS_FACADE = "isFacade";
 }

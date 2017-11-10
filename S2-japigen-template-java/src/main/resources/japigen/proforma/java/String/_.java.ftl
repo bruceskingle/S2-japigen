@@ -21,7 +21,7 @@
  * Proforma generated from
  *		Template groupId		 org.symphonyoss.s2.japigen
  *           artifactId S2-japigen-template-java
- *		Template dir			   Integer
+ *		Template dir			   String
  *		Template file		   _.java.ftl
  *		Template version	   1.0
  *  At                  ${date}
@@ -31,13 +31,11 @@ package ${javaFacadePackage};
 
 import ${javaGenPackage}.${model.camelCapitalizedName}ModelType;
 
-<#switch model.format>
- <#case "int32">
-  <#assign javaType="Integer">
-  <#break>
-  
- <#default>
-  <#assign javaType="Long">
-</#switch>  
-
-<#include "../Double/ProformaNumeric.ftl">
+<#include "../../../template/java/String/String.ftl">
+public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}ModelType
+{
+  public ${model.camelCapitalizedName}(String value)
+  {
+    super(value);
+  }
+}
