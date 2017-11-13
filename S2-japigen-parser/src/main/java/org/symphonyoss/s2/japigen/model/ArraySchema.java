@@ -91,4 +91,10 @@ public class ArraySchema extends Schema
   {
     return true;
   }
+  
+  @Override
+  public boolean getHasByteString()
+  {
+    return items_.getHasByteString();
+  }
 }
