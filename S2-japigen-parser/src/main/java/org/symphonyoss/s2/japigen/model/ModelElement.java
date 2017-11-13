@@ -28,6 +28,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -210,6 +211,24 @@ public class ModelElement
     return false;
   }
   
+  public Set<Schema> getReferencedTypes()
+  {
+    Set<Schema> result = new HashSet<>();
+    
+    getReferencedTypes(result);
+    
+    return result;
+  }
+  
+  public ModelElement getReference()
+  {
+    return this;
+  }
+  
+  protected void getReferencedTypes(Set<Schema> result)
+  {
+  }
+
   public void validate()
   {
     log_.debug("Validate " + toString());

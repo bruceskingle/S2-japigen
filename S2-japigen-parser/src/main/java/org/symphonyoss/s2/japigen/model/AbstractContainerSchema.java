@@ -23,6 +23,8 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.Set;
+
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 public abstract class AbstractContainerSchema extends Schema
@@ -41,6 +43,15 @@ public abstract class AbstractContainerSchema extends Schema
         child.error("Expected an ObjectOrReferenceSchema, but found " + childSchema);
         
     }
+  }
+
+  @Override
+  protected void getReferencedTypes(Set<Schema> result)
+  {
+    super.getReferencedTypes(result);
+    
+    for(ModelElement child : getChildren())
+      child.getReferencedTypes(result);
   }
   
   @Override

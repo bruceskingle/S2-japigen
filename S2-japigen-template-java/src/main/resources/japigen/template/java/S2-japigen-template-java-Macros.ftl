@@ -49,6 +49,7 @@
     <#case "Integer">
     <#case "Double">
     <#case "String">
+    <#case "Boolean">
       <@setJavaType2 model.elementType model.format/>
       <#break>
       
@@ -75,6 +76,10 @@
           <#assign javaCardinality="List">
           <#assign javaTypeAssignPrefix="Collections.unmodifiableList(">
       </#switch>
+      <#break>
+    
+    <#case "Object">
+      <#assign javaType="NO JAVA TYPE FOR OBJECT">
       <#break>
       
     <#default>
@@ -123,11 +128,9 @@ import java.util.Set;
 import com.google.protobuf.ByteString;
 </#if>
 
-<#list model.children as field>
-    <#switch field.elementType>
-      <#case "Ref">
-import ${javaFacadePackage}.${field.type.camelCapitalizedName};
-        <#break>
-    </#switch>
-  </#list>
+<#list model.referencedTypes as field>
+import ${field.model.modelMap["javaFacadePackage"]}.${field.camelCapitalizedName};
+</#list>
 </#macro>
+
+<@setJavaType model/>

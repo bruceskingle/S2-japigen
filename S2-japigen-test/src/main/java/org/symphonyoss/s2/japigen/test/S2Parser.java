@@ -25,6 +25,8 @@ package org.symphonyoss.s2.japigen.test;
 
 import java.io.File;
 
+import org.symphonyoss.s2.common.writer.IndentedWriter;
+import org.symphonyoss.s2.japigen.model.ModelElement;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.JapigenException;
 import org.symphonyoss.s2.japigen.parser.ModelSetParserContext;
@@ -36,13 +38,26 @@ public class S2Parser
     ModelSetParserContext modelSetContext = new ModelSetParserContext();
     
     modelSetContext.addGenerationSource(new File("src/main/Resources/s2-typedef.json"));
-    //modelSetContext.addGenerationSource(new File("src/main/Resources/s2.json"));
+    modelSetContext.addGenerationSource(new File("src/main/Resources/s2.json"));
     
     modelSetContext.parse();
+    
+    IndentedWriter out = new IndentedWriter(System.out);
+    
+    modelSetContext.visitAllModels((model) ->
+    {
+      System.out.println("Model " + model);
+      
+      visit(out, model);
+    });
+    
+    out.flush();
     
     GenerationContext generationContext = new GenerationContext("target/generated-sources", "target/proforma-sources", "target/proforma-copy");
     generationContext.addTemplateDirectory(new File("../S2-japigen-template-java/src/main/resources/japigen"));
         
+    generationContext.put("templateDebug", "true");
+    
     modelSetContext.generate(generationContext);
     
 //    Parser parser = new Parser();
@@ -53,5 +68,15 @@ public class S2Parser
 //    Model  petModel  = parser.parse("src/main/Resources/petStore.json");
 //    
 //    Model  testModel  = parser.parse("src/main/Resources/testCases.json");
+  }
+
+  private static void visit(IndentedWriter out, ModelElement model)
+  {
+    out.openBlock(model.toString());
+    
+    for(ModelElement child : model.getChildren())
+      visit(out, child);
+    
+    out.closeBlock();
   }
 }

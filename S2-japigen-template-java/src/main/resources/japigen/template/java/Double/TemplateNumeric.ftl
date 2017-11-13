@@ -1,5 +1,6 @@
+<#-- Generated code for all numeric types -->
 <#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubPrologue.ftl">
-<@setJavaType model/>
+<#include "Numeric.ftl">
 public class ${model.camelCapitalizedName}ModelType
 {
 	private ${javaType} value_;

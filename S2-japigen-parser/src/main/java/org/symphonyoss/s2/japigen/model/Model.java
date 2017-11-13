@@ -63,8 +63,6 @@ public class Model extends ModelElement
     ParserContext japigen = parserContext.get(JAPIGEN.X_MODEL);
     if(japigen != null)
     {
-      
-      
       JsonNode jsonNode = japigen.getJsonNode();
       
       if(jsonNode instanceof ObjectNode)
@@ -93,6 +91,16 @@ public class Model extends ModelElement
   public Model getModel()
   {
     return this;
+  }
+
+  public Version getOpenapi()
+  {
+    return openapi_;
+  }
+
+  public Map<String, String> getModelMap()
+  {
+    return modelMap_;
   }
 
   public void generate(GenerationContext generationContext) throws GenerationException

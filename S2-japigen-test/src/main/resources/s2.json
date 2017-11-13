@@ -7,7 +7,7 @@
       "name": "Apache2"
     }
   },
-  "x-japigen": {
+  "x-japigen-model": {
     "javaGenPackage":  "com.symphony.s2.japigen",
     "javaFacadePackage":  "com.symphony.s2.japigen.facade"
   },

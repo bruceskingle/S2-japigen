@@ -224,6 +224,17 @@
         "description": "A Hash value, encoded as Base64.",
         "type": "string",
         "format": "bytes"
+      },
+      
+      "anAllOf": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DoubleMinMax"
+          },
+          {
+            "$ref": "#/components/schemas/Int64MinMax"
+          }
+        ]
       }
     }
   }

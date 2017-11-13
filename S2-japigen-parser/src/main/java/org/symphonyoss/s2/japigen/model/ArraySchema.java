@@ -23,6 +23,8 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.Set;
+
 import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
@@ -96,5 +98,13 @@ public class ArraySchema extends Schema
   public boolean getHasByteString()
   {
     return items_.getHasByteString();
+  }
+  
+  @Override
+  public void getReferencedTypes(Set<Schema> result)
+  {
+    super.getReferencedTypes(result);
+    
+    items_.getReferencedTypes(result);
   }
 }

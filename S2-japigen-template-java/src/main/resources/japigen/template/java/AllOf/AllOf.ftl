@@ -1,7 +1,7 @@
 <#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubPrologue.ftl">
 <#if templateDebug??>
 /*----------------------------------------------------------------------------------------------------
- * Generating for Object ${model}
+ * Generating for AllOf ${model}
  *------------------------------------------------------------------------------------------------- */
 </#if>
 /**

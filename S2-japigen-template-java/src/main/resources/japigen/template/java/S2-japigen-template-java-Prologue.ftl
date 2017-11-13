@@ -25,7 +25,6 @@
  *    Template groupId     org.symphonyoss.s2.japigen
  *           artifactId    S2-japigen-template-java
  *    Template name        ${.main_template_name!''}
- *    Template version     1.0
  *    At                   ${date}
  *----------------------------------------------------------------------------------------------------
  */

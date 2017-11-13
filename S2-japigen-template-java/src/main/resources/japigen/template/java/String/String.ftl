@@ -1,4 +1,10 @@
 <#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubPrologue.ftl">
+<#if templateDebug??>
+/*----------------------------------------------------------------------------------------------------
+ * Generating for String ${model}
+ *------------------------------------------------------------------------------------------------- */
+</#if>
+  
 <#switch model.format>
  <#case "byte">
   <#assign formatDesc="Base64 encoded bytes">

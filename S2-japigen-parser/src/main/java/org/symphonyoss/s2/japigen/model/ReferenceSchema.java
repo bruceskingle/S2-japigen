@@ -23,9 +23,9 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Set;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.ParsingException;
@@ -136,17 +136,23 @@ public class ReferenceSchema extends ReferenceOrSchema
     return uri_;
   }
 
+  @Override
   public Schema getReference()
   {
     return reference_;
   }
   
-  public Type getType()
+  public Schema getType()
   {
-    if(reference_ instanceof Type)
-      return (Type) reference_;
+    return reference_;
+  }
+  
+  @Override
+  public void getReferencedTypes(Set<Schema> result)
+  {
+    super.getReferencedTypes(result);
     
-    return null;
+    result.add(reference_);
   }
   
   @Override

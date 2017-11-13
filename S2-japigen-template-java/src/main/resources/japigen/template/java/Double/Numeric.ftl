@@ -1,4 +1,10 @@
+<#-- Common proforma and generated code class header for all numeric types -->
 <#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubPrologue.ftl">
+<#if templateDebug??>
+/*----------------------------------------------------------------------------------------------------
+ * Generating for Numeric ${model}
+ *------------------------------------------------------------------------------------------------- */
+</#if>
 /**
 <#if isFacade??>
  * Facade for

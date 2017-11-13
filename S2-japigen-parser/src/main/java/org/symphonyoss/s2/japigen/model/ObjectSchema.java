@@ -26,7 +26,6 @@ package org.symphonyoss.s2.japigen.model;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 /**
@@ -127,5 +126,14 @@ public class ObjectSchema extends Schema
     }
     
     return false;
+  }
+
+  @Override
+  protected void getReferencedTypes(Set<Schema> result)
+  {
+    super.getReferencedTypes(result);
+    
+    for(ModelElement child : getChildren())
+      child.getReferencedTypes(result);
   }
 }
