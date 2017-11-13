@@ -6,7 +6,7 @@
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership.  The SSF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -51,7 +51,7 @@ public class ModelElement
 
   private final ModelElement        parent_;
   private final ParserContext       parserContext_;
-  private final String              type_;
+  private final String              elementType_;
   private final String              name_;
   private final String              camelName_;
   private final String              camelCapitalizedName_;
@@ -65,15 +65,15 @@ public class ModelElement
 
   private String description_;
 
-  private String format_;
+  private String format_ = "";
 
   public ModelElement(ModelElement parent, ParserContext parserContext, String type)
   {
     parent_ = parent;
     parserContext_ = parserContext;
-    type_ = type;
+    elementType_ = type;
     description_ = parserContext.getText("description");
-    format_ = parserContext.getText("format");
+    format_ = parserContext.getText("format", "");
     
     name_ = parserContext.getName();
     
@@ -190,6 +190,26 @@ public class ModelElement
     return format_;
   }
 
+  public boolean getHasSet()
+  {
+    return false;
+  }
+  
+  public boolean getHasList()
+  {
+    return false;
+  }
+  
+  public boolean getHasCollections()
+  {
+    return false;
+  }
+  
+  public boolean getHasByteString()
+  {
+    return false;
+  }
+  
   public void validate()
   {
     log_.debug("Validate " + toString());
@@ -214,9 +234,9 @@ public class ModelElement
     return parserContext_;
   }
 
-  public String getType()
+  public String getElementType()
   {
-    return type_;
+    return elementType_;
   }
 
   public List<ModelElement> getChildren()
@@ -233,7 +253,7 @@ public class ModelElement
     
     for(String language : generationContext.getLanguages())
     {
-      Set<String> templates = generationContext.getTemplatesFor(JAPIGEN.TEMPLATE, language, getType());
+      Set<String> templates = generationContext.getTemplatesFor(JAPIGEN.TEMPLATE, language, getElementType());
       
       if(!templates.isEmpty())
       {
@@ -241,7 +261,7 @@ public class ModelElement
         generate(generationContext, dataModel, templates, language, templatePathBuilderMap_, generationContext.getFreemarkerConfig(), generationContext.getTargetDir(), null);
       }
       
-      templates = generationContext.getTemplatesFor(JAPIGEN.PROFORMA, language, getType());
+      templates = generationContext.getTemplatesFor(JAPIGEN.PROFORMA, language, getElementType());
       
       if(!templates.isEmpty())
       {
@@ -269,6 +289,8 @@ public class ModelElement
       log_.debug("Generate generate {} {}", toString(), templateName);
       
       File templateFile = new File(templateName);
+      
+      dataModel.put(JAPIGEN.TEMPLATE_NAME, templateName);
       
       String  className = pathBuilder.constructFile(dataModel, language, templateFile.getName(), this);
       

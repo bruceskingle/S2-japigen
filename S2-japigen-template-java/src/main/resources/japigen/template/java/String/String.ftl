@@ -1,3 +1,4 @@
+<#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubPrologue.ftl">
 <#switch model.format>
  <#case "byte">
   <#assign formatDesc="Base64 encoded bytes">
@@ -16,3 +17,4 @@
 </#if>
  * format ${formatDesc}
  */
+<#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubEpilogue.ftl">

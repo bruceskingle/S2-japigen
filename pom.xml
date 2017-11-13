@@ -43,6 +43,7 @@
 	<module>S2-japigen-test</module>
 	<module>S2-japigen-maven-plugin</module>
 	<module>S2-japigen-template-java</module>
+	<module>S2-japigen-runtime-java</module>
 	</modules>
 
 	<licenses>

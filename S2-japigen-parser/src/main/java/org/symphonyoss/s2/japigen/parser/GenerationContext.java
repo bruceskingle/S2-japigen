@@ -6,7 +6,7 @@
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership.  The SSF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -25,8 +25,10 @@ package org.symphonyoss.s2.japigen.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.symphonyoss.s2.common.fault.TransactionFault;
@@ -37,12 +39,13 @@ import freemarker.template.Version;
 
 public class GenerationContext
 {
-  private MultiDirTemplateLoader templateLoader_         = new MultiDirTemplateLoader();
+  private MultiDirTemplateLoader templateLoader_ = new MultiDirTemplateLoader();
   private File                   targetDir_;
   private File                   proformaDir_;
   private File                   copyDir_;
-  private Set<String>            languages_              = new HashSet<>();
+  private Set<String>            languages_      = new HashSet<>();
   private Configuration          config_;
+  private Map<String, Object>    dataModel_      = new HashMap<>();
 
   public GenerationContext(String targetDirName, String proformaDirName, String copyDirName) throws GenerationException
   {
@@ -75,6 +78,16 @@ public class GenerationContext
     config_.setLocale(Locale.US);
   }
   
+  public Object put(String key, Object value)
+  {
+    return dataModel_.put(key, value);
+  }
+
+  public Map<String, Object> getDataModel()
+  {
+    return dataModel_;
+  }
+
   private void validateDir(File targetDir) throws GenerationException
   {
     if(!targetDir.exists())

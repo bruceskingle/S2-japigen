@@ -6,7 +6,7 @@
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership.  The SSF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -32,7 +32,7 @@ public class Field extends AbstractSchema
   
   public Field(ModelElement parent, ParserContext context, Type type, boolean required)
   {
-    super(parent, context, type.getType() + "Field");
+    super(parent, context, "Field");
     required_ = required;
     type_ = type;
   }
@@ -40,6 +40,17 @@ public class Field extends AbstractSchema
   public boolean isRequired()
   {
     return required_;
+  }
+
+  public Type getType()
+  {
+    return type_;
+  }
+
+  @Override
+  public boolean getHasByteString()
+  {
+    return type_.getHasByteString();
   }
 
   public static AbstractSchema create(ModelElement parent, ParserContext context, boolean required)

@@ -7,7 +7,7 @@
       "name": "Apache2"
     }
   },
-  "x-japigen": {
+  "x-japigen-model": {
     "javaGenPackage":  "com.symphony.s2.japigen.test.oneofeverything",
     "javaFacadePackage":  "com.symphony.s2.japigen.test.oneofeverything.facade"
   },
@@ -132,13 +132,44 @@
         "format": "byte"
       },
       
-      "Instant": {
-        "description": "A nanosecond resolution timestamp, compatible with the Java8 definition of Instant.",
+      "ListOfByteString": {
+        "description": "A list of byte String.",
+        "type": "array",
+        "x-japigen-cardinality": "LIST",
+        "items": {
+          "description": "A byte String list element.",
+          "type": "string",
+          "format": "byte"
+        }
+      },
+      
+      "SetOfByteString": {
+        "description": "A set of byte String.",
+        "type": "array",
+        "x-japigen-cardinality": "SET",
+        "items": {
+          "description": "A set of byte String array element.",
+          "type": "string",
+          "format": "byte"
+        }
+      },
+      
+      "ObjectWithOneOfEverything": {
+        "description": "An object with one field of every type.",
         "type": "object",
         "required": [
           "secs"
         ],
         "properties": {
+          "aBoolean": {
+            "description": "A boolean.",
+            "type": "boolean"
+          },
+          "aByteString": {
+            "description": "A byte String.",
+            "type": "string",
+            "format": "byte"
+          },
           "secs": {
             "description": "Seconds measured from the standard Java epoch of 1970-01-01T00:00:00Z where instants after the epoch have positive values, and earlier instants have negative values.",
             "type": "integer",
@@ -150,6 +181,42 @@
             "format": "int32",
             "minimum": 0,
             "maximum": 999999999
+          },
+          "aFloat": {
+            "description": "A float",
+            "type": "number",
+            "format": "float",
+            "minimum": -77723.00025,
+            "maximum": 7650000.00025
+          },
+          "aDouble": {
+            "description": "A float",
+            "type": "number",
+            "format": "double",
+            "minimum": -765546546547723.03330025,
+            "maximum": 7665465456464550000.00333025
+          },
+          "aDoubleMinMax": {
+            "$ref": "#/components/schemas/DoubleMinMax"
+          },
+          "aListOfByteString": {
+            "description": "A list of byte String.",
+            "type": "array",
+            "items": {
+              "description": "A byte String array element.",
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "aSetOfByteString": {
+            "description": "A set of byte String.",
+            "type": "array",
+            "x-japigen-cardinality": "SET",
+            "items": {
+              "description": "A byte String array element.",
+              "type": "string",
+              "format": "byte"
+            }
           }
         }
       },

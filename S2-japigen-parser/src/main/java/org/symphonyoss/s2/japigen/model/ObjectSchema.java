@@ -6,7 +6,7 @@
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership.  The SSF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -26,6 +26,7 @@ package org.symphonyoss.s2.japigen.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 /**
@@ -78,5 +79,53 @@ public class ObjectSchema extends Schema
     {
       context.error("Required field \"%s\" is not defined!", requiredField);
     }
+  }
+  
+  @Override
+  public boolean getHasSet()
+  {
+    for(ModelElement child : getChildren())
+    {
+      if(child.getHasSet())
+        return true;
+    }
+    
+    return false;
+  }
+  
+  @Override
+  public boolean getHasList()
+  {
+    for(ModelElement child : getChildren())
+    {
+      if(child.getHasList())
+        return true;
+    }
+    
+    return false;
+  }
+  
+  @Override
+  public boolean getHasCollections()
+  {
+    for(ModelElement child : getChildren())
+    {
+      if(child.getHasSet() || child.getHasList())
+        return true;
+    }
+    
+    return false;
+  }
+  
+  @Override
+  public boolean getHasByteString()
+  {
+    for(ModelElement child : getChildren())
+    {
+      if(child.getHasByteString())
+        return true;
+    }
+    
+    return false;
   }
 }

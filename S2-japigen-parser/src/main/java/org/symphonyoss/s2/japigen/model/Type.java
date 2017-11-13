@@ -6,7 +6,7 @@
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership.  The SSF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -27,17 +27,9 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 public class Type extends Schema
 {
-  private final String  format_;
-  
   public Type(ModelElement parent, ParserContext context, String type)
   {
     super(parent, context, type);
-    format_ = context.getTextNode("format");
-  }
-
-  public String getFormat()
-  {
-    return format_;
   }
 
   public static AbstractSchema create(ModelElement parent, ParserContext context, ParserContext node)
@@ -67,13 +59,5 @@ public class Type extends Schema
     }
 
     return null;
-  }
-
-  @Override
-  protected String toString(ValueMap<String, Object> children)
-  {
-    children.insert("format", format_, null);
-    
-    return super.toString(children);
   }
 }

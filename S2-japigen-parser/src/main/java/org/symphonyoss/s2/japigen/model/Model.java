@@ -6,7 +6,7 @@
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership.  The SSF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -60,7 +60,7 @@ public class Model extends ModelElement
     openapi_ = new Version(this, parserContext.get("openapi"));
     add(openapi_);
     
-    ParserContext japigen = parserContext.get("x-japigen");
+    ParserContext japigen = parserContext.get(JAPIGEN.X_MODEL);
     if(japigen != null)
     {
       
@@ -99,6 +99,7 @@ public class Model extends ModelElement
   {
     Map<String, Object> dataModel = new HashMap<>();
     
+    dataModel.putAll(generationContext.getDataModel());
     dataModel.putAll(modelMap_);
     
     generate(generationContext, dataModel);

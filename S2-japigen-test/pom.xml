@@ -14,6 +14,12 @@
       <version>${project.version}</version>
     </dependency>
     
+    <dependency>
+      <groupId>org.symphonyoss.s2.japigen</groupId>
+      <artifactId>S2-japigen-runtime-java</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
     <dependency> 
 		  <groupId>ch.qos.logback</groupId>
 		  <artifactId>logback-classic</artifactId>

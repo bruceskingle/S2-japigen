@@ -1,3 +1,4 @@
+<#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubPrologue.ftl">
 /**
 <#if isFacade??>
  * Facade for
@@ -12,3 +13,4 @@
  * maximum ${model.maximum}
 </#if>
  */
+<#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubEpilogue.ftl">

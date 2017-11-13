@@ -6,7 +6,7 @@
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership.  The SSF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -139,6 +139,14 @@ public class ReferenceSchema extends ReferenceOrSchema
   public Schema getReference()
   {
     return reference_;
+  }
+  
+  public Type getType()
+  {
+    if(reference_ instanceof Type)
+      return (Type) reference_;
+    
+    return null;
   }
   
   @Override

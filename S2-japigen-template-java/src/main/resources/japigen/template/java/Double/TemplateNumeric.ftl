@@ -1,21 +1,13 @@
-<#include "Numeric.ftl">
+<#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubPrologue.ftl">
+<@setJavaType model/>
 public class ${model.camelCapitalizedName}ModelType
 {
 	private ${javaType} value_;
 	
 	public ${model.camelCapitalizedName}ModelType(${javaType} value)
   {
+<@checkLimits model "value"/>
     value_ = value;
-<#if model.minimum??>
-
-    if(value != null && value < ${model.minimum?c})
-      throw new IllegalArgumentException("Value " + value + " is less than the minimum allowed of ${model.minimum}");
-</#if>
-<#if model.maximum??>
-
-    if(value != null && value > ${model.maximum?c})
-      throw new IllegalArgumentException("Value " + value + " is more than the maximum allowed of ${model.maximum}");
-</#if>
   }
   
   public ${javaType} getValue()
@@ -23,3 +15,4 @@ public class ${model.camelCapitalizedName}ModelType
     return value_;
   }
 }
+<#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubEpilogue.ftl">

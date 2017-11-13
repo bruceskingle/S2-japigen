@@ -6,7 +6,7 @@
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership.  The SSF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -26,19 +26,27 @@ package org.symphonyoss.s2.japigen;
 public class JAPIGEN
 {
   /* General Constants */
-  public static final String TEMPLATE = "template";
-  public static final String PROFORMA = "proforma";
-  
-  /* Root property names in the template data model */
-  
-  public static final String MODEL = "model";
-  
-  public static final String JAVA_GEN_PACKAGE = "javaGenPackage";
-  public static final String JAVA_FACADE_PACKAGE = "javaFacadePackage";
-  
-  public static final String YEAR = "year";
-  public static final String YEAR_MONTH = "yearMonth";
-  public static final String DATE = "date";
+  public static final String TEMPLATE            = "template";
+  public static final String PROFORMA            = "proforma";
 
-  public static final String IS_FACADE = "isFacade";
+  /* JSON Constants */
+  public static final String X_MODEL             = "x-japigen-model";
+  public static final String X_CARDINALITY       = "x-japigen-cardinality";
+  public static final String X_CARDINALITY_LIST  = "LIST";
+  public static final String X_CARDINALITY_SET   = "SET";
+
+  /* Root property names in the template data model */
+
+  public static final String MODEL               = "model";
+
+  public static final String JAVA_GEN_PACKAGE    = "javaGenPackage";
+  public static final String JAVA_FACADE_PACKAGE = "javaFacadePackage";
+
+  public static final String YEAR                = "year";
+  public static final String YEAR_MONTH          = "yearMonth";
+  public static final String DATE                = "date";
+
+  public static final String IS_FACADE           = "isFacade";
+  public static final String TEMPLATE_NAME       = "templateName";
+  public static final String TEMPLATE_DEBUG      = "templateDebug";
 }
