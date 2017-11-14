@@ -217,6 +217,40 @@
               "type": "string",
               "format": "byte"
             }
+          },
+          "aDoubleOrInt": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "aFloat"
+                ],
+                "properties": {
+                  "aFloat": {
+                    "description": "A float",
+                    "type": "number",
+                    "format": "float"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "aFloat"
+                ],
+                "properties": {
+                  "aFloat": {
+                    "description": "An int32",
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+                
+              }
+            ],
+            "discriminator": {
+              "propertyName": "aDoubleOrIntType"
+            }
           }
         }
       },
@@ -233,6 +267,19 @@
           },
           {
             "$ref": "#/components/schemas/Int64MinMax"
+          },
+          {
+            "type": "object",
+            "required": [
+              "aFloat"
+            ],
+            "properties": {
+              "aFloat": {
+                "description": "A float",
+                "type": "number",
+                "format": "double"
+              }
+            }
           }
         ]
       }

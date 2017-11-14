@@ -29,11 +29,11 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 public abstract class AbstractContainerSchema extends Schema
 {
-  public AbstractContainerSchema(ModelElement parent, ParserContext context, String type)
+  public AbstractContainerSchema(ModelElement parent, ParserContext context, ParserContext node, String type)
   {
     super(parent, context, type);
     
-    for(ParserContext child : context)
+    for(ParserContext child : node)
     {
       AbstractSchema childSchema = createSchema(child);
       
@@ -54,6 +54,18 @@ public abstract class AbstractContainerSchema extends Schema
       child.getReferencedTypes(result);
   }
   
+  @Override
+  public void validate()
+  {
+    super.validate();
+    
+    for(ModelElement child : getChildren())
+      if(!(child instanceof ObjectSchema ||
+          child instanceof ReferenceSchema
+          ))
+        getContext().error("OneOf and AllOf may only contain Schema Objects (i.e. a ref or an object)");
+  }
+
   @Override
   public String toString()
   {

@@ -23,14 +23,46 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 public class AllOfSchema extends AbstractContainerSchema
 {
   private ParserContext discriminator_;
+  private List<ModelElement>  fields_;
 
-  public AllOfSchema(ModelElement parent, ParserContext context)
+  public AllOfSchema(ModelElement parent, ParserContext context, ParserContext node)
   {
-    super(parent, context, "AllOf");
+    super(parent, context, node, "AllOf");
   }
+
+  public ParserContext getDiscriminator()
+  {
+    return discriminator_;
+  }
+
+  public synchronized List<ModelElement> getFields()
+  {
+    if(fields_ == null)
+    {
+      fields_ = new ArrayList<>();
+      
+      for(ModelElement e : getChildren())
+      {
+        if(e instanceof ObjectSchema)
+        {
+          for(ModelElement child : e.getChildren())
+            fields_.add(child);
+        }
+        else
+        {
+          fields_.add(e);
+        }
+      }
+    }
+    return fields_;
+  }
+  
 }

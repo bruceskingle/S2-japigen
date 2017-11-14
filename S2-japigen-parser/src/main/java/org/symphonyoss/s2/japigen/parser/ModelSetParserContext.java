@@ -100,6 +100,7 @@ public class ModelSetParserContext
     for(Model model : generateQueue_)
     {
         model.generate(generationContext);
+        model.getContext().getRootParserContext().epilogue("Generation");
     }
   }
   

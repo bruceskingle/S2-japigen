@@ -23,17 +23,21 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 public class OneOfSchema extends AbstractContainerSchema
 {
   private ParserContext discriminator_;
 
-  public OneOfSchema(ModelElement parent, ParserContext context)
+  public OneOfSchema(ModelElement parent, ParserContext context, ParserContext node)
   {
-    super(parent, context, "OneOf");
+    super(parent, context, node, "OneOf");
     
-    discriminator_ = context.getParent().get("discriminator");
+    discriminator_ = context.get("discriminator");
     
     if(discriminator_ == null)
     {
@@ -41,4 +45,15 @@ public class OneOfSchema extends AbstractContainerSchema
     }
   }
 
+  @Override
+  protected void getReferencedTypes(Set<Schema> result)
+  {
+    super.getReferencedTypes(result);
+    
+    result.add(this);
+  }
+
+  @Override
+  protected void generateChildren(GenerationContext generationContext, Map<String, Object> dataModel)
+  {}
 }

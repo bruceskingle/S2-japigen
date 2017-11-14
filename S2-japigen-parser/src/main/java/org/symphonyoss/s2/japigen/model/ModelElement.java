@@ -267,8 +267,7 @@ public class ModelElement
   {
     log_.debug("Generate prologue {}", toString());
     
-    for(ModelElement child : children_)
-      child.generate(generationContext, dataModel);
+    generateChildren(generationContext, dataModel);
     
     for(String language : generationContext.getLanguages())
     {
@@ -292,6 +291,12 @@ public class ModelElement
     log_.debug("Generate epilogue {}", toString());
   }
   
+  protected void generateChildren(GenerationContext generationContext, Map<String, Object> dataModel) throws GenerationException
+  {
+    for(ModelElement child : children_)
+      child.generate(generationContext, dataModel);
+  }
+
   private void generate(GenerationContext generationContext, Map<String, Object> dataModel, Set<String> templates,
       String language, Map<String, IPathNameConstructor> pathBuilderMap, Configuration freemarkerConfig,
       File targetDir, File copyDir) throws GenerationException

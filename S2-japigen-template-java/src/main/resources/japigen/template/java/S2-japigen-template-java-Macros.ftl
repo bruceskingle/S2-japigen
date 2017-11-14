@@ -81,6 +81,14 @@
     <#case "Object">
       <#assign javaType="NO JAVA TYPE FOR OBJECT">
       <#break>
+    
+    <#case "AllOf">
+      <#assign javaType="NO JAVA TYPE FOR AllOf">
+      <#break>
+    
+    <#case "OneOf">
+      <#assign javaType=model.camelCapitalizedName>
+      <#break>
       
     <#default>
       // UNKNOWN ELEMENT TYPE ${model.elementType} for model ${model}

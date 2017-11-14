@@ -141,4 +141,9 @@ public class RootParserContext// extends ParserContext
       throw new ProgramFault(e);
     }
   }
+  
+  public boolean  hasErrors()
+  {
+    return errorCnt_ > 0;
+  }
 }

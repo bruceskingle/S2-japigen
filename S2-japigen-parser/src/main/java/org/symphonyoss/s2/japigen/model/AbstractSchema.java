@@ -63,8 +63,8 @@ public abstract class AbstractSchema extends ModelElement
   {
     SchemaBuilder builder = new SchemaBuilder(parent, context);
     
-    builder.build("allOf", (m, c, n) -> new AllOfSchema(m, n));
-    builder.build("oneOf", (m, c, n) -> new OneOfSchema(m, n));
+    builder.build("allOf", (m, c, n) -> new AllOfSchema(m, c, n));
+    builder.build("oneOf", (m, c, n) -> new OneOfSchema(m, c, n));
     builder.build("$ref", (m, c, n) -> new ReferenceSchema(m, c, n));
     builder.build("type", (m, c, n) -> Type.create(m, c, n));
     
