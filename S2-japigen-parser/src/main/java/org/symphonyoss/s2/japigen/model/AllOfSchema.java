@@ -51,6 +51,10 @@ public class AllOfSchema extends AbstractContainerSchema
       
       for(ModelElement e : getChildren())
       {
+//        if(e instanceof ReferenceSchema && e.getReference() instanceof )
+//        {
+//          e = e.getReference();
+//        }
         if(e instanceof ObjectSchema)
         {
           for(ModelElement child : e.getChildren())
@@ -64,5 +68,4 @@ public class AllOfSchema extends AbstractContainerSchema
     }
     return fields_;
   }
-  
 }

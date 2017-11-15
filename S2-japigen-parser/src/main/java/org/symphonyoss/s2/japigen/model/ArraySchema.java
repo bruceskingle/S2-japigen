@@ -51,7 +51,7 @@ public class ArraySchema extends Schema
     }
     else
     {
-      items_ = AbstractSchema.createSchema(parent, items);
+      items_ = AbstractSchema.createSchema(this, items);
     }
     
     switch(context.getText(JAPIGEN.X_CARDINALITY, JAPIGEN.X_CARDINALITY_LIST))

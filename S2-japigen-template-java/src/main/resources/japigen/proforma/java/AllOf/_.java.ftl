@@ -9,6 +9,8 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
   public ${model.camelCapitalizedName}(
 <#list model.fields as ref>
   <#assign field=ref.reference>
+  // ref is ${ref}
+  // field is ${field}
   <@setJavaType ref/>
     ${javaType?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
@@ -19,7 +21,6 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
 <#list model.fields as ref>
   <#assign field=ref.reference>
   <@setJavaType ref/>
-  <@checkLimits ref field.camelName/>
       ${field.camelName}<#sep>,
 </#list>
 

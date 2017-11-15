@@ -1,0 +1,45 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.0.1",
+    "title": "Japigen Invalid Test Types",
+    "license": {
+      "name": "Apache2"
+    }
+  },
+  "x-japigen-model": {
+    "javaGenPackage":  "com.symphony.s2.japigen.test.invalidcases",
+    "javaFacadePackage":  "com.symphony.s2.japigen.test.invalidcases.facade"
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      
+      "ObjectWithOneOf": {
+        "description": "An object with one field of every type.",
+        "type": "object",
+        "required": [
+          "secs"
+        ],
+        "properties": {
+          
+          "aDoubleOrInt": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DoubleMinMax"
+              },
+              {
+                "$ref": "#/components/schemas/Int32MinMax"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "aDoubleOrIntType"
+            }
+          }
+        }
+      }
+      
+      
+    }
+  }
+}

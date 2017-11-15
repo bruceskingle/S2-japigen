@@ -217,40 +217,6 @@
               "type": "string",
               "format": "byte"
             }
-          },
-          "aDoubleOrInt": {
-            "oneOf": [
-              {
-                "type": "object",
-                "required": [
-                  "aFloat"
-                ],
-                "properties": {
-                  "aFloat": {
-                    "description": "A float",
-                    "type": "number",
-                    "format": "float"
-                  }
-                }
-              },
-              {
-                "type": "object",
-                "required": [
-                  "aFloat"
-                ],
-                "properties": {
-                  "aFloat": {
-                    "description": "An int32",
-                    "type": "integer",
-                    "format": "int32"
-                  }
-                }
-                
-              }
-            ],
-            "discriminator": {
-              "propertyName": "aDoubleOrIntType"
-            }
           }
         }
       },
@@ -282,7 +248,147 @@
             }
           }
         ]
+      },
+      
+      "AOneOf": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "aFloat"
+            ],
+            "properties": {
+              "aFloat": {
+                "description": "A float",
+                "type": "number",
+                "format": "float"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "anInt"
+            ],
+            "properties": {
+              "anInt": {
+                "description": "An int32",
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+            
+          }
+        ],
+        "discriminator": {
+          "propertyName": "aDoubleOrIntType"
+        }
+      },
+      
+      "PetResponse": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Cat"
+          },
+          {
+            "$ref": "#/components/schemas/Dog"
+          },
+          {
+            "$ref": "#/components/schemas/Lizard"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "petType",
+          "mapping": {
+            "cachorro": "Dog"
+          }
+        }
+      },
+      
+      "Pet": {
+        "type": "object",
+        "discriminator": {
+          "propertyName": "petType"
+        },
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "petType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "petType"
+        ]
+      },
+      "Cat": {
+        "description": "A representation of a cat. Note that `Cat` will be used as the discriminator value.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Pet"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "huntingSkill": {
+                "type": "string",
+                "description": "The measured skill for hunting",
+                "default": "lazy",
+                "enum": [
+                  "clueless",
+                  "lazy",
+                  "adventurous",
+                  "aggressive"
+                ]
+              }
+            },
+            "required": [
+              "huntingSkill"
+            ]
+          }
+        ]
+      },
+      "Dog": {
+        "description": "A representation of a dog. Note that `Dog` will be used as the discriminator value.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Pet"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "packSize": {
+                "type": "integer",
+                "format": "int32",
+                "description": "the size of the pack the dog is from",
+                "default": 0,
+                "minimum": 0
+              }
+            },
+            "required": [
+              "packSize"
+            ]
+          }
+        ]
+      },
+      "Lizard": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Pet"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "lovesRocks": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
       }
+      
     }
   }
 }

@@ -79,6 +79,7 @@
       <#break>
     
     <#case "Object">
+      // model is ${model}
       <#assign javaType="NO JAVA TYPE FOR OBJECT">
       <#break>
     
@@ -136,8 +137,18 @@ import java.util.Set;
 import com.google.protobuf.ByteString;
 </#if>
 
+// model is ${model}
 <#list model.referencedTypes as field>
+// model.referencedTypes as field is ${field}
+  <#switch field.elementType>
+    <#case "OneOf">
+import ${field.model.modelMap["javaFacadePackage"]}.${model.camelCapitalizedName}.${field.camelCapitalizedName};
+    <#break>
+
+    <#default>
 import ${field.model.modelMap["javaFacadePackage"]}.${field.camelCapitalizedName};
+
+  </#switch>  
 </#list>
 </#macro>
 

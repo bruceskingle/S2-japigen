@@ -56,4 +56,19 @@ public class OneOfSchema extends AbstractContainerSchema
   @Override
   protected void generateChildren(GenerationContext generationContext, Map<String, Object> dataModel)
   {}
+
+  @Override
+  public void validate()
+  {
+    super.validate();
+    
+    if(getParent() instanceof Schemas)
+    {
+      getContext().info("OneOf parent is Schemas for %s", getName());
+    }
+    else
+    {
+      getContext().error("OneOf is only allowed in a top level schema (parent is %s for %s)", getParent().getClass(), getName());
+    }
+  }
 }

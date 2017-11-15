@@ -56,7 +56,7 @@ public abstract class AbstractSchema extends ModelElement
 
   protected AbstractSchema createSchema(ParserContext context)
   {
-    return createSchema(getParent(), context);
+    return createSchema(this, context);
   }
   
   /* package */ static AbstractSchema createSchema(ModelElement parent, ParserContext context)

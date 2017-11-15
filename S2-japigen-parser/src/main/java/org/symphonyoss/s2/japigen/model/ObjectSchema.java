@@ -24,8 +24,11 @@
 package org.symphonyoss.s2.japigen.model;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.symphonyoss.s2.japigen.parser.GenerationContext;
+import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 /**
@@ -67,7 +70,7 @@ public class ObjectSchema extends Schema
       {
         String fieldName = child.getName();
         boolean required = requiredButUndefinedSet_.remove(fieldName);
-        AbstractSchema field = Field.create(parent, child, required);
+        AbstractSchema field = Field.create(this, child, required);
         
         if(field != null)
           add(field);
@@ -135,5 +138,20 @@ public class ObjectSchema extends Schema
     
     for(ModelElement child : getChildren())
       child.getReferencedTypes(result);
+  }
+
+  @Override
+  public void generate(GenerationContext generationContext, Map<String, Object> dataModel) throws GenerationException
+  {
+    if(getParent() instanceof Schemas)
+    {
+      getContext().info("ObjectSchema parent is Schemas for %s", getName());
+      super.generate(generationContext, dataModel);
+    }
+    else
+    {
+      getContext().info("ObjectSchema ignored for generation (parent is %s for %s)", getParent().getClass(), getName());
+    }
+    
   }
 }

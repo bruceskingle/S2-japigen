@@ -105,11 +105,18 @@ public class Model extends ModelElement
 
   public void generate(GenerationContext generationContext) throws GenerationException
   {
-    Map<String, Object> dataModel = new HashMap<>();
-    
-    dataModel.putAll(generationContext.getDataModel());
-    dataModel.putAll(modelMap_);
-    
-    generate(generationContext, dataModel);
+    if(getContext().getRootParserContext().hasErrors())
+    {
+      getContext().error("Code generation aborted due to model validation errors");
+    }
+    else
+    {
+      Map<String, Object> dataModel = new HashMap<>();
+      
+      dataModel.putAll(generationContext.getDataModel());
+      dataModel.putAll(modelMap_);
+      
+      generate(generationContext, dataModel);
+    }
   }
 }

@@ -6,6 +6,8 @@ public class ${model.camelCapitalizedName}ModelObject
 {
 <#list model.fields as ref>
   <#assign field=ref.reference>
+  // ref is ${ref}
+  // field is ${field}
   <@setJavaType ref/>
   private ${javaType?right_pad(25)}  ${field.camelName}_;
 </#list>

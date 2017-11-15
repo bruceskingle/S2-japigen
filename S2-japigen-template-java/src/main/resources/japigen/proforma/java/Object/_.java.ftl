@@ -23,5 +23,33 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
 
     );
   }
+<#list model.children as field>
+  <@setJavaType field/>
+  <#switch field.elementType>
+    <#case "OneOf">
+      <@setJavaType field/>
+      
+  public class ${field.camelCapitalizedName} extends ${field.camelCapitalizedName}ModelObject
+  {
+    public ${field.camelCapitalizedName}(
+      <#list field.children as ref>
+        <#assign subfield=ref.reference>
+        <@setJavaType ref/>
+      ${javaType?right_pad(25)} ${subfield.camelName}<#sep>,
+      </#list>
+      
+    )
+    {
+      super(
+      <#list field.children as ref>
+        <#assign subfield=ref.reference>
+        ${subfield.camelName}<#sep>,
+      </#list>
+      );
+    }
+  }
+      <#break>
+    </#switch>
+</#list>
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

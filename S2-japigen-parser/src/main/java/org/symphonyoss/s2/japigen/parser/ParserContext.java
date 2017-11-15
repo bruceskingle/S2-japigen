@@ -144,7 +144,7 @@ public class ParserContext implements Iterable<ParserContext>
 
   public void error(String format, Object ...args)
   {
-    rootParserContext_.error(String.format("ERROR: %s%nat %s", String.format(format, args), path_));
+    rootParserContext_.error(String.format("%n%nERROR: %s%nat %s%n%n", String.format(format, args), path_));
   }
   
   public void info(String format, Object ...args)
