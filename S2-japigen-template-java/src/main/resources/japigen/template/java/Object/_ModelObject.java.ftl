@@ -1,12 +1,17 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
-<#include "Object.ftl">
-<@importFieldTypes model/>
+import javax.annotation.concurrent.Immutable;
 
-public class ${model.camelCapitalizedName}ModelObject
+<@importFieldTypes model/>
+import ${javaFacadePackage}.${model.camelCapitalizedName};
+import ${javaFacadePackage}.${model.camelCapitalizedName}.Builder;
+
+<#include "Object.ftl">
+@Immutable
+public abstract class ${model.camelCapitalizedName}ModelObject
 {
 <#list model.children as field>
   <@setJavaType field/>
-  private ${javaType?right_pad(25)}  ${field.camelName}_;
+  private final ${javaType?right_pad(25)}  ${field.camelName}_;
 </#list>
   
   public ${model.camelCapitalizedName}ModelObject(
@@ -70,5 +75,46 @@ public class ${model.camelCapitalizedName}ModelObject
       <#break>
     </#switch>
 </#list>
+  
+  public static abstract class ModelObjectBuilder
+  {
+<#list model.children as field>
+  <@setJavaType field/>
+    private ${javaType?right_pad(25)}  ${field.camelName}__;
+</#list>
+<#list model.children as field>
+<@setJavaType field/>
+    
+    public Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})
+    {
+<@checkLimits field field.camelName/>
+      ${field.camelName}__ = ${javaTypeAssignPrefix}${field.camelName}${javaTypeAssignPostfix};
+      return (Builder)this;
+    }
+  <#switch field.elementType>
+    <#case "Ref">
+    <#assign javaSubType=javaType>
+    <@setJavaType field.reference/>
+    
+    public Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})
+    {
+      ${field.camelName}__ = new ${javaSubType}(${field.camelName});
+      return (Builder)this;
+    }
+      <#break>
+  </#switch>
+</#list>
+
+    public ${model.camelCapitalizedName} build()
+    {
+      return new ${model.camelCapitalizedName}(
+<#list model.children as field>
+<@setJavaType field/>
+        ${field.camelName}__<#sep>, 
+</#list>
+
+      );
+  }
+  }
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

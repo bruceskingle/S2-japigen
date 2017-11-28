@@ -51,5 +51,14 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
       <#break>
     </#switch>
 </#list>
+
+  public static ModelObjectBuilder newBuilder()
+  {
+    return new Builder();
+  }
+  
+  public static class Builder extends ModelObjectBuilder
+  {
+  }
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

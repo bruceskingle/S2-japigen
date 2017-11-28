@@ -119,6 +119,11 @@
     
   <#case "Field">
     <@checkLimits2 model.type name/>
+    <#if model.required>
+      if(${name} == null)
+        throw new IllegalArgumentException(${name} + " is required.");
+
+    </#if>
     <#break>
   </#switch>
 </#macro>
