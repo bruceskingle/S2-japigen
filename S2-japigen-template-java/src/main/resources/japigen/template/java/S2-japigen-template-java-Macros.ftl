@@ -1,7 +1,7 @@
-<#macro setJavaType2 elementType format>
-  <#switch elementType>
+<#macro setJavaType2 model>
+  <#switch model.elementType>
     <#case "Integer">
-      <#switch format>
+      <#switch model.format>
         <#case "int32">
           <#assign javaType="Integer">
           <#break>
@@ -12,7 +12,7 @@
       <#break>
       
     <#case "Double">
-      <#switch format>
+      <#switch model.format>
         <#case "float">
           <#assign javaType="Float">
           <#break>
@@ -23,7 +23,7 @@
       <#break>
     
     <#case "String">
-      <#switch format>
+      <#switch model.format>
         <#case "byte">
           <#assign javaType="ByteString">
           <#break>
@@ -38,11 +38,21 @@
       <#break>
       
     <#default>
-      <#assign javaType="UNKNOWN_TYPE ${elementType} FORMAT ${format}">
+      <#assign javaType="UNKNOWN_TYPE ${model.elementType} FORMAT ${model.format}">
   </#switch>
+  <@setJavaType3 model/>
+</#macro>
+
+<#macro setJavaType3 model>
+  <#assign javaBaseType=javaType>
+  <#if model.attributes['javaExternalType']??>
+    <#assign javaType=model.attributes['javaExternalType']>
+    <#assign javaFacadeFullyQualifiedName="${model.attributes['javaExternalPackage']}.${javaType}">
+  </#if>
 </#macro>
 
 <#macro setJavaType model>
+  <#assign javaFacadeFullyQualifiedName="${javaFacadePackage}.${model.camelCapitalizedName}">
   <#assign javaTypeCopyPrefix="">
   <#assign javaTypeCopyPostfix="">
   <#assign javaBuilderTypeCopyPrefix="= ">
@@ -53,19 +63,20 @@
     <#case "Double">
     <#case "String">
     <#case "Boolean">
-      <@setJavaType2 model.elementType model.format/>
+      <@setJavaType2 model/>
       <#break>
       
     <#case "Field">
-      <@setJavaType2 model.type.elementType model.type.format/>
+      <@setJavaType2 model.type/>
       <#break>
       
     <#case "Ref">
       <#assign javaType=model.type.camelCapitalizedName>
+      <@setJavaType3 model.type/>
       <#break>
     
     <#case "Array">
-      <@setJavaType2 model.items.elementType model.items.format/>
+      <@setJavaType2 model.items/>
       <#assign javaTypeCopyPostfix=")">
       <#assign javaBuilderTypeCopyPostfix=")">
       <#switch model.cardinality>
@@ -163,8 +174,8 @@ import ${field.model.modelMap["javaFacadePackage"]}.${model.camelCapitalizedName
     <#break>
 
     <#default>
-import ${field.model.modelMap["javaFacadePackage"]}.${field.camelCapitalizedName};
-
+<@setJavaType field/>
+import ${javaFacadeFullyQualifiedName};
   </#switch>  
 </#list>
 </#macro>

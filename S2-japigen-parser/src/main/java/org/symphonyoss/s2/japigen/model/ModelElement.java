@@ -29,9 +29,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,8 @@ import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.io.Files;
 
 import freemarker.template.Configuration;
@@ -59,11 +63,12 @@ public class ModelElement
   private final String              snakeName_;
   private final String              snakeCapitalizedName_;
 
-  private List<ModelElement>        children_ = new ArrayList<>();
-  private Map<String, ModelElement> nameMap_  = new HashMap<>();
-  private Map<String, IPathNameConstructor> templatePathBuilderMap_  = new HashMap<>();
-  private Map<String, IPathNameConstructor> proformaPathBuilderMap_  = new HashMap<>();
-
+  private List<ModelElement>                children_               = new ArrayList<>();
+  private Map<String, ModelElement>         nameMap_                = new HashMap<>();
+  private Map<String, IPathNameConstructor> templatePathBuilderMap_ = new HashMap<>();
+  private Map<String, IPathNameConstructor> proformaPathBuilderMap_ = new HashMap<>();
+  private Map<String, String>               attributes_             = new HashMap<>();
+  
   private String description_;
 
   private String format_ = "";
@@ -90,6 +95,29 @@ public class ModelElement
     
     proformaPathBuilderMap_.put("java", new JavaPathNameConstructor(JAPIGEN.JAVA_FACADE_PACKAGE));
     proformaPathBuilderMap_.put(null, defaultPathNameConstructor);
+    
+    ParserContext japigen = parserContext.get(JAPIGEN.X_ATTRIBUTES);
+    if(japigen != null)
+    {
+      JsonNode jsonNode = japigen.getJsonNode();
+      
+      if(jsonNode instanceof ObjectNode)
+      {
+        Iterator<Entry<String, JsonNode>> it = jsonNode.fields();
+        
+        while(it.hasNext())
+        {
+          Entry<String, JsonNode> entry = it.next();
+          
+          attributes_.put(entry.getKey(), entry.getValue().asText());
+        }
+      }
+    }
+  }
+
+  public Map<String, String> getAttributes()
+  {
+    return attributes_;
   }
 
   private String toCamelCase(String name)
@@ -361,7 +389,11 @@ public class ModelElement
       throw new GenerationException(e);
     }
     
-    if(copyDir != null)
+    if(genPath.length() == 0L)
+    {
+      genPath.delete();
+    }
+    else if(copyDir != null)
     {
       File copyPath = new File(copyDir, className);
     

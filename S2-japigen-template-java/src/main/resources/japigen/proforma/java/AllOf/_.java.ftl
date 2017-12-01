@@ -1,4 +1,4 @@
-<#include "../S2-japigen-template-java-Prologue.ftl">
+<#include "../S2-japigen-proforma-java-Prologue.ftl">
 <@importFieldTypes model false/>
 
 import ${javaGenPackage}.${model.camelCapitalizedName}ModelObject;
@@ -25,4 +25,4 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
     );
   }
 }
-<#include "../S2-japigen-template-java-Epilogue.ftl">
+<#include "../S2-japigen-proforma-java-Epilogue.ftl">

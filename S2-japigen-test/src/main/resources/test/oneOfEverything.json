@@ -223,7 +223,11 @@
       "Hash": {
         "description": "A Hash value, encoded as Base64.",
         "type": "string",
-        "format": "bytes"
+        "format": "bytes",
+        "x-japigen-attributes": {
+          "javaExternalPackage":  "org.symphonyoss.s2.japigen.test.oneofeverything",
+          "javaExternalType":     "TestHash"
+        }
       },
       
       "anAllOf": {

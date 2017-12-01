@@ -122,6 +122,8 @@ public abstract class ${model.camelCapitalizedName}ModelObject implements I${mod
         <#break>
     </#switch>
   </#list>
+    
+    public abstract ${model.camelCapitalizedName} build();
   }
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">
