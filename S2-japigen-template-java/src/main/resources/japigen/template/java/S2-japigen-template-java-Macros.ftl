@@ -43,8 +43,11 @@
 </#macro>
 
 <#macro setJavaType model>
-  <#assign javaTypeAssignPrefix="">
-  <#assign javaTypeAssignPostfix="">
+  <#assign javaTypeCopyPrefix="">
+  <#assign javaTypeCopyPostfix="">
+  <#assign javaBuilderTypeCopyPrefix="= ">
+  <#assign javaBuilderTypeCopyPostfix="">
+  <#assign javaBuilderTypeNew="">
   <#switch model.elementType>
     <#case "Integer">
     <#case "Double">
@@ -63,23 +66,27 @@
     
     <#case "Array">
       <@setJavaType2 model.items.elementType model.items.format/>
-      <#assign javaTypeAssignPostfix=")">
+      <#assign javaTypeCopyPostfix=")">
+      <#assign javaBuilderTypeCopyPostfix=")">
       <#switch model.cardinality>
         <#case "SET">
           <#assign javaType="Set<${javaType}>">
           <#assign javaCardinality="Set">
-          <#assign javaTypeAssignPrefix="Collections.unmodifiableSet(">
+          <#assign javaTypeCopyPrefix="ImmutableSet.copyOf(">
+          <#assign javaBuilderTypeCopyPrefix=".addAll(">
+          <#assign javaBuilderTypeNew=" = new HashSet<>()">
           <#break>
           
         <#default>
           <#assign javaType="List<${javaType}>">
           <#assign javaCardinality="List">
-          <#assign javaTypeAssignPrefix="Collections.unmodifiableList(">
+          <#assign javaTypeCopyPrefix="ImmutableList.copyOf(">
+          <#assign javaBuilderTypeCopyPrefix=".addAll(">
+          <#assign javaBuilderTypeNew=" = new LinkedList<>()">
       </#switch>
       <#break>
     
     <#case "Object">
-      // model is ${model}
       <#assign javaType="NO JAVA TYPE FOR OBJECT">
       <#break>
     
@@ -100,12 +107,12 @@
 <#macro checkLimits2 model name>
   <#if model.minimum??>
     if(${name} != null && ${name} < ${model.minimumAsString})
-      throw new IllegalArgumentException("Value " + ${name} + " is less than the minimum allowed of ${model.minimum}");
+      throw new IllegalArgumentException("Value " + ${name} + " of ${name} is less than the minimum allowed of ${model.minimum}");
   </#if>
   <#if model.maximum??>
 
     if(${name} != null && ${name} > ${model.maximumAsString})
-      throw new IllegalArgumentException("Value " + ${name} + " is more than the maximum allowed of ${model.maximum}");
+      throw new IllegalArgumentException("Value " + ${name} + " of ${name} is more than the maximum allowed of ${model.maximum}");
   </#if>
 </#macro>
 
@@ -121,30 +128,35 @@
     <@checkLimits2 model.type name/>
     <#if model.required>
       if(${name} == null)
-        throw new IllegalArgumentException(${name} + " is required.");
+        throw new IllegalArgumentException("${name} is required.");
 
     </#if>
     <#break>
   </#switch>
 </#macro>
 
-<#macro importFieldTypes model>
+<#macro importFieldTypes model includeImpls>
 <#if model.hasCollections>
-import java.util.Collections;
 </#if>
 <#if model.hasList>
 import java.util.List;
+  <#if includeImpls>
+import java.util.LinkedList;
+import com.google.common.collect.ImmutableList;
+  </#if>
 </#if>
 <#if model.hasSet>
 import java.util.Set;
+  <#if includeImpls>
+import java.util.HashSet;
+import com.google.common.collect.ImmutableSet;
+  </#if>
 </#if>
 <#if model.hasByteString>
 import com.google.protobuf.ByteString;
 </#if>
 
-// model is ${model}
 <#list model.referencedTypes as field>
-// model.referencedTypes as field is ${field}
   <#switch field.elementType>
     <#case "OneOf">
 import ${field.model.modelMap["javaFacadePackage"]}.${model.camelCapitalizedName}.${field.camelCapitalizedName};

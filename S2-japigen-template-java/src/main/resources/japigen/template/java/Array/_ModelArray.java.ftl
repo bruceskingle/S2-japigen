@@ -1,10 +1,10 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
-<@importFieldTypes model/>
+<@importFieldTypes model false/>
 
-import com.symphony.s2.japigen.collections.ModelArray${javaCardinality};
+import com.symphony.s2.japigen.collections.Model${javaCardinality};
 
 <#include "Array.ftl">
-public class ${model.camelCapitalizedName}ModelArray extends ModelArray${javaType}
+public class ${model.camelCapitalizedName}ModelArray extends Model${javaType}
 {
   public ${model.camelCapitalizedName}ModelArray(${javaType} elements)
   {

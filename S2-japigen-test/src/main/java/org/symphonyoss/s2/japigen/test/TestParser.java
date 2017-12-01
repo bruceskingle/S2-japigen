@@ -35,20 +35,20 @@ public class TestParser
 {
   public static void main(String[] argv) throws JapigenException
   {
-    System.err.format("Integer.MIN_VALUE %d%n", Integer.MIN_VALUE);
-    System.err.format("Integer.MAX_VALUE %d%n", Integer.MAX_VALUE);
-    System.err.format("Long.MIN_VALUE %d%n", Long.MIN_VALUE);
-    System.err.format("Long.MAX_VALUE %d%n", Long.MAX_VALUE);
-    System.err.format("Float.MIN_VALUE %f%n", Float.MIN_VALUE);
-    System.err.format("Float.MAX_VALUE %f%n", Float.MAX_VALUE);
-    System.err.format("Double.MIN_VALUE %f%n", Double.MIN_VALUE);
-    System.err.format("Double.MAX_VALUE %f%n", Double.MAX_VALUE);
-    
-    System.err.format("Double.MIN_VALUE %s%n", Double.MIN_VALUE);
-    System.err.format("Double.MAX_VALUE %s%n", Double.MAX_VALUE);
-    
-    Double twentyfive = 25.0;
-    System.err.println("25 " + twentyfive);
+//    System.err.format("Integer.MIN_VALUE %d%n", Integer.MIN_VALUE);
+//    System.err.format("Integer.MAX_VALUE %d%n", Integer.MAX_VALUE);
+//    System.err.format("Long.MIN_VALUE %d%n", Long.MIN_VALUE);
+//    System.err.format("Long.MAX_VALUE %d%n", Long.MAX_VALUE);
+//    System.err.format("Float.MIN_VALUE %f%n", Float.MIN_VALUE);
+//    System.err.format("Float.MAX_VALUE %f%n", Float.MAX_VALUE);
+//    System.err.format("Double.MIN_VALUE %f%n", Double.MIN_VALUE);
+//    System.err.format("Double.MAX_VALUE %f%n", Double.MAX_VALUE);
+//    
+//    System.err.format("Double.MIN_VALUE %s%n", Double.MIN_VALUE);
+//    System.err.format("Double.MAX_VALUE %s%n", Double.MAX_VALUE);
+//    
+//    Double twentyfive = 25.0;
+//    System.err.println("25 " + twentyfive);
     
     ModelSetParserContext modelSetContext = new ModelSetParserContext();
     
@@ -70,7 +70,7 @@ public class TestParser
     GenerationContext generationContext = new GenerationContext("target/generated-sources", "target/proforma-sources", "target/proforma-copy");
     generationContext.addTemplateDirectory(new File("../S2-japigen-template-java/src/main/resources/japigen"));
     
-    generationContext.put("templateDebug", "true");
+//    generationContext.put("templateDebug", "true");
     
     modelSetContext.generate(generationContext);
   }

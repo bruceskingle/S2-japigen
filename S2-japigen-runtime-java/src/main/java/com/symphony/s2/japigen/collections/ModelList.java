@@ -23,19 +23,20 @@
 
 package com.symphony.s2.japigen.collections;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
-public class ModelArraySet<T>
+import com.google.common.collect.ImmutableList;
+
+public class ModelList<T>
 {
-  private final Set<T> elements_;
+  private final ImmutableList<T> elements_;
   
-  public ModelArraySet(Set<T> elements)
+  public ModelList(List<T> elements)
   {
-    elements_ = Collections.unmodifiableSet(elements);
+    elements_ = ImmutableList.copyOf(elements);
   }
 
-  public Set<T> getElements()
+  public ImmutableList<T> getElements()
   {
     return elements_;
   }

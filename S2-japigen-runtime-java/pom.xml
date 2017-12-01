@@ -6,4 +6,11 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>S2-japigen-runtime-java</artifactId>
+  
+  <dependencies>
+    <dependency>
+       <groupId>com.google.guava</groupId>
+       <artifactId>guava</artifactId>
+     </dependency>
+  </dependencies>
 </project>

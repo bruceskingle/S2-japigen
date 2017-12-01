@@ -34,6 +34,7 @@ public class TestOneOfEverything
     .withABoolean(true)
     .withADouble(7.0)
     .withADoubleMinMax(new DoubleMinMax(5.0))
+    .withSecs(10L)
     .build();
     
     System.out.println("Created " + obj);

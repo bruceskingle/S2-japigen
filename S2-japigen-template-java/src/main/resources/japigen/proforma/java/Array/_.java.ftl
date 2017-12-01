@@ -1,5 +1,5 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
-<@importFieldTypes model/>
+<@importFieldTypes model false/>
 
 import ${javaGenPackage}.${model.camelCapitalizedName}ModelArray;
 

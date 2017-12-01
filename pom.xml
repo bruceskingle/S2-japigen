@@ -7,7 +7,7 @@
 ~ Licensed to The Symphony Software Foundation (SSF) under one
 ~ or more contributor license agreements.  See the NOTICE file
 ~ distributed with this work for additional information
-~ regarding copyright ownership.  The ASF licenses this file
+~ regarding copyright ownership.  The SSF licenses this file
 ~ to you under the Apache License, Version 2.0 (the
 ~ "License"); you may not use this file except in compliance
 ~ with the License.  You may obtain a copy of the License at
@@ -79,6 +79,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<s2.common.version>0.1.6-SNAPSHOT</s2.common.version>
+		<guava.version>23.5-jre</guava.version>
 	</properties>
 
 	<repositories>
@@ -106,6 +107,12 @@
 	      <artifactId>S2-common-crypto</artifactId>
 	      <version>${s2.common.version}</version>
 	    </dependency>
+	    <dependency>
+		    <groupId>com.google.guava</groupId>
+		    <artifactId>guava</artifactId>
+		    <version>${guava.version}</version>
+		  </dependency>
+			    
     
 			<dependency>
 				<groupId>com.google.code.findbugs</groupId>
@@ -147,4 +154,43 @@
 			<artifactId>slf4j-api</artifactId>
 		 </dependency>
 	</dependencies>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.symphonyoss.s2.japigen
+										</groupId>
+										<artifactId>
+											S2-japigen-maven-plugin
+										</artifactId>
+										<versionRange>
+											[0.0.1-SNAPSHOT,)
+										</versionRange>
+										<goals>
+											<goal>
+												generate-sources
+											</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

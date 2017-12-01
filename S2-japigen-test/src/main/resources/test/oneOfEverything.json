@@ -244,6 +244,9 @@
                 "description": "A float",
                 "type": "number",
                 "format": "double"
+              },
+              "aHash": {
+                "$ref": "#/components/schemas/Hash"
               }
             }
           }

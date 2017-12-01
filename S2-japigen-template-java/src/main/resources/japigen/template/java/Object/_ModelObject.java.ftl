@@ -1,20 +1,20 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
 import javax.annotation.concurrent.Immutable;
 
-<@importFieldTypes model/>
+<@importFieldTypes model true/>
+
 import ${javaFacadePackage}.${model.camelCapitalizedName};
-import ${javaFacadePackage}.${model.camelCapitalizedName}.Builder;
 
 <#include "Object.ftl">
 @Immutable
-public abstract class ${model.camelCapitalizedName}ModelObject
+public abstract class ${model.camelCapitalizedName}ModelObject implements I${model.camelCapitalizedName}ModelObject
 {
 <#list model.children as field>
   <@setJavaType field/>
   private final ${javaType?right_pad(25)}  ${field.camelName}_;
 </#list>
   
-  public ${model.camelCapitalizedName}ModelObject(
+  protected ${model.camelCapitalizedName}ModelObject(
 <#list model.children as field><@setJavaType field/>
     ${javaType?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
@@ -24,12 +24,13 @@ public abstract class ${model.camelCapitalizedName}ModelObject
 <#list model.children as field>
 <@setJavaType field/>
 <@checkLimits field field.camelName/>
-    ${field.camelName}_ = ${javaTypeAssignPrefix}${field.camelName}${javaTypeAssignPostfix};
+    ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
 </#list>
   }
 <#list model.children as field>
   <@setJavaType field/>
   
+  @Override
   public ${javaType} get${field.camelCapitalizedName}()
   {
     return ${field.camelName}_;
@@ -59,7 +60,7 @@ public abstract class ${model.camelCapitalizedName}ModelObject
         <#assign subfield=ref.reference>
         <@setJavaType ref/>
         <@checkLimits ref subfield.camelName/>
-      ${subfield.camelName}_ = ${javaTypeAssignPrefix}${subfield.camelName}${javaTypeAssignPostfix};
+      ${subfield.camelName}_ = ${javaTypeCopyPrefix}${subfield.camelName}${javaTypeCopyPostfix};
       </#list>
     }
       <#list field.children as ref>
@@ -76,45 +77,51 @@ public abstract class ${model.camelCapitalizedName}ModelObject
     </#switch>
 </#list>
   
-  public static abstract class ModelObjectBuilder
+  public static abstract class Builder
   {
-<#list model.children as field>
-  <@setJavaType field/>
-    private ${javaType?right_pad(25)}  ${field.camelName}__;
-</#list>
-<#list model.children as field>
-<@setJavaType field/>
+  <#list model.children as field>
+    <@setJavaType field/>
+    private ${javaType?right_pad(25)}  ${field.camelName}__${javaBuilderTypeNew};
+  </#list>
     
-    public Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})
+    protected Builder()
     {
-<@checkLimits field field.camelName/>
-      ${field.camelName}__ = ${javaTypeAssignPrefix}${field.camelName}${javaTypeAssignPostfix};
-      return (Builder)this;
     }
-  <#switch field.elementType>
-    <#case "Ref">
-    <#assign javaSubType=javaType>
-    <@setJavaType field.reference/>
     
-    public Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})
+    protected Builder(Builder initial)
+    {
+  <#list model.children as field>
+  <@setJavaType field/>
+      ${field.camelName}__${javaBuilderTypeCopyPrefix}initial.${field.camelName}__${javaBuilderTypeCopyPostfix};
+  </#list>
+    }
+  <#list model.children as field>
+    <@setJavaType field/>
+    
+    public ${javaType} get${field.camelCapitalizedName}()
+    {
+      return ${field.camelName}__;
+    }
+    
+    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})
+    {
+    <@checkLimits field field.camelName/>
+      ${field.camelName}__ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
+      return (${model.camelCapitalizedName}.Builder)this;
+    }
+    <#switch field.elementType>
+      <#case "Ref">
+      <#assign javaSubType=javaType>
+      <@setJavaType field.reference/>
+    
+    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})
     {
       ${field.camelName}__ = new ${javaSubType}(${field.camelName});
-      return (Builder)this;
+      return (${model.camelCapitalizedName}.Builder)this;
     }
-      <#break>
-  </#switch>
-</#list>
-
-    public ${model.camelCapitalizedName} build()
-    {
-      return new ${model.camelCapitalizedName}(
-<#list model.children as field>
-<@setJavaType field/>
-        ${field.camelName}__<#sep>, 
-</#list>
-
-      );
-  }
+        <#break>
+    </#switch>
+  </#list>
   }
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

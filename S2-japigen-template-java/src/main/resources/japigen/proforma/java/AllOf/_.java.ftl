@@ -1,5 +1,5 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
-<@importFieldTypes model/>
+<@importFieldTypes model false/>
 
 import ${javaGenPackage}.${model.camelCapitalizedName}ModelObject;
 
@@ -9,8 +9,6 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
   public ${model.camelCapitalizedName}(
 <#list model.fields as ref>
   <#assign field=ref.reference>
-  // ref is ${ref}
-  // field is ${field}
   <@setJavaType ref/>
     ${javaType?right_pad(25)} ${field.camelName}<#sep>,
 </#list>

@@ -155,6 +155,56 @@ public class ReferenceSchema extends ReferenceOrSchema
     result.add(reference_);
   }
   
+  private boolean doNotDeref()
+  {
+    return reference_ == null || !(getParent() instanceof AbstractContainerSchema);
+  }
+  
+  @Override
+  public String getName()
+  {
+    if(doNotDeref())
+      return super.getName();
+    
+    return reference_.getName();
+  }
+
+  @Override
+  public String getCamelName()
+  {
+    if(doNotDeref())
+      return super.getCamelName();
+    
+    return reference_.getCamelName();
+  }
+
+  @Override
+  public String getCamelCapitalizedName()
+  {
+    if(doNotDeref())
+      return super.getCamelCapitalizedName();
+    
+    return reference_.getCamelCapitalizedName();
+  }
+
+  @Override
+  public String getSnakeName()
+  {
+    if(doNotDeref())
+      return super.getSnakeName();
+    
+    return reference_.getSnakeName();
+  }
+
+  @Override
+  public String getSnakeCapitalizedName()
+  {
+    if(doNotDeref())
+      return super.getSnakeCapitalizedName();
+    
+    return reference_.getSnakeCapitalizedName();
+  }
+
   @Override
   public String toString()
   {
