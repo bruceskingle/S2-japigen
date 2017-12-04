@@ -27,7 +27,7 @@
 	<parent>
 		<groupId>org.symphonyoss.s2</groupId>
 		<artifactId>S2-super-pom</artifactId>
-		<version>0.1.1</version>
+		<version>0.1.2-SNAPSHOT</version>
 	</parent>
 	
 	<groupId>org.symphonyoss.s2.japigen</groupId>
@@ -78,8 +78,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<s2.common.version>0.1.6-SNAPSHOT</s2.common.version>
-		<guava.version>23.5-jre</guava.version>
+		<s2.common.version>0.1.8-SNAPSHOT</s2.common.version>
 	</properties>
 
 	<repositories>
@@ -97,21 +96,21 @@
 	
 	<dependencyManagement>
 		<dependencies>
-		  <dependency>
-	      <groupId>org.symphonyoss.s2.common</groupId>
-	      <artifactId>S2-common-core</artifactId>
-	      <version>${s2.common.version}</version>
-	    </dependency>
+      <dependency>
+        <groupId>org.symphonyoss.s2.common</groupId>
+        <artifactId>S2-common-core</artifactId>
+        <version>${s2.common.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.symphonyoss.s2.common</groupId>
+        <artifactId>S2-common-dom</artifactId>
+        <version>${s2.common.version}</version>
+      </dependency>
 	    <dependency>
 	      <groupId>org.symphonyoss.s2.common</groupId>
 	      <artifactId>S2-common-crypto</artifactId>
 	      <version>${s2.common.version}</version>
 	    </dependency>
-	    <dependency>
-		    <groupId>com.google.guava</groupId>
-		    <artifactId>guava</artifactId>
-		    <version>${guava.version}</version>
-		  </dependency>
 			    
     
 			<dependency>

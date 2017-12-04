@@ -55,9 +55,12 @@
   <#assign javaFacadeFullyQualifiedName="${javaFacadePackage}.${model.camelCapitalizedName}">
   <#assign javaTypeCopyPrefix="">
   <#assign javaTypeCopyPostfix="">
-  <#assign javaBuilderTypeCopyPrefix="= ">
+  <#assign javaBuilderTypeCopyPrefix=" = ">
   <#assign javaBuilderTypeCopyPostfix="">
+  <#assign javaGetValuePrefix="">
+  <#assign javaGetValuePostfix="">
   <#assign javaBuilderTypeNew="">
+  <#assign addJsonNode="addIfNotNull">
   <#switch model.elementType>
     <#case "Integer">
     <#case "Double">
@@ -73,12 +76,15 @@
     <#case "Ref">
       <#assign javaType=model.type.camelCapitalizedName>
       <@setJavaType3 model.type/>
+      <#assign javaGetValuePostfix=".getValue()">
       <#break>
     
     <#case "Array">
       <@setJavaType2 model.items/>
+      <#assign addJsonNode="addCollectionOf${javaType}">
       <#assign javaTypeCopyPostfix=")">
       <#assign javaBuilderTypeCopyPostfix=")">
+      <#assign javaElementType=javaType>
       <#switch model.cardinality>
         <#case "SET">
           <#assign javaType="Set<${javaType}>">

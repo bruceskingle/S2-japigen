@@ -30,8 +30,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.Nonnull;
+
 import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.GenerationException;
@@ -44,7 +44,7 @@ public class Model extends ModelElement
 {
   private static final String COMPONENTS = "components";
 
-  private static Logger       log_       = LoggerFactory.getLogger(Model.class);
+  //private static Logger       log_       = LoggerFactory.getLogger(Model.class);
 
   private Version             openapi_;
   private Map<String, String> modelMap_ = new HashMap<>();
@@ -118,5 +118,10 @@ public class Model extends ModelElement
       
       generate(generationContext, dataModel);
     }
+  }
+  
+  @Nonnull Long test()
+  {
+    return null;
   }
 }

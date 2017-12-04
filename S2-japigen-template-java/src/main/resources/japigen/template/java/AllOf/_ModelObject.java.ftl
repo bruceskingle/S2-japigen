@@ -1,6 +1,7 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
 <#include "AllOf.ftl">
 <@importFieldTypes model true/>
+
 public class ${model.camelCapitalizedName}ModelObject
 {
 <#list model.fields as field>

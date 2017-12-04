@@ -175,13 +175,6 @@
             "type": "integer",
             "format": "int64"
           },
-          "nanos": {
-            "description": "Nanosecond-of-second, which will always be between 0 and 999,999,999",
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0,
-            "maximum": 999999999
-          },
           "aFloat": {
             "description": "A float",
             "type": "number",
@@ -199,15 +192,6 @@
           "aDoubleMinMax": {
             "$ref": "#/components/schemas/DoubleMinMax"
           },
-          "aListOfByteString": {
-            "description": "A list of byte String.",
-            "type": "array",
-            "items": {
-              "description": "A byte String array element.",
-              "type": "string",
-              "format": "byte"
-            }
-          },
           "aSetOfByteString": {
             "description": "A set of byte String.",
             "type": "array",
@@ -217,6 +201,22 @@
               "type": "string",
               "format": "byte"
             }
+          },
+          "aListOfByteString": {
+            "description": "A list of byte String.",
+            "type": "array",
+            "items": {
+              "description": "A byte String array element.",
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "nanos": {
+            "description": "Nanosecond-of-second, which will always be between 0 and 999,999,999",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 999999999
           }
         }
       },

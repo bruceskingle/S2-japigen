@@ -1,14 +1,20 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
 import javax.annotation.concurrent.Immutable;
 
+import com.symphony.s2.japigen.runtime.AbstractModelObject;
+
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
+
 <@importFieldTypes model true/>
 
 import ${javaFacadePackage}.${model.camelCapitalizedName};
 
 <#include "Object.ftl">
 @Immutable
-public abstract class ${model.camelCapitalizedName}ModelObject implements I${model.camelCapitalizedName}ModelObject
+public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractModelObject implements I${model.camelCapitalizedName}ModelObject
 {
+  private final ${"ImmutableJsonObject"?right_pad(25)}  jsonObject_;
 <#list model.children as field>
   <@setJavaType field/>
   private final ${javaType?right_pad(25)}  ${field.camelName}_;
@@ -21,11 +27,20 @@ public abstract class ${model.camelCapitalizedName}ModelObject implements I${mod
 
   )
   {
+    MutableJsonObject jsonObject = new MutableJsonObject();
 <#list model.children as field>
 <@setJavaType field/>
 <@checkLimits field field.camelName/>
     ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
+    jsonObject.${addJsonNode}("${field.camelName}", ${javaGetValuePrefix}${field.camelName}_${javaGetValuePostfix});
 </#list>
+
+    jsonObject_ = jsonObject.immutify();
+  }
+  
+  public ImmutableJsonObject getJsonObject()
+  {
+    return jsonObject_;
   }
 <#list model.children as field>
   <@setJavaType field/>
@@ -106,7 +121,7 @@ public abstract class ${model.camelCapitalizedName}ModelObject implements I${mod
     public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})
     {
     <@checkLimits field field.camelName/>
-      ${field.camelName}__ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
+      ${field.camelName}__${javaBuilderTypeCopyPrefix}${field.camelName}${javaBuilderTypeCopyPostfix};
       return (${model.camelCapitalizedName}.Builder)this;
     }
     <#switch field.elementType>

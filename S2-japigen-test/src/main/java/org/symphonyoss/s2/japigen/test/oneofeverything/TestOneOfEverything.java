@@ -23,20 +23,81 @@
 
 package org.symphonyoss.s2.japigen.test.oneofeverything;
 
+import java.io.IOException;
+
+import org.symphonyoss.s2.common.dom.DomSerializer;
+import org.symphonyoss.s2.common.dom.DomWriter;
+import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
+import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.protobuf.ByteString;
 import com.symphony.s2.japigen.test.oneofeverything.facade.DoubleMinMax;
 import com.symphony.s2.japigen.test.oneofeverything.facade.ObjectWithOneOfEverything;
 
 public class TestOneOfEverything
 {
-  public static void main(String[] argv)
+  public static void main(String[] argv) throws IOException
   {
     ObjectWithOneOfEverything obj = ObjectWithOneOfEverything.newBuilder()
     .withABoolean(true)
     .withADouble(7.0)
     .withADoubleMinMax(new DoubleMinMax(5.0))
     .withSecs(10L)
+    .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("Hello".getBytes()), ByteString.copyFrom("World".getBytes())))
     .build();
     
     System.out.println("Created " + obj);
+    
+    DomWriter writer = new DomWriter(System.out);
+    
+    writer.write(obj.getJsonObject());
+    
+    obj = ObjectWithOneOfEverything.newBuilder()
+    .withABoolean(false)
+    .withADouble(27.0)
+    .withADoubleMinMax(5.0)
+    .withSecs(20L)
+    .withAByteString(ByteString.copyFrom("Hello World".getBytes()))
+    .withAFloat(3.14f)
+    .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("Hello".getBytes()), ByteString.copyFrom("World".getBytes())))
+    .withASetOfByteString(ImmutableSet.of(ByteString.copyFrom("This is a set".getBytes()), ByteString.copyFrom("So the items are unique".getBytes())))
+    .withNanos(200)
+    .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("More".getBytes()), ByteString.copyFrom("Strings".getBytes())))
+    .build();
+    
+    writer.write(obj.getJsonObject());
+    
+    writer.flush();
+    
+    DomSerializer serializer = DomSerializer.newBuilder()
+        .withCanonicalMode(true)
+        .build();
+    
+    String json = serializer.serialize(obj.getJsonObject());
+    
+    System.out.println("Canonical JSON:");
+    System.out.println(json);
+    
+    ObjectMapper mapper = new ObjectMapper();
+    
+    JsonNode tree = mapper.readTree(json.getBytes());
+    
+    System.out.println("Jackson DOM:");
+    System.out.println(tree);
+    
+    IJsonDomNode adaptor = JacksonAdaptor.adapt(tree);
+    
+    System.out.println("Adapted node:");
+    writer.write(adaptor);
+    
+    writer.close();
+    
+    System.out.println("Test Complete");
   }
 }
