@@ -38,6 +38,8 @@ public class ArraySchema extends Schema
 {
   private final AbstractSchema items_;
   private final String cardinality_;
+  private final Long minItems_;
+  private final Long maxItems_;
   
   public ArraySchema(ModelElement parent, ParserContext context)
   {
@@ -54,6 +56,9 @@ public class ArraySchema extends Schema
       items_ = AbstractSchema.createSchema(this, items);
     }
     
+    minItems_ = context.getLongNode("minItems");
+    maxItems_ = context.getLongNode("maxItems");
+    
     switch(context.getText(JAPIGEN.X_CARDINALITY, JAPIGEN.X_CARDINALITY_LIST))
     {
       case JAPIGEN.X_CARDINALITY_SET:
@@ -69,6 +74,16 @@ public class ArraySchema extends Schema
   public AbstractSchema getItems()
   {
     return items_;
+  }
+
+  public Long getMinItems()
+  {
+    return minItems_;
+  }
+
+  public Long getMaxItems()
+  {
+    return maxItems_;
   }
 
   public String getCardinality()

@@ -3,8 +3,19 @@ import javax.annotation.concurrent.Immutable;
 
 import com.symphony.s2.japigen.runtime.AbstractModelObject;
 
+import org.symphonyoss.s2.common.dom.IBooleanProvider;
+import org.symphonyoss.s2.common.dom.IStringProvider;
+import org.symphonyoss.s2.common.dom.IIntegerProvider;
+import org.symphonyoss.s2.common.dom.ILongProvider;
+import org.symphonyoss.s2.common.dom.IFloatProvider;
+import org.symphonyoss.s2.common.dom.IDoubleProvider;
+import org.symphonyoss.s2.common.dom.IByteStringProvider;
+import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.JsonArray;
 import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
+
+import org.symphonyoss.s2.common.exception.BadFormatException;
 
 <@importFieldTypes model true/>
 
@@ -20,12 +31,13 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
   private final ${javaType?right_pad(25)}  ${field.camelName}_;
 </#list>
   
+<#-- Constrictor from fields -->  
   protected ${model.camelCapitalizedName}ModelObject(
 <#list model.children as field><@setJavaType field/>
     ${javaType?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
 
-  )
+  )<@checkLimitsClassThrows model/>
   {
     MutableJsonObject jsonObject = new MutableJsonObject();
 <#list model.children as field>
@@ -38,6 +50,53 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
     jsonObject_ = jsonObject.immutify();
   }
   
+<#-- Constrictor from Json   -->  
+  protected ${model.camelCapitalizedName}ModelObject(ImmutableJsonObject jsonObject) throws BadFormatException
+  {
+    jsonObject_ = jsonObject;
+
+<#list model.children as field>
+<@setJavaType field/>
+    if(jsonObject_.containsKey("${field.camelName}"))
+    {
+      IJsonDomNode  node = jsonObject_.get("${field.camelName}");
+  <#switch field.elementType>
+    <#case "Array">
+      if(node instanceof JsonArray)
+      {
+        ${field.camelName}_ = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaBaseType}.class);
+        <@checkItemLimits field field.camelName "${field.camelName}_"/>
+      }
+      else
+      {
+        throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
+      }
+      <#break>
+      
+    <#default>
+      if(node instanceof I${javaRefType}Provider)
+      {
+        ${javaType} ${field.camelName} = ${javaConstructTypePrefix}((I${javaRefType}Provider)node).as${javaRefType}()${javaConstructTypePostfix};
+      <@checkLimits field field.camelName/>
+        ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
+      }
+      else
+      {
+        throw new BadFormatException("${field.camelName} must be an instance of ${javaRefType} not " + node.getClass().getName());
+      }
+  </#switch>
+    }
+    else
+    {
+  <#if isNotNullable>
+      throw new BadFormatException("${field.camelName} is required.");
+  <#else>
+      ${field.camelName}_ = null;
+  </#if>
+    }
+</#list>
+  }
+
   public ImmutableJsonObject getJsonObject()
   {
     return jsonObject_;
@@ -118,7 +177,7 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
       return ${field.camelName}__;
     }
     
-    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})
+    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})<@checkLimitsThrows field/>
     {
     <@checkLimits field field.camelName/>
       ${field.camelName}__${javaBuilderTypeCopyPrefix}${field.camelName}${javaBuilderTypeCopyPostfix};
@@ -129,7 +188,7 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
       <#assign javaSubType=javaType>
       <@setJavaType field.reference/>
     
-    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})
+    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})<@checkLimitsThrows field/>
     {
       ${field.camelName}__ = new ${javaSubType}(${field.camelName});
       return (${model.camelCapitalizedName}.Builder)this;
@@ -138,7 +197,7 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
     </#switch>
   </#list>
     
-    public abstract ${model.camelCapitalizedName} build();
+    public abstract ${model.camelCapitalizedName} build()<@checkLimitsClassThrows model/>;
   }
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

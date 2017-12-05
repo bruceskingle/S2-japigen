@@ -3,6 +3,8 @@
 <#assign methodAnnotation="">
 <#else>
 <#assign methodAnnotation="@Override">
+import org.symphonyoss.s2.common.exception.BadFormatException;
+
 import ${javaGenPackage}.${model.camelCapitalizedName}ModelType;
 </#if>
 
@@ -21,7 +23,7 @@ public class ${model.camelCapitalizedName}
 <#else>
 public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}ModelType
 {
-  public ${model.camelCapitalizedName}(${javaType} value)
+  public ${model.camelCapitalizedName}(${javaType} value)<@checkLimitsThrows model/>
   {
     super(value);
   }
@@ -30,7 +32,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
   {
 </#if>
     ${methodAnnotation}
-    public ${model.camelCapitalizedName} build(${javaBaseType} value)
+    public ${model.camelCapitalizedName} build(${javaBaseType} value)<@checkLimitsThrows model/>
     {
       return new ${model.camelCapitalizedName}(value);
     }

@@ -1,6 +1,7 @@
 <#macro setJavaType2 model>
   <#switch model.elementType>
     <#case "Integer">
+      <#assign jsonNodeType="Integer">
       <#switch model.format>
         <#case "int32">
           <#assign javaType="Integer">
@@ -41,6 +42,7 @@
       <#assign javaType="UNKNOWN_TYPE ${model.elementType} FORMAT ${model.format}">
   </#switch>
   <@setJavaType3 model/>
+  <#assign javaRefType=javaType>
 </#macro>
 
 <#macro setJavaType3 model>
@@ -53,14 +55,20 @@
 
 <#macro setJavaType model>
   <#assign javaFacadeFullyQualifiedName="${javaFacadePackage}.${model.camelCapitalizedName}">
+  <#assign javaType="">
+  <#assign javaRefType="">
   <#assign javaTypeCopyPrefix="">
   <#assign javaTypeCopyPostfix="">
   <#assign javaBuilderTypeCopyPrefix=" = ">
   <#assign javaBuilderTypeCopyPostfix="">
   <#assign javaGetValuePrefix="">
   <#assign javaGetValuePostfix="">
+  <#assign javaConstructTypePrefix="">
+  <#assign javaConstructTypePostfix="">
   <#assign javaBuilderTypeNew="">
   <#assign addJsonNode="addIfNotNull">
+  <#assign isNotNullable=false>
+  <#assign javaCardinality="">
   <#switch model.elementType>
     <#case "Integer">
     <#case "Double">
@@ -71,10 +79,17 @@
       
     <#case "Field">
       <@setJavaType2 model.type/>
+      <#if model.required>
+        <#assign isNotNullable=true>
+      </#if>
       <#break>
       
     <#case "Ref">
+      <@setJavaType2 model.type/>
+      
       <#assign javaType=model.type.camelCapitalizedName>
+      <#assign javaConstructTypePrefix="new ${javaType}(">
+      <#assign javaConstructTypePostfix=")">
       <@setJavaType3 model.type/>
       <#assign javaGetValuePostfix=".getValue()">
       <#break>
@@ -121,39 +136,125 @@
   </#switch>
 </#macro>
 
+<#macro checkLimitsClassThrows model>
+  <#list model.children as field>
+    <#if isCheckLimitsThrows(field)>
+ throws BadFormatException
+      <#return>
+    </#if>
+  </#list>
+</#macro>
+
+<#macro checkLimitsAllOfThrows model>
+  <#list model.fields as field>
+    <#if isCheckLimitsThrows(field)>
+ throws BadFormatException
+      <#return>
+    </#if>
+  </#list>
+</#macro>
+
+<#macro checkLimitsThrows model>
+  <#if isCheckLimitsThrows(model)>
+ throws BadFormatException
+  </#if>
+</#macro>
+
+<#function isCheckLimitsThrows model>
+  <#switch model.elementType>
+    <#case "Field">
+        <#if model.type.minimum?? ||  model.type.maximum?? || model.required>
+          <#return true>
+        </#if>
+      <#break>
+      
+    <#case "Ref">
+        <#return isCheckLimitsThrows(model.type)/>
+      <#break>
+      
+  <#default>
+        <#if model.minimum?? ||  model.maximum??>
+          <#return true>
+        </#if>
+  </#switch>
+  <#return false>
+</#function>
+
 <#macro checkLimits2 model name>
   <#if model.minimum??>
     if(${name} != null && ${name} < ${model.minimumAsString})
-      throw new IllegalArgumentException("Value " + ${name} + " of ${name} is less than the minimum allowed of ${model.minimum}");
+      throw new BadFormatException("Value " + ${name} + " of ${name} is less than the minimum allowed of ${model.minimum}");
   </#if>
   <#if model.maximum??>
 
     if(${name} != null && ${name} > ${model.maximumAsString})
-      throw new IllegalArgumentException("Value " + ${name} + " of ${name} is more than the maximum allowed of ${model.maximum}");
+      throw new BadFormatException("Value " + ${name} + " of ${name} is more than the maximum allowed of ${model.maximum}");
   </#if>
 </#macro>
 
 <#macro checkLimits model name>
-<#switch model.elementType>
-  <#case "Integer">
-  <#case "Double">
-  <#case "String">
-    <@checkLimits2 model name/>
-    <#break>
-    
-  <#case "Field">
-    <@checkLimits2 model.type name/>
-    <#if model.required>
+  <#switch model.elementType>
+    <#case "Integer">
+    <#case "Double">
+    <#case "String">
+      <@checkLimits2 model name/>
+      <#break>
+      
+    <#case "Field">
+      <@checkLimits2 model.type name/>
+      <#if model.required>
       if(${name} == null)
-        throw new IllegalArgumentException("${name} is required.");
+        throw new BadFormatException("${name} is required.");
+  
+      </#if>
+      <#break>
+  </#switch>
+</#macro>
 
-    </#if>
-    <#break>
+<#function isCheckItemLimits model>
+  <#switch model.elementType>
+    <#case "Array">
+      <#if model.minItems??>
+        <#return true>
+      </#if>
+      <#if model.maxItems??>
+        <#return true>
+      </#if>
+      <#break>
+  </#switch>
+  <#return false>
+</#function>
+
+<#macro checkItemLimitsThrows model>
+  <#if isCheckItemLimits(model)>
+ throws BadFormatException
+  </#if>
+</#macro>
+
+<#macro checkItemLimits model name var>
+  <#switch model.elementType>
+    <#case "Array">
+      <#if model.minItems??>
+        if(${var}.size() < ${model.minItems})
+        {
+          throw new BadFormatException("${name} has " + ${var}.size() + " items but at least ${model.minItems} are required");
+        }
+      </#if>
+      <#if model.maxItems??>
+        if(${var}.size() > ${model.maxItems})
+        {
+          throw new BadFormatException("${name} has " + ${var}.size() + " items but at most ${model.maxItems} are allowed");
+        }
+      </#if>
+      <#break>
   </#switch>
 </#macro>
 
 <#macro importFieldTypes model includeImpls>
 <#if model.hasCollections>
+</#if>
+<#if model.hasList || model.hasSet>
+import java.util.Iterator;
 </#if>
 <#if model.hasList>
 import java.util.List;

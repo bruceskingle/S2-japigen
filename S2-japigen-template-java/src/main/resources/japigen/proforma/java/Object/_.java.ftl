@@ -1,4 +1,8 @@
 <#include "../S2-japigen-proforma-java-Prologue.ftl">
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+
+import org.symphonyoss.s2.common.exception.BadFormatException;
+
 <@importFieldTypes model false/>
 
 import ${javaGenPackage}.${model.camelCapitalizedName}ModelObject;
@@ -7,12 +11,13 @@ import ${javaGenPackage}.${model.camelCapitalizedName}ModelObject;
 <#include "../../../template/java/Object/Object.ftl">
 public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}ModelObject implements I${model.camelCapitalizedName}
 {
+<#-- Constrictor from fields -->  
   private ${model.camelCapitalizedName}(
 <#list model.children as field><@setJavaType field/>
     ${javaType?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
 
-  )
+  )<@checkLimitsClassThrows model/>
   {
     super(
 <#list model.children as field>
@@ -22,12 +27,12 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
 
     );
   }
-<#list model.children as field>
+<#--     list model.children as field>
   <@setJavaType field/>
   <#switch field.elementType>
     <#case "OneOf">
       <@setJavaType field/>
-      
+    THIS IS NEVER CALLED I THINK  
   public class ${field.camelCapitalizedName} extends ${field.camelCapitalizedName}ModelObject
   {
     public ${field.camelCapitalizedName}(
@@ -37,7 +42,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
       ${javaType?right_pad(25)} ${subfield.camelName}<#sep>,
       </#list>
       
-    )
+    )<@checkLimitsClassThrows model/>
     {
       super(
       <#list field.children as ref>
@@ -49,7 +54,15 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
   }
       <#break>
     </#switch>
-</#list>
+</#list   -->
+  
+<#-- Constrictor from Json   -->
+
+  // This should be private but until we generate factory classes we have no where to call it from
+  public ${model.camelCapitalizedName}(ImmutableJsonObject jsonObject) throws BadFormatException
+  {
+    super(jsonObject);
+  }
 
   /**
    * Create a new builder with all fields initialized to default values.
@@ -87,7 +100,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
     }
   
     @Override
-    public ${model.camelCapitalizedName} build()
+    public ${model.camelCapitalizedName} build()<@checkLimitsClassThrows model/>
     {
       /*
        * This is where you would place hand written code to enforce further constraints

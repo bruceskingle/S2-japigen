@@ -1,5 +1,7 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
 <#include "AllOf.ftl">
+import org.symphonyoss.s2.common.exception.BadFormatException;
+
 <@importFieldTypes model true/>
 
 public class ${model.camelCapitalizedName}ModelObject
@@ -15,7 +17,7 @@ public class ${model.camelCapitalizedName}ModelObject
     ${javaType?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
 
-  )
+  )<@checkLimitsAllOfThrows model/>
   {
 <#list model.fields as field>
   <@setJavaType field/>

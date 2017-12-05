@@ -136,6 +136,8 @@
         "description": "A list of byte String.",
         "type": "array",
         "x-japigen-cardinality": "LIST",
+        "minItems": 1,
+        "maxItems": 5,
         "items": {
           "description": "A byte String list element.",
           "type": "string",
@@ -151,6 +153,18 @@
           "description": "A set of byte String array element.",
           "type": "string",
           "format": "byte"
+        }
+      },
+      
+      "ASimpleObject": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
         }
       },
       
@@ -205,6 +219,8 @@
           "aListOfByteString": {
             "description": "A list of byte String.",
             "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
             "items": {
               "description": "A byte String array element.",
               "type": "string",
@@ -257,16 +273,16 @@
         ]
       },
       
-      "AOneOf": {
+      "EitherFloatOrInt": {
         "oneOf": [
           {
             "type": "object",
             "required": [
-              "aFloat"
+              "eitherFloat"
             ],
             "properties": {
-              "aFloat": {
-                "description": "A float",
+              "eitherFloat": {
+                "description": "Either A float",
                 "type": "number",
                 "format": "float"
               }
@@ -275,11 +291,11 @@
           {
             "type": "object",
             "required": [
-              "anInt"
+              "eitherInt"
             ],
             "properties": {
-              "anInt": {
-                "description": "An int32",
+              "eitherInt": {
+                "description": "Either An int32",
                 "type": "integer",
                 "format": "int32"
               }
@@ -288,7 +304,7 @@
           }
         ],
         "discriminator": {
-          "propertyName": "aDoubleOrIntType"
+          "propertyName": "floatOrIntType"
         }
       },
       

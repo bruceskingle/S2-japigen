@@ -1,4 +1,6 @@
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-template-java-SubPrologue.ftl">
+import org.symphonyoss.s2.common.exception.BadFormatException;
+
 import ${javaFacadeFullyQualifiedName};
 
 <#include "TypeDefHeader.ftl">
@@ -11,7 +13,7 @@ public class ${model.camelCapitalizedName}ModelType
 <#else>
   private ${javaType} value_;
   
-  public ${model.camelCapitalizedName}ModelType(${javaBaseType} value)
+  public ${model.camelCapitalizedName}ModelType(${javaBaseType} value)<@checkLimitsThrows model/>
   {
 <@checkLimits model "value"/>
     value_ = value;
@@ -24,7 +26,7 @@ public class ${model.camelCapitalizedName}ModelType
   
   public static abstract class Builder
   {
-    public abstract ${model.camelCapitalizedName} build(${javaBaseType} value);
+    public abstract ${model.camelCapitalizedName} build(${javaBaseType} value)<@checkLimitsThrows model/>;
     public abstract ${javaType} to${javaType}(${model.camelCapitalizedName} instance);
   }
 </#if>

@@ -1,4 +1,6 @@
 <#include "../S2-japigen-proforma-java-Prologue.ftl">
+import org.symphonyoss.s2.common.exception.BadFormatException;
+
 <@importFieldTypes model false/>
 
 import ${javaGenPackage}.${model.camelCapitalizedName}ModelObject;
@@ -13,7 +15,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
     ${javaType?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
 
-  )
+  )<@checkLimitsAllOfThrows model/>
   {
     super(
 <#list model.fields as ref>

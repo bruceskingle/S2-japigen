@@ -21,22 +21,23 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.test.oneofeverything;
+package org.symphonyoss.s2.japigen.test;
 
 import java.io.IOException;
 
 import org.junit.Assert;
+import org.junit.Test;
 import org.symphonyoss.s2.common.dom.DomSerializer;
 import org.symphonyoss.s2.common.dom.DomWriter;
-import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
-import org.symphonyoss.s2.common.dom.json.IJsonObject;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
 import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
@@ -56,21 +57,48 @@ public class TestOneOfEverything
     }
   }
   
-  public static void main(String[] argv) throws IOException, BadFormatException
+  @Test
+  public void testSubset() throws BadFormatException
   {
-    ObjectWithOneOfEverything obj = ObjectWithOneOfEverything.newBuilder()
+    double d = 1.0 / 3.0;
+    float f = (float)d;
+    
+    System.err.format("d=%e f=%e equals=%s", d, f, d==f);
+    
+    d = 1.0 / 2.0;
+    f = (float)d;
+    
+    System.err.format("d=%e f=%e equals=%s", d, f, d==f);
+    
+    ImmutableJsonObject dom = ObjectWithOneOfEverything.newBuilder()
+        .withABoolean(true)
+        .withADouble(7.0)
+        .withADoubleMinMax(new DoubleMinMax(5.0))
+        .withSecs(10L)
+        .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("Hello".getBytes()), ByteString.copyFrom("World".getBytes())))
+        .build().getJsonObject();
+    
+    DomSerializer serializer = DomSerializer.newBuilder()
+        .withCanonicalMode(true)
+        .build();
+    
+    test("", serializer.serialize(ObjectWithOneOfEverything.newBuilder()
     .withABoolean(true)
     .withADouble(7.0)
     .withADoubleMinMax(new DoubleMinMax(5.0))
     .withSecs(10L)
     .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("Hello".getBytes()), ByteString.copyFrom("World".getBytes())))
-    .build();
+    .build().getJsonObject()));
+  }
+  
+  public static void main(String[] argv) throws IOException, BadFormatException
+  {
+    ObjectWithOneOfEverything obj;
     
-    System.out.println("Created " + obj);
     
     DomWriter writer = new DomWriter(System.out);
     
-    writer.write(obj.getJsonObject());
+
     
     obj = ObjectWithOneOfEverything.newBuilder()
     .withABoolean(false)
@@ -105,31 +133,11 @@ public class TestOneOfEverything
     System.out.println("Jackson DOM:");
     System.out.println(tree);
     
-    IJsonDomNode adapted = JacksonAdaptor.adapt(tree);
+    IJsonDomNode adaptor = JacksonAdaptor.adapt(tree);
     
     System.out.println("Adapted node:");
-    writer.write(adapted);
-    writer.flush();
+    writer.write(adaptor);
     
-    if(adapted instanceof IJsonObject)
-    {
-      try
-      {
-        ObjectWithOneOfEverything obj2 = new ObjectWithOneOfEverything((ImmutableJsonObject) adapted.immutify());
-        
-        System.out.println("Reconstructed object:");
-        writer.write(obj2.getJsonObject());
-      }
-      catch(BadFormatException e)
-      {
-        System.err.println("Failed to deserialize from JSON");
-        e.printStackTrace();
-      }
-    }
-    else
-    {
-      System.err.println("Expected an object but received a " + adapted.getClass().getName());
-    }
     writer.close();
     
     System.out.println("Test Complete");

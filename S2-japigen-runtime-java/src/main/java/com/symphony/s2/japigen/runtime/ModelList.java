@@ -21,23 +21,28 @@
  * under the License.
  */
 
-package com.symphony.s2.japigen.collections;
+package com.symphony.s2.japigen.runtime;
 
-import java.util.Set;
+import java.util.List;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 
-public class ModelSet<T>
+public class ModelList<T>
 {
-  private final ImmutableSet<T> elements_;
+  private final ImmutableList<T> elements_;
   
-  public ModelSet(Set<T> elements)
+  public ModelList(List<T> elements)
   {
-    elements_ = ImmutableSet.copyOf(elements);
+    elements_ = ImmutableList.copyOf(elements);
   }
 
-  public ImmutableSet<T> getElements()
+  public ImmutableList<T> getElements()
   {
     return elements_;
+  }
+
+  public int size()
+  {
+    return elements_.size();
   }
 }
