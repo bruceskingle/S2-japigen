@@ -1,10 +1,9 @@
 <#include "../S2-japigen-proforma-java-Prologue.ftl">
-<#include "../../../template/java/Object/Object.ftl">
+<@setPrologueJavaType model/>
 
 import ${javaGenPackage}.I${model.camelCapitalizedName}ModelObject;
 
-<@setJavaType model/>
-
+<#include "../../../template/java/Object/Object.ftl">
 public interface I${model.camelCapitalizedName} extends I${model.camelCapitalizedName}ModelObject
 {
 }

@@ -1,0 +1,84 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.0.1",
+    "title": "Japigen Template Type Check",
+    "license": {
+      "name": "Apache2"
+    }
+  },
+  "x-japigen-id": "https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/typeCheck.json",
+  "x-japigen-model": {
+    "javaGenPackage":  "com.symphony.s2.japigen.test.typeCheck",
+    "javaFacadePackage":  "com.symphony.s2.japigen.test.typeCheck.facade"
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "IntTypedef": {
+        "description": "An integer typedef.",
+        "type": "integer"
+      },
+      
+      
+      "ListOfInts": {
+        "description": "A list of integers.",
+        "type": "array",
+        "x-japigen-cardinality": "LIST",
+        "minItems": 1,
+        "maxItems": 5,
+        "items": {
+          "description": "An integer element.",
+          "type": "integer"
+        }
+      },
+      
+      "SetOfInts": {
+        "description": "A set of integers.",
+        "type": "array",
+        "x-japigen-cardinality": "SET",
+        "items": {
+          "description": "An integer element.",
+          "type": "integer"
+        }
+      },
+      
+      "ObjectWithInts": {
+        "type": "object",
+        "properties": {
+          "intField": {
+            "type": "integer"
+          },
+          "intListField": {
+            "type": "array",
+            "x-japigen-cardinality": "LIST",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": {
+              "description": "An integer element.",
+              "type": "integer"
+            }
+          },
+          "intSetField": {
+            "description": "A set of integers.",
+            "type": "array",
+            "x-japigen-cardinality": "SET",
+            "items": {
+              "description": "An integer element.",
+              "type": "integer"
+            }
+          },
+          "intTypedefField": {
+            "$ref": "#/components/schemas/IntTypedef"
+          },
+          "aSetOfTypedefsField": {
+            "$ref": "#/components/schemas/SetOfInts"
+          },
+          "aListofTypedefsField": {
+            "$ref": "#/components/schemas/ListOfInts"
+          }
+        }
+      }
+    }
+  }
+}

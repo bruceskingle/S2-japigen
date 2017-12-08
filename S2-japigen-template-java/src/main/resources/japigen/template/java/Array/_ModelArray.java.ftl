@@ -1,14 +1,15 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
+<@setPrologueJavaType model/>
 <@importFieldTypes model false/>
 
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
-import com.symphony.s2.japigen.runtime.Model${javaCardinality};
+import com.symphony.s2.japigen.runtime.Model${modelJavaCardinality};
 
 <#include "Array.ftl">
-public class ${model.camelCapitalizedName}ModelArray extends Model${javaType}
+public class ${modelJavaClassName}ModelArray extends Model${modelJavaCardinality}<${modelJavaElementClassName}>
 {
-  public ${model.camelCapitalizedName}ModelArray(${javaType} elements)<@checkItemLimitsThrows model/>
+  public ${modelJavaClassName}ModelArray(${modelJavaFieldClassName} elements)<@checkLimitsThrows model/>
   {
     super(elements);
     <@checkItemLimits model "Array" "this"/>

@@ -1,18 +1,17 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
+<@setPrologueJavaType model/>
 
-import com.symphony.s2.japigen.runtime.IAbstractModelObject;
+import com.symphony.s2.japigen.runtime.IModelObject;
 
 <@importFieldTypes model true/>
-import ${javaFacadePackage}.${model.camelCapitalizedName};
-import ${javaFacadePackage}.${model.camelCapitalizedName}.Builder;
 
 <#include "Object.ftl">
-public interface I${model.camelCapitalizedName}ModelObject extends IAbstractModelObject
+public interface I${model.camelCapitalizedName}ModelObject extends IModelObject
 {
-<#list model.children as field>
+<#list model.fields as field>
   <@setJavaType field/>
   
-  ${javaType} get${field.camelCapitalizedName}();
+  ${javaFieldClassName} get${field.camelCapitalizedName}();
 </#list>
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

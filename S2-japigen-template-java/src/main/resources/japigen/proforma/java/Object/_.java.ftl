@@ -1,4 +1,5 @@
 <#include "../S2-japigen-proforma-java-Prologue.ftl">
+<@setPrologueJavaType model/>
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 
 import org.symphonyoss.s2.common.exception.BadFormatException;
@@ -13,21 +14,21 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
 {
 <#-- Constrictor from fields -->  
   private ${model.camelCapitalizedName}(
-<#list model.children as field><@setJavaType field/>
-    ${javaType?right_pad(25)} ${field.camelName}<#sep>,
+<#list model.fields as field><@setJavaType field/>
+    ${javaFieldClassName?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
 
   )<@checkLimitsClassThrows model/>
   {
     super(
-<#list model.children as field>
+<#list model.fields as field>
 <@setJavaType field/>
       ${field.camelName}<#sep>, 
 </#list>
 
     );
   }
-<#--     list model.children as field>
+<#--     list model.fields as field>
   <@setJavaType field/>
   <#switch field.elementType>
     <#case "OneOf">
@@ -36,16 +37,16 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
   public class ${field.camelCapitalizedName} extends ${field.camelCapitalizedName}ModelObject
   {
     public ${field.camelCapitalizedName}(
-      <#list field.children as ref>
+      <#list field.fields as ref>
         <#assign subfield=ref.reference>
         <@setJavaType ref/>
-      ${javaType?right_pad(25)} ${subfield.camelName}<#sep>,
+      ${javaClassName?right_pad(25)} ${subfield.camelName}<#sep>,
       </#list>
       
     )<@checkLimitsClassThrows model/>
     {
       super(
-      <#list field.children as ref>
+      <#list field.fields as ref>
         <#assign subfield=ref.reference>
         ${subfield.camelName}<#sep>,
       </#list>
@@ -108,7 +109,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
        */
        
       return new ${model.camelCapitalizedName}(
-  <#list model.children as field>
+  <#list model.fields as field>
     <@setJavaType field/>
         get${field.camelCapitalizedName}()<#sep>, 
   </#list>

@@ -1,7 +1,9 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
+<@setPrologueJavaType model/>
 import javax.annotation.concurrent.Immutable;
 
-import com.symphony.s2.japigen.runtime.AbstractModelObject;
+import com.symphony.s2.japigen.runtime.JapigenRuntime;
+import com.symphony.s2.japigen.runtime.ModelObject;
 
 import org.symphonyoss.s2.common.dom.IBooleanProvider;
 import org.symphonyoss.s2.common.dom.IStringProvider;
@@ -11,6 +13,7 @@ import org.symphonyoss.s2.common.dom.IFloatProvider;
 import org.symphonyoss.s2.common.dom.IDoubleProvider;
 import org.symphonyoss.s2.common.dom.IByteStringProvider;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
+import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 import org.symphonyoss.s2.common.dom.json.JsonArray;
 import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
@@ -19,28 +22,33 @@ import org.symphonyoss.s2.common.exception.BadFormatException;
 
 <@importFieldTypes model true/>
 
-import ${javaFacadePackage}.${model.camelCapitalizedName};
+import ${javaFacadePackage}.${modelJavaClassName};
 
 <#include "Object.ftl">
 @Immutable
-public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractModelObject implements I${model.camelCapitalizedName}ModelObject
+public abstract class ${modelJavaClassName}ModelObject extends ModelObject implements I${modelJavaClassName}ModelObject
 {
+  public static final String TYPE_ID = "${model.model.japigenId}#/components/schemas/${model.name}";
+  
   private final ${"ImmutableJsonObject"?right_pad(25)}  jsonObject_;
-<#list model.children as field>
+<#list model.fields as field>
   <@setJavaType field/>
-  private final ${javaType?right_pad(25)}  ${field.camelName}_;
+  private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
 </#list>
   
-<#-- Constrictor from fields -->  
+<#-- Constructor from fields -->  
   protected ${model.camelCapitalizedName}ModelObject(
-<#list model.children as field><@setJavaType field/>
-    ${javaType?right_pad(25)} ${field.camelName}<#sep>,
+<#list model.fields as field><@setJavaType field/>
+    ${javaClassName?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
 
   )<@checkLimitsClassThrows model/>
   {
     MutableJsonObject jsonObject = new MutableJsonObject();
-<#list model.children as field>
+    
+    jsonObject.addIfNotNull(JapigenRuntime.JSON_TYPE, TYPE_ID);
+    
+<#list model.fields as field>
 <@setJavaType field/>
 <@checkLimits field field.camelName/>
     ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
@@ -50,21 +58,32 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
     jsonObject_ = jsonObject.immutify();
   }
   
-<#-- Constrictor from Json   -->  
+<#-- Constructor from Json   -->  
   protected ${model.camelCapitalizedName}ModelObject(ImmutableJsonObject jsonObject) throws BadFormatException
   {
     jsonObject_ = jsonObject;
 
-<#list model.children as field>
+    IImmutableJsonDomNode typeNode = jsonObject_.get(JapigenRuntime.JSON_TYPE);
+    if(!(typeNode instanceof IStringProvider && TYPE_ID.equals(((IStringProvider)typeNode).asString())))
+    {
+      throw new BadFormatException("_type attribute must be \"" + TYPE_ID + "\"");
+    }
+    
+<#list model.fields as field>
 <@setJavaType field/>
+<@printField/>
     if(jsonObject_.containsKey("${field.camelName}"))
     {
       IJsonDomNode  node = jsonObject_.get("${field.camelName}");
   <#switch field.elementType>
+    <#case "Ref">
+      ${field.camelName}_ = ${javaConstructTypePrefix}node${javaConstructTypePostfix};
+      <#break>
+      
     <#case "Array">
       if(node instanceof JsonArray)
       {
-        ${field.camelName}_ = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaBaseType}.class);
+        ${field.camelName}_ = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
         <@checkItemLimits field field.camelName "${field.camelName}_"/>
       }
       else
@@ -74,15 +93,15 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
       <#break>
       
     <#default>
-      if(node instanceof I${javaRefType}Provider)
+      if(node instanceof I${javaElementClassName}Provider)
       {
-        ${javaType} ${field.camelName} = ${javaConstructTypePrefix}((I${javaRefType}Provider)node).as${javaRefType}()${javaConstructTypePostfix};
+        ${javaFieldClassName} ${field.camelName} = ${javaConstructTypePrefix}((I${javaElementClassName}Provider)node).as${javaElementClassName}()${javaConstructTypePostfix};
       <@checkLimits field field.camelName/>
         ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
       }
       else
       {
-        throw new BadFormatException("${field.camelName} must be an instance of ${javaRefType} not " + node.getClass().getName());
+        throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
       }
   </#switch>
     }
@@ -101,47 +120,51 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
   {
     return jsonObject_;
   }
-<#list model.children as field>
+<#list model.fields as field>
   <@setJavaType field/>
   
   @Override
-  public ${javaType} get${field.camelCapitalizedName}()
+  public ${javaClassName} get${field.camelCapitalizedName}()
   {
     return ${field.camelName}_;
   }
+  <#-------------------------------------
+  
+  
+  
   <#switch field.elementType>
     <#case "OneOf">
       <@setJavaType field/>
       
   public class ${field.camelCapitalizedName}ModelObject
   {
-      <#list field.children as ref>
+      <#list field.fields as ref>
         <#assign subfield=ref.reference>
         <@setJavaType ref/>
-    private ${javaType?right_pad(25)}  ${subfield.camelName}_;
+    private ${javaFieldClassName?right_pad(25)}  ${subfield.camelName}_;
       </#list>
   
     public ${field.camelCapitalizedName}ModelObject(
-      <#list field.children as ref>
+      <#list field.fields as ref>
         <#assign subfield=ref.reference>
         <@setJavaType ref/>
-      ${javaType?right_pad(25)} ${subfield.camelName}<#sep>,
+      ${javaFieldClassName?right_pad(25)} ${subfield.camelName}<#sep>,
       </#list>
       
     )
     {
-      <#list field.children as ref>
+      <#list field.fields as ref>
         <#assign subfield=ref.reference>
         <@setJavaType ref/>
         <@checkLimits ref subfield.camelName/>
       ${subfield.camelName}_ = ${javaTypeCopyPrefix}${subfield.camelName}${javaTypeCopyPostfix};
       </#list>
     }
-      <#list field.children as ref>
+      <#list field.fields as ref>
         <#assign subfield=ref.reference>
         <@setJavaType ref/>
         
-    public ${javaType} get${subfield.camelCapitalizedName}()
+    public ${javaFieldClassName} get${subfield.camelCapitalizedName}()
     {
       return ${subfield.camelName}_;
     }
@@ -149,13 +172,15 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
   }
       <#break>
     </#switch>
+    
+    is this even called? ------------------------------->
 </#list>
   
   public static abstract class Builder
   {
-  <#list model.children as field>
+  <#list model.fields as field>
     <@setJavaType field/>
-    private ${javaType?right_pad(25)}  ${field.camelName}__${javaBuilderTypeNew};
+    private ${javaClassName?right_pad(25)}  ${field.camelName}__${javaBuilderTypeNew};
   </#list>
     
     protected Builder()
@@ -164,20 +189,20 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
     
     protected Builder(Builder initial)
     {
-  <#list model.children as field>
+  <#list model.fields as field>
   <@setJavaType field/>
       ${field.camelName}__${javaBuilderTypeCopyPrefix}initial.${field.camelName}__${javaBuilderTypeCopyPostfix};
   </#list>
     }
-  <#list model.children as field>
+  <#list model.fields as field>
     <@setJavaType field/>
     
-    public ${javaType} get${field.camelCapitalizedName}()
+    public ${javaClassName} get${field.camelCapitalizedName}()
     {
       return ${field.camelName}__;
     }
     
-    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})<@checkLimitsThrows field/>
+    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<@checkLimitsThrows field/>
     {
     <@checkLimits field field.camelName/>
       ${field.camelName}__${javaBuilderTypeCopyPrefix}${field.camelName}${javaBuilderTypeCopyPostfix};
@@ -185,19 +210,18 @@ public abstract class ${model.camelCapitalizedName}ModelObject extends AbstractM
     }
     <#switch field.elementType>
       <#case "Ref">
-      <#assign javaSubType=javaType>
-      <@setJavaType field.reference/>
-    
-    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaType} ${field.camelName})<@checkLimitsThrows field/>
+
+<@printField/>
+    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<@checkLimitsThrows field/>
     {
-      ${field.camelName}__ = new ${javaSubType}(${field.camelName});
+      ${field.camelName}__ = new ${javaClassName}(${field.camelName});
       return (${model.camelCapitalizedName}.Builder)this;
     }
         <#break>
     </#switch>
   </#list>
     
-    public abstract ${model.camelCapitalizedName} build()<@checkLimitsClassThrows model/>;
+    public abstract ${modelJavaClassName} build()<@checkLimitsClassThrows model/>;
   }
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

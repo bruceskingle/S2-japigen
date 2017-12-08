@@ -1,5 +1,6 @@
 <#if ! model.attributes['javaExternalType']??>
 <#include "../S2-japigen-proforma-java-Prologue.ftl">
+<@setPrologueJavaType model/>
 <#include "../TypeDefProforma.ftl">
 }
 
