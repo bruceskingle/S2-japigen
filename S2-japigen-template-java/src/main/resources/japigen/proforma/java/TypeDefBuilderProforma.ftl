@@ -1,16 +1,16 @@
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-proforma-java-SubPrologue.ftl">
-import ${javaFacadePackage}.${modelJavaClassName};
+import ${modelJavaFullyQualifiedClassName};
 
 import com.google.protobuf.ByteString;
 
 public class ${model.camelCapitalizedName}Builder
 {
-  public ${model.javaClassName} build(${model.javaFieldType} value)
+  public ${modelJavaClassName} build(${modelJavaFieldClassName} value)
   {
-    return new ${model.javaClassName}(value);
+    return new ${modelJavaClassName}(value);
   }
   
-  public ${model.javaFieldType} to${model.javaFieldType}(${model.javaClassName} instance)
+  public ${modelJavaFieldClassName} to${modelJavaFieldClassName}(${modelJavaClassName} instance)
   {
     return instance.getValue();
   }

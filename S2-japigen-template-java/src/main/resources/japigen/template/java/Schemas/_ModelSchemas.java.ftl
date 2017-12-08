@@ -22,7 +22,6 @@ import com.symphony.s2.japigen.runtime.ModelSchemas;
 <#switch object.elementType>
   <#case "Object">
     <#list object.fields as field>
-
 <@setJavaType field/>
       <@printField/>
     </#list>

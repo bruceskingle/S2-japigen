@@ -234,13 +234,16 @@
             "format": "int32",
             "minimum": 0,
             "maximum": 999999999
+          },
+          "aHash": {
+            "$ref": "#/components/schemas/Hash"
           }
         }
       },
       "Hash": {
         "description": "A Hash value, encoded as Base64.",
         "type": "string",
-        "format": "bytes",
+        "format": "byte",
         "x-japigen-attributes": {
           "javaExternalPackage":  "org.symphonyoss.s2.japigen.test.oneofeverything",
           "javaExternalType":     "TestHash"

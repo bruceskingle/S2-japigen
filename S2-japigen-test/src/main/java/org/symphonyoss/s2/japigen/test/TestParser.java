@@ -26,14 +26,24 @@ package org.symphonyoss.s2.japigen.test;
 import java.io.File;
 
 import org.symphonyoss.s2.common.writer.IndentedWriter;
-import org.symphonyoss.s2.japigen.model.ModelElement;
+import org.symphonyoss.s2.japigen.model.IModelElement;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.JapigenException;
 import org.symphonyoss.s2.japigen.parser.ModelSetParserContext;
+import org.symphonyoss.s2.japigen.parser.log.Slf4jLogFactoryAdaptor;
 
 public class TestParser
 {
   public static void main(String[] argv) throws JapigenException
+  {
+    if(argv.length==0)
+      testParser("test/oneOfEverything");
+    else
+      for(String fileName : argv)
+        testParser(fileName);
+  }
+  
+  public static void testParser(String fileName) throws JapigenException
   {
 //    System.err.format("Integer.MIN_VALUE %d%n", Integer.MIN_VALUE);
 //    System.err.format("Integer.MAX_VALUE %d%n", Integer.MAX_VALUE);
@@ -50,9 +60,12 @@ public class TestParser
 //    Double twentyfive = 25.0;
 //    System.err.println("25 " + twentyfive);
     
-    ModelSetParserContext modelSetContext = new ModelSetParserContext();
+    ModelSetParserContext modelSetContext = new ModelSetParserContext(new Slf4jLogFactoryAdaptor());
     
-    modelSetContext.addGenerationSource(new File("src/main/Resources/test/oneOfEverything.json"));
+    modelSetContext.setModelFactoryClassFile(new File("../S2-japigen-template-java/target/classes"));
+    modelSetContext.setModelFactoryClass("org.symphonyoss.s2.japigen.java.JavaModelFactory");
+    
+    modelSetContext.addGenerationSource(new File("src/main/Resources/" + fileName + ".json"));
     
     modelSetContext.parse();
     
@@ -75,11 +88,11 @@ public class TestParser
     modelSetContext.generate(generationContext);
   }
 
-  private static void visit(IndentedWriter out, ModelElement model)
+  private static void visit(IndentedWriter out, IModelElement model)
   {
     out.openBlock(model.toString());
     
-    for(ModelElement child : model.getChildren())
+    for(IModelElement child : model.getChildren())
       visit(out, child);
     
     out.closeBlock();

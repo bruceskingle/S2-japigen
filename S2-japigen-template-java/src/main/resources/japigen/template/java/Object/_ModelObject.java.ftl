@@ -33,6 +33,7 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
   private final ${"ImmutableJsonObject"?right_pad(25)}  jsonObject_;
 <#list model.fields as field>
   <@setJavaType field/>
+  <@printField/>
   private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
 </#list>
   
@@ -50,7 +51,10 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
     
 <#list model.fields as field>
 <@setJavaType field/>
+<@printField/>
+<#if requiresChecks>
 <@checkLimits field field.camelName/>
+</#if>
     ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
     jsonObject.${addJsonNode}("${field.camelName}", ${javaGetValuePrefix}${field.camelName}_${javaGetValuePostfix});
 </#list>
@@ -96,7 +100,9 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
       if(node instanceof I${javaElementClassName}Provider)
       {
         ${javaFieldClassName} ${field.camelName} = ${javaConstructTypePrefix}((I${javaElementClassName}Provider)node).as${javaElementClassName}()${javaConstructTypePostfix};
-      <@checkLimits field field.camelName/>
+      <#if requiresChecks>
+        <@checkLimits field field.camelName/>
+      </#if>
         ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
       }
       else
