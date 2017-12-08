@@ -23,7 +23,7 @@
 
 package com.symphony.s2.japigen.runtime;
 
-public class AbstractModelObject implements IAbstractModelObject
+public class ModelObject implements IModelObject
 {
   
 }

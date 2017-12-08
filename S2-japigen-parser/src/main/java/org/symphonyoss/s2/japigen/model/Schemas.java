@@ -32,6 +32,8 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 public class Schemas extends ModelElement
 {
+  private static final String SCHEMAS = "Schemas";
+
   private static Logger log_ = LoggerFactory.getLogger(Schemas.class);
   
   private Map<String, ReferenceOrSchema> schemaMap_ = new HashMap<>();
@@ -39,7 +41,7 @@ public class Schemas extends ModelElement
   
   public Schemas(Components parent, ParserContext parserContext)
   {
-    super(parent, parserContext, "Schemas");
+    super(parent, parserContext, SCHEMAS, parent.getModel().getName());
     
     for(ParserContext schema : parserContext)
     {
@@ -56,5 +58,10 @@ public class Schemas extends ModelElement
         schema.error("Expected an Object Schema but found " + objectSchema);
     }
   }
-
+  
+  @Override
+  public String toString()
+  {
+    return "Schemas";
+  }
 }

@@ -75,13 +75,18 @@ public class ModelElement
 
   public ModelElement(ModelElement parent, ParserContext parserContext, String type)
   {
+    this(parent, parserContext, type, parserContext.getName());
+  }
+  
+  public ModelElement(ModelElement parent, ParserContext parserContext, String type, String name)
+  {
     parent_ = parent;
     parserContext_ = parserContext;
     elementType_ = type;
     description_ = parserContext.getText("description");
     format_ = parserContext.getText("format", "");
     
-    name_ = parserContext.getName();
+    name_ = name;
     
     camelName_ = toCamelCase(name_);
     camelCapitalizedName_ = capitalize(camelName_);
@@ -163,7 +168,8 @@ public class ModelElement
       
       if(Character.isUpperCase(c))
       {
-        s.append('_');
+        if(i>1)
+          s.append('_');
         s.append(Character.toLowerCase(c));
       }
       else
@@ -295,7 +301,6 @@ public class ModelElement
   {
     log_.debug("Generate prologue {}", toString());
     
-    generateChildren(generationContext, dataModel);
     
     for(String language : generationContext.getLanguages())
     {
@@ -316,6 +321,8 @@ public class ModelElement
       }
     }
     
+    generateChildren(generationContext, dataModel);
+
     log_.debug("Generate epilogue {}", toString());
   }
   
@@ -439,5 +446,10 @@ public class ModelElement
       return ((ModelElement) modelElement).getByPath(pathNames, index + 1);
       
     return null;
+  }
+
+  public boolean getCanFailValidation()
+  {
+    return false;
   }
 }

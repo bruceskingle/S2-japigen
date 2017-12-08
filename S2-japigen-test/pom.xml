@@ -36,6 +36,11 @@
       <artifactId>S2-japigen-parser</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.symphonyoss.s2.japigen</groupId>
+      <artifactId>S2-japigen-template-java</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     
     <dependency>
       <groupId>org.symphonyoss.s2.japigen</groupId>
@@ -47,6 +52,13 @@
 		  <groupId>ch.qos.logback</groupId>
 		  <artifactId>logback-classic</artifactId>
 		</dependency>
+		
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
   </dependencies>
   
   <properties>
@@ -76,12 +88,34 @@
                   <groupId>${japigen.template.groupid}</groupId>
                   <artifactId>${japigen.template.java}</artifactId>
                   <version>${japigen.template.version}</version>
+                  <modelFactoryClassName>org.symphonyoss.s2.japigen.java.JavaModelFactory</modelFactoryClassName>
                 </templateArtifact>
               </templateArtifacts>
             </configuration>
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>target/generated-sources/java</source>
+								<source>target/proforma-sources/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+      
     </plugins>
   </build>
 </project>

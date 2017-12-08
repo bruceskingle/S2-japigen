@@ -47,6 +47,12 @@ public class IntegerType extends Type
     return maximum_;
   }
   
+  @Override
+  public boolean  getCanFailValidation()
+  {
+    return minimum_ != null || maximum_ != null;
+  }
+  
   public String getMinimumAsString()
   {
     return minimum_ == null ? null : String.valueOf(minimum_);

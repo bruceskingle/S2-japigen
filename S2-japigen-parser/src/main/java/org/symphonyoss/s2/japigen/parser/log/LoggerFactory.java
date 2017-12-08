@@ -21,22 +21,9 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.test.oneofeverything;
+package org.symphonyoss.s2.japigen.parser.log;
 
-import com.google.protobuf.ByteString;
-
-public class TestHash
+public interface LoggerFactory
 {
-  private ByteString value_;
-
-  public TestHash(ByteString value)
-  {
-    value_ = value;
-  }
-
-  public ByteString getValue()
-  {
-    return value_;
-  }
-
+  Logger getLogger(Class<?> type);
 }

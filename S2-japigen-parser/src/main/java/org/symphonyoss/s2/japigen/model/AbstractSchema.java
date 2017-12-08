@@ -45,6 +45,7 @@ public abstract class AbstractSchema extends ModelElement
   
  
 
+  @Override
   public String getName()
   {
     ParserContext context = getContext();

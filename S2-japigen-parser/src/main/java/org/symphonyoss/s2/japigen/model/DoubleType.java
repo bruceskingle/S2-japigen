@@ -69,6 +69,12 @@ public class DoubleType extends Type
   {
     return maximum_ == null ? null : String.valueOf(maximum_);
   }
+  
+  @Override
+  public boolean  getCanFailValidation()
+  {
+    return minimum_ != null || maximum_ != null;
+  }
 
   @Override
   public String toString()

@@ -23,8 +23,6 @@
 
 package org.symphonyoss.s2.japigen.parser;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -44,7 +42,7 @@ public class Parser
   private static Logger log_ = LoggerFactory.getLogger(Parser.class);
 
   private JsonSchema  schema_;
-  
+ 
   public Parser() throws ParsingException
   {
     schema_ = getJsonSchemaFromClasspath("openapiv3.schema.json");
@@ -106,24 +104,24 @@ public class Parser
     }
   }
 
-  public Model parse(String fileName) throws ParsingException
-  {
-    return parse(new File(fileName));
-  }
-
-  public Model parse(File file) throws ParsingException
-  {
-    
-    
-    try(FileInputStream in = new FileInputStream(file))
-    {
-      RootParserContext parserContext = new RootParserContext(file, in);
-      
-      return parse(parserContext);
-    }
-    catch (IOException e)
-    {
-      throw new ParsingException(e);
-    }
-  }
+//  public Model parse(String fileName) throws ParsingException
+//  {
+//    return parse(new File(fileName));
+//  }
+//
+//  public Model parse(File file) throws ParsingException
+//  {
+//    
+//    
+//    try(FileInputStream in = new FileInputStream(file))
+//    {
+//      RootParserContext parserContext = new RootParserContext(file, in);
+//      
+//      return parse(parserContext);
+//    }
+//    catch (IOException e)
+//    {
+//      throw new ParsingException(e);
+//    }
+//  }
 }

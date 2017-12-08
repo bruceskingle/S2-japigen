@@ -30,12 +30,13 @@ import org.symphonyoss.s2.japigen.model.ModelElement;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.JapigenException;
 import org.symphonyoss.s2.japigen.parser.ModelSetParserContext;
+import org.symphonyoss.s2.japigen.parser.log.Slf4jLogFactoryAdaptor;
 
 public class S2Parser
 {
   public static void main(String[] argv) throws JapigenException
   {
-    ModelSetParserContext modelSetContext = new ModelSetParserContext();
+    ModelSetParserContext modelSetContext = new ModelSetParserContext(new Slf4jLogFactoryAdaptor());
     
     modelSetContext.addGenerationSource(new File("src/main/Resources/s2-typedef.json"));
     modelSetContext.addGenerationSource(new File("src/main/Resources/s2.json"));

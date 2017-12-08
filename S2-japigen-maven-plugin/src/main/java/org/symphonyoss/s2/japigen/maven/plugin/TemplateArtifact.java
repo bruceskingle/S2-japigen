@@ -39,6 +39,8 @@ public class TemplateArtifact
 //  @Parameter(property="prefix")
   private String  prefix = "japigen";
   
+  private String  modelFactoryClassName = null;
+  
   public String getGroupId()
   {
     return groupId;
@@ -48,30 +50,44 @@ public class TemplateArtifact
   {
     return artifactId;
   }
+
   public String getVersion()
   {
     return version;
   }
+
   public String getPrefix()
   {
     return prefix;
   }
+
   public void setGroupId(String groupId)
   {
     this.groupId = groupId;
   }
+
   public void setArtifactId(String artifactId)
   {
     this.artifactId = artifactId;
   }
+
   public void setVersion(String version)
   {
     this.version = version;
   }
+
   public void setPrefix(String prefix)
   {
     this.prefix = prefix;
   }
-  
-  
+
+  public String getModelFactoryClassName()
+  {
+    return modelFactoryClassName;
+  }
+
+  public void setModelFactoryClassName(String modelFactoryClassName)
+  {
+    this.modelFactoryClassName = modelFactoryClassName;
+  }
 }

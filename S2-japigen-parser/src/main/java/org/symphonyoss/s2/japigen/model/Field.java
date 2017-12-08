@@ -52,6 +52,12 @@ public class Field extends AbstractSchema
   {
     return type_.getHasByteString();
   }
+  
+  @Override
+  public boolean  getCanFailValidation()
+  {
+    return required_ || type_.getCanFailValidation();
+  }
 
   public static AbstractSchema create(ModelElement parent, ParserContext context, boolean required)
   {
@@ -66,6 +72,9 @@ public class Field extends AbstractSchema
   @Override
   public String toString()
   {
-    return toString(new ValueMap<String, Object>().insert("required", required_, null));
+    return toString(new ValueMap<String, Object>()
+        .insert("type", type_.getElementType(), "UNDEFINED")
+        .insert("required", required_, null)
+        );
   }
 }

@@ -25,9 +25,9 @@ package org.symphonyoss.s2.japigen.model;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public class Type extends Schema
+public abstract class Type extends Schema
 {
-    public Type(ModelElement parent, ParserContext context, String type)
+  public Type(ModelElement parent, ParserContext context, String type)
   {
     super(parent, context, type);
   }

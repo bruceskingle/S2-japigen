@@ -30,17 +30,17 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.common.fault.CodingFault;
 import org.symphonyoss.s2.common.fault.ProgramFault;
 import org.symphonyoss.s2.japigen.model.Model;
+import org.symphonyoss.s2.japigen.parser.log.Logger;
 
 public class RootParserContext// extends ParserContext
 {
-  private static Logger log_ = LoggerFactory.getLogger(RootParserContext.class);
+  private Logger log_;
 
   private final String          inputSource_;
+  private final String          inputSourceName_;
   private InputStream           inputStream_;
   private int                   errorCnt_;
   private URL                   url_;
@@ -48,12 +48,37 @@ public class RootParserContext// extends ParserContext
 
   public RootParserContext(ModelSetParserContext modelSetParserContext, URL url) throws ParsingException
   {
+    log_ = modelSetParserContext.getLogFactory().getLogger(RootParserContext.class);
     try
     {
       modelSetParserContext_ = modelSetParserContext;
       url_ = url;
       inputStream_ = url.openStream();
       inputSource_ = url.toString();
+      
+      String path = url_.getPath();
+      
+      if(path == null || path.length()==0 || "/".equals(path))
+      {
+        inputSourceName_ = url_.getHost();
+      }
+      else
+      {
+        int i = path.lastIndexOf('/');
+        
+        if(i != -1)
+          path = path.substring(i+1);
+        
+        if(path.length() > 5)
+        {
+          int l = path.length()-5;
+          
+          if(".json".equalsIgnoreCase(path.substring(l)))
+            path = path.substring(0, l);
+        }
+        
+        inputSourceName_ = path;
+      }
     }
     catch(IOException e)
     {
@@ -65,6 +90,7 @@ public class RootParserContext// extends ParserContext
   {
     inputStream_ = inputStream;
     inputSource_ = inputFile.getAbsolutePath();
+    inputSourceName_ = inputFile.getName();
     try
     {
       url_ = inputFile.toURI().toURL();
@@ -90,23 +116,28 @@ public class RootParserContext// extends ParserContext
     return inputSource_;
   }
   
+  public String getInputSourceName()
+  {
+    return inputSourceName_;
+  }
+
   public void error(String format, Object ...args)
   {
-    log_.error(format, args);
+    log_.errorf(format, args);
     errorCnt_++;
   }
   
   public void epilogue(String action)
   {
     if(errorCnt_ == 0)
-      log_.info("{} of {} completed OK.", action, getInputSource());
+      log_.infof("%s of %s completed OK.", action, getInputSource());
     else
-      log_.error("{} of {} completed with {} errors.", action, getInputSource(), errorCnt_);
+      log_.errorf("%s of %s completed with %d errors.", action, getInputSource(), errorCnt_);
   }
   
   public void prologue()
   {
-    log_.info("Parsing {}...", getInputSource());
+    log_.infof("Parsing %s...", getInputSource());
   }
 
   public void addReferencedModel(URI uri, ParserContext context) throws ParsingException

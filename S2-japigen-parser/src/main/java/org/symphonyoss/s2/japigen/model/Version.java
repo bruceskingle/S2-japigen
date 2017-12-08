@@ -62,4 +62,10 @@ public class Version extends ModelElement
       log_.error("Version number must be 3 part semver value");
     } 
   }
+  
+  @Override
+  public String toString()
+  {
+    return String.format("Version(%d.%d.%d)", major_, minor_, patch_);
+  }
 }

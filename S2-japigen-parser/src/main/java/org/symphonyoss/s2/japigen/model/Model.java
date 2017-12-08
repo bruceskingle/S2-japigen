@@ -23,6 +23,8 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,6 +34,8 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.GenerationException;
@@ -44,38 +48,73 @@ public class Model extends ModelElement
 {
   private static final String COMPONENTS = "components";
 
-  //private static Logger       log_       = LoggerFactory.getLogger(Model.class);
-
+  private static Logger       log_       = LoggerFactory.getLogger(Model.class);
+  
   private Version             openapi_;
-  private Map<String, String> modelMap_ = new HashMap<>();
-  private SimpleDateFormat    yearFormat_ = new SimpleDateFormat("yyyy");
+  private Map<String, String> modelMap_        = new HashMap<>();
+  private SimpleDateFormat    yearFormat_      = new SimpleDateFormat("yyyy");
   private SimpleDateFormat    yearMonthFormat_ = new SimpleDateFormat("yyyy-MM");
-  private SimpleDateFormat    dateFormat_ = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-
+  private SimpleDateFormat    dateFormat_      = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+  private URI                 japigenId_;
+  
   public Model(ParserContext parserContext)
   {
     super(null, parserContext, "Model");
     
-    
-    openapi_ = new Version(this, parserContext.get("openapi"));
-    add(openapi_);
-    
-    ParserContext japigen = parserContext.get(JAPIGEN.X_MODEL);
-    if(japigen != null)
+    for(ParserContext subContext : parserContext)
     {
-      JsonNode jsonNode = japigen.getJsonNode();
+      log_.info("Found " + subContext.getName());
       
-      if(jsonNode instanceof ObjectNode)
+      switch(subContext.getName())
       {
-        Iterator<Entry<String, JsonNode>> it = jsonNode.fields();
-        
-        while(it.hasNext())
-        {
-          Entry<String, JsonNode> entry = it.next();
+        case "openapi":
+          openapi_ = new Version(this, subContext);
+          add(openapi_);
+          break;
           
-          modelMap_.put(entry.getKey(), entry.getValue().asText());
-        }
+        case "info":
+        case "paths":
+        case "components":
+          break;
+          
+        case JAPIGEN.X_MODEL:
+          JsonNode jsonNode = subContext.getJsonNode();
+          
+          if(jsonNode instanceof ObjectNode)
+          {
+            Iterator<Entry<String, JsonNode>> it = jsonNode.fields();
+            
+            while(it.hasNext())
+            {
+              Entry<String, JsonNode> entry = it.next();
+              
+              modelMap_.put(entry.getKey(), entry.getValue().asText());
+            }
+          }
+          break;
+          
+        case JAPIGEN.X_ID:
+          try
+          {
+            japigenId_ = new URI(subContext.getJsonNode().asText());
+            modelMap_.put(JAPIGEN.X_ID, japigenId_.toString());
+          }
+          catch (URISyntaxException e)
+          {
+            log_.error(JAPIGEN.X_ID + " is not a valid URI", e);
+          }
+          
+          break;
+          
+        default:
+          log_.warn("Unrecognized top level element \"" + subContext.getName() + "\" ignored.");
       }
+    }
+    
+    
+    if(japigenId_ == null)
+    {
+      parserContext.error("%s is missing", JAPIGEN.X_ID);
     }
     
     Date now = new Date();
@@ -103,6 +142,11 @@ public class Model extends ModelElement
     return modelMap_;
   }
 
+  public URI getJapigenId()
+  {
+    return japigenId_;
+  }
+
   public void generate(GenerationContext generationContext) throws GenerationException
   {
     if(getContext().getRootParserContext().hasErrors())
@@ -123,5 +167,11 @@ public class Model extends ModelElement
   @Nonnull Long test()
   {
     return null;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "Model(" + japigenId_ + ")";
   }
 }

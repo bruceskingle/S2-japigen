@@ -39,4 +39,13 @@ public class StringType extends Type
     return "byte".equals(getFormat());
   }
 
+  @Override
+  public void validate()
+  {
+    super.validate();
+    
+    if("bytes".equals(getFormat()))
+      getContext().warn("Format specified as %s, did you mean \"byte\"?", getFormat());
+  }
+
 }

@@ -24,6 +24,7 @@
 package org.symphonyoss.s2.japigen.model;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,6 +84,17 @@ public class ObjectSchema extends Schema
     }
   }
   
+  /**
+   * Return the fields of this object, for a normal object this is the same as
+   * getChildren() for an AllOf it is something else.
+   * 
+   * @return The fields of this object.
+   */
+  public List<ModelElement> getFields()
+  {
+    return getChildren();
+  }
+  
   @Override
   public boolean getHasSet()
   {
@@ -125,6 +137,18 @@ public class ObjectSchema extends Schema
     for(ModelElement child : getChildren())
     {
       if(child.getHasByteString())
+        return true;
+    }
+    
+    return false;
+  }
+  
+  @Override
+  public boolean  getCanFailValidation()
+  {
+    for(ModelElement child : getChildren())
+    {
+      if(child.getCanFailValidation())
         return true;
     }
     

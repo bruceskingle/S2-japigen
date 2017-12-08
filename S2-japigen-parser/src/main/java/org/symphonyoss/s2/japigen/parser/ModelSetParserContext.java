@@ -32,9 +32,14 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.symphonyoss.s2.japigen.model.Model;
+import org.symphonyoss.s2.japigen.parser.log.Logger;
+import org.symphonyoss.s2.japigen.parser.log.LoggerFactory;
 
 public class ModelSetParserContext
 {
+  private LoggerFactory logFactory_;
+  private Logger log_;
+
   private Map<URL, RootParserContext> generationContexts_ = new HashMap<>();
   private Map<URL, RootParserContext> referencedContexts_ = new HashMap<>();
   private Deque<RootParserContext>    parseQueue_         = new LinkedList<>();
@@ -42,6 +47,19 @@ public class ModelSetParserContext
   private Deque<Model>                generateQueue_      = new LinkedList<>();
   private Map<URL, Model>             modelMap_           = new HashMap<>();
     
+  public ModelSetParserContext(LoggerFactory logFactory)
+  {
+    logFactory_ = logFactory;
+    log_ = logFactory.getLogger(getClass());
+    
+    log_.info("ModelSetParserContext created");
+  }
+
+  public LoggerFactory getLogFactory()
+  {
+    return logFactory_;
+  }
+
   public void addGenerationSource(File file) throws ParsingException
   {
     try
@@ -99,8 +117,8 @@ public class ModelSetParserContext
   {
     for(Model model : generateQueue_)
     {
-        model.generate(generationContext);
-        model.getContext().getRootParserContext().epilogue("Generation");
+      model.generate(generationContext);
+      model.getContext().getRootParserContext().epilogue("Generation");
     }
   }
   

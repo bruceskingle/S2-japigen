@@ -47,7 +47,7 @@ public class ParserContext implements Iterable<ParserContext>
     rootParserContext_ = rootParserContext;
     path_ = "#";
     jsonNode_ = rootNode;
-    name_ = "/";
+    name_ = rootParserContext.getInputSourceName();
   }
   
   public ParserContext(ParserContext parent, String name, JsonNode jsonNode)
@@ -150,6 +150,11 @@ public class ParserContext implements Iterable<ParserContext>
   public void info(String format, Object ...args)
   {
     log_.info(String.format("%s%nat %s", String.format(format, args), path_));
+  }
+  
+  public void warn(String format, Object ...args)
+  {
+    log_.warn(String.format("%s%nat %s", String.format(format, args), path_));
   }
 
   public String getTextNode(String fieldName)

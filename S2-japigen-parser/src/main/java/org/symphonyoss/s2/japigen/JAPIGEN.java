@@ -31,6 +31,7 @@ public class JAPIGEN
 
   /* JSON Constants */
   public static final String X_MODEL             = "x-japigen-model";
+  public static final String X_ID                = "x-japigen-id";
   public static final String X_ATTRIBUTES        = "x-japigen-attributes";
   public static final String X_CARDINALITY       = "x-japigen-cardinality";
   public static final String X_CARDINALITY_LIST  = "LIST";

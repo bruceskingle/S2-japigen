@@ -141,6 +141,7 @@ public class GenerateMojo extends AbstractMojo
       log.info( "templateGroupId      = " + ta.getGroupId());
       log.info( "templateVersion      = " + ta.getVersion());
       log.info( "templatePrefix       = " + ta.getPrefix());
+      log.info( "modelFactoryClassName= " + ta.getModelFactoryClassName());
     }
     
     log.info( "pomDataModel-------------------------------------------------------------------------------");
@@ -154,9 +155,22 @@ public class GenerateMojo extends AbstractMojo
     }
     log.info( "--------------------------------------------------------------------------------------------");
     
+    String modelFactoryClassName = null;
+    File modelFactoryClassFile = null;
+    
     for(TemplateArtifact ta : templateArtifacts)
     {
-      copyArtefact(japigenDir, ta.getGroupId(), ta.getArtifactId(), ta.getVersion(), ta.getPrefix(), null);
+      File file = copyArtefact(japigenDir, ta.getGroupId(), ta.getArtifactId(), ta.getVersion(), ta.getPrefix(), null);
+      
+      if(ta.getModelFactoryClassName() != null)
+      {
+        if(modelFactoryClassFile != null)
+        {
+          log.error("Multiple model factrories declared, \"" + modelFactoryClassName + "\" will be ignored");
+        }
+        modelFactoryClassName = ta.getModelFactoryClassName();
+        modelFactoryClassFile = file;
+      }
     }
     
     List<File> srcList = new ArrayList<>();
@@ -171,7 +185,13 @@ public class GenerateMojo extends AbstractMojo
     
     try
     {
-      ModelSetParserContext modelSetContext = new ModelSetParserContext();
+      ModelSetParserContext modelSetContext = new ModelSetParserContext(new MavenLogFactoryAdaptor(log));
+      
+      if(modelFactoryClassName != null)
+      {
+        modelSetContext.setModelFactoryClassFile(modelFactoryClassFile);
+        modelSetContext.setModelFactoryClass(modelFactoryClassName);
+      }
       
       for(File src : srcList)
         modelSetContext.addGenerationSource(src);
@@ -211,7 +231,7 @@ public class GenerateMojo extends AbstractMojo
     }
   }
 
-  private void copyArtefact(File japigenDir, String artefactGroupId, String artefactArtifactId, String artefactVersion, String artefactPrefix, String artefactSuffix) throws MojoExecutionException
+  private File copyArtefact(File japigenDir, String artefactGroupId, String artefactArtifactId, String artefactVersion, String artefactPrefix, String artefactSuffix) throws MojoExecutionException
   {
     try
     {
@@ -318,10 +338,14 @@ public class GenerateMojo extends AbstractMojo
           throw new MojoExecutionException("Error copying artefacts from " + artefactFile, e);
         }
       }
+      
+      return artefactFile;
     } catch (ArtifactResolutionException | ArtifactNotFoundException e)
     {
       getLog().error("can't resolve artefact pom", e);
+      return null;
     }
+    
   }
 
   private void copyFiles(File srcDir, File targetDir, String artefactSuffix) throws FileNotFoundException, IOException

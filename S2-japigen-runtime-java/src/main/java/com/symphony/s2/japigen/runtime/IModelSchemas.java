@@ -21,22 +21,9 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.test.oneofeverything;
+package com.symphony.s2.japigen.runtime;
 
-import com.google.protobuf.ByteString;
-
-public class TestHash
+public interface IModelSchemas
 {
-  private ByteString value_;
-
-  public TestHash(ByteString value)
-  {
-    value_ = value;
-  }
-
-  public ByteString getValue()
-  {
-    return value_;
-  }
 
 }

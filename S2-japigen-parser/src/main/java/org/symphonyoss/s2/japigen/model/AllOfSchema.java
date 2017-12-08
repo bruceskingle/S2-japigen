@@ -43,29 +43,55 @@ public class AllOfSchema extends AbstractContainerSchema
     return discriminator_;
   }
 
-  public synchronized List<ModelElement> getFields()
+  @Override
+  public void validate()
   {
-    if(fields_ == null)
+    super.validate();
+    
+    fields_ = new ArrayList<>();
+    
+    gatherFields(this, fields_);
+  }
+
+  private void gatherFields(Schema schema, List<ModelElement> fields)
+  {
+    for(ModelElement e : schema.getChildren())
     {
-      fields_ = new ArrayList<>();
-      
-      for(ModelElement e : getChildren())
+      if(e instanceof ReferenceSchema && e.getReference() instanceof ObjectSchema)
       {
-//        if(e instanceof ReferenceSchema && e.getReference() instanceof )
-//        {
-//          e = e.getReference();
-//        }
-        if(e instanceof ObjectSchema)
-        {
-          for(ModelElement child : e.getChildren())
-            fields_.add(child);
-        }
-        else
-        {
-          fields_.add(e);
-        }
+        gatherFields((ObjectSchema)e.getReference(), fields);
+      }
+      else if(e instanceof ObjectSchema)
+      {
+        gatherFields((ObjectSchema)e, fields);
+      }
+      else
+      {
+        fields.add(e);
       }
     }
+  }
+
+  /**
+   * Return the fields of this object, for a normal object this is the same as
+   * getChildren() for an AllOf it is the union of all the fields of all its references.
+   * 
+   * @return The fields of this object.
+   */
+  public List<ModelElement> getFields()
+  {
     return fields_;
+  }
+  
+  @Override
+  public boolean  getCanFailValidation()
+  {
+    for(ModelElement child : getFields())
+    {
+      if(child.getCanFailValidation())
+        return true;
+    }
+    
+    return false;
   }
 }

@@ -35,5 +35,10 @@ public class Components extends ModelElement
     
     add(SCHEMAS, new Schemas(this, parserContext.get(SCHEMAS)));
   }
-
+  
+  @Override
+  public String toString()
+  {
+    return "Components";
+  }
 }

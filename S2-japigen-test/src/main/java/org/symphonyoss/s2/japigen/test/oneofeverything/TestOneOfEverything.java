@@ -32,6 +32,7 @@ import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.IJsonObject;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
 import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
@@ -113,6 +114,7 @@ public class TestOneOfEverything
     
     if(adapted instanceof IJsonObject)
     {
+      //((MutableJsonObject)adapted).addIfNotNull("_type", "foo");
       try
       {
         ObjectWithOneOfEverything obj2 = new ObjectWithOneOfEverything((ImmutableJsonObject) adapted.immutify());

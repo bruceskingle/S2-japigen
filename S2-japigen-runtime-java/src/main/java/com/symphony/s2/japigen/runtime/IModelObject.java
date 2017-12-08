@@ -23,6 +23,6 @@
 
 package com.symphony.s2.japigen.runtime;
 
-public interface IAbstractModelObject
+public interface IModelObject
 {
 }

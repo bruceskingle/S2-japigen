@@ -26,7 +26,7 @@ package org.symphonyoss.s2.japigen.test;
 import java.io.File;
 
 import org.symphonyoss.s2.common.writer.IndentedWriter;
-import org.symphonyoss.s2.japigen.model.IModelElement;
+import org.symphonyoss.s2.japigen.model.ModelElement;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.JapigenException;
 import org.symphonyoss.s2.japigen.parser.ModelSetParserContext;
@@ -62,8 +62,8 @@ public class TestParser
     
     ModelSetParserContext modelSetContext = new ModelSetParserContext(new Slf4jLogFactoryAdaptor());
     
-    modelSetContext.setModelFactoryClassFile(new File("../S2-japigen-template-java/target/classes"));
-    modelSetContext.setModelFactoryClass("org.symphonyoss.s2.japigen.java.JavaModelFactory");
+//    modelSetContext.setModelFactoryClassFile(new File("../S2-japigen-template-java/target/classes"));
+//    modelSetContext.setModelFactoryClass("org.symphonyoss.s2.japigen.java.JavaModelFactory");
     
     modelSetContext.addGenerationSource(new File("src/main/Resources/" + fileName + ".json"));
     
@@ -88,11 +88,11 @@ public class TestParser
     modelSetContext.generate(generationContext);
   }
 
-  private static void visit(IndentedWriter out, IModelElement model)
+  private static void visit(IndentedWriter out, ModelElement model)
   {
     out.openBlock(model.toString());
     
-    for(IModelElement child : model.getChildren())
+    for(ModelElement child : model.getChildren())
       visit(out, child);
     
     out.closeBlock();
