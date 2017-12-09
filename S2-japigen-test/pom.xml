@@ -88,7 +88,6 @@
                   <groupId>${japigen.template.groupid}</groupId>
                   <artifactId>${japigen.template.java}</artifactId>
                   <version>${japigen.template.version}</version>
-                  <modelFactoryClassName>org.symphonyoss.s2.japigen.java.JavaModelFactory</modelFactoryClassName>
                 </templateArtifact>
               </templateArtifacts>
             </configuration>

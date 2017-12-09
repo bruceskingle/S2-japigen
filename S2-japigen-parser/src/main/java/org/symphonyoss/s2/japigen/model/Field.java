@@ -48,6 +48,18 @@ public class Field extends AbstractSchema
   }
 
   @Override
+  public boolean getHasSet()
+  {
+    return type_.getHasSet();
+  }
+
+  @Override
+  public boolean getHasList()
+  {
+    return type_.getHasList();
+  }
+
+  @Override
   public boolean getHasByteString()
   {
     return type_.getHasByteString();

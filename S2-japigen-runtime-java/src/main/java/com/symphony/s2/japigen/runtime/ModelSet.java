@@ -25,8 +25,11 @@ package com.symphony.s2.japigen.runtime;
 
 import java.util.Set;
 
+import javax.annotation.concurrent.Immutable;
+
 import com.google.common.collect.ImmutableSet;
 
+@Immutable
 public class ModelSet<T>
 {
   private final ImmutableSet<T> elements_;

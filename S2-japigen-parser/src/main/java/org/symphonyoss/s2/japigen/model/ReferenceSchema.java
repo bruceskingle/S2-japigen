@@ -206,6 +206,14 @@ public class ReferenceSchema extends ReferenceOrSchema
   }
 
   @Override
+  public boolean getCanFailValidation()
+  {
+    return reference_.getCanFailValidation() || super.getCanFailValidation();
+  }
+
+
+
+  @Override
   public String toString()
   {
     return super.toString(new ValueMap<String, Object>()

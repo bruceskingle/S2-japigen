@@ -1,22 +1,40 @@
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-proforma-java-SubPrologue.ftl">
+import javax.annotation.concurrent.Immutable;
+
+import com.google.protobuf.ByteString;
+
+import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
+
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
 import ${javaGenPackage}.${modelJavaClassName}ModelType;
 
 <#include "../../template/java/TypeDefHeader.ftl">
+@Immutable
 public class ${modelJavaClassName} extends ${modelJavaClassName}ModelType
 {
-  public ${modelJavaClassName}(${modelJavaFieldClassName} value)<@checkLimitsThrows model/>
+  public ${modelJavaClassName}(${modelJavaFieldClassName} value)<#if model.canFailValidation> throws BadFormatException</#if>
   {
     super(value);
+  }
+  
+  public ${modelJavaClassName}(IJsonDomNode node) throws BadFormatException
+  {
+    super(node);
   }
   
   public static class Builder extends ${modelJavaClassName}ModelType.Builder
   {
     @Override
-    public ${modelJavaClassName} build(${modelJavaFieldClassName} value)<@checkLimitsThrows model/>
+    public ${modelJavaClassName} build(${modelJavaFieldClassName} value)<#if model.canFailValidation> throws BadFormatException</#if>
     {
       return new ${modelJavaClassName}(value);
+    }
+    
+    @Override
+    public ${modelJavaClassName} build(IJsonDomNode node) throws BadFormatException
+    {
+      return new ${modelJavaClassName}(node);
     }
     
     @Override
@@ -25,53 +43,4 @@ public class ${modelJavaClassName} extends ${modelJavaClassName}ModelType
       return instance.getValue();
     }
   }
-
-<#---
-OLD GENERATION
-
-<#if model.attributes['javaExternalType']??>
-<#assign methodAnnotation="">
-<#else>
-<#assign methodAnnotation="@Override">
-import org.symphonyoss.s2.common.exception.BadFormatException;
-
-import ${javaGenPackage}.${model.camelCapitalizedName}ModelType;
-</#if>
-
-// javaType = ${javaType}
-// javaBaseType = ${javaBaseType}
-<#include "../../template/java/TypeDefHeader.ftl">
-<#if model.attributes['javaExternalType']??>
-public class ${model.camelCapitalizedName}
-{
-  // This type is defined with an external type ${javaFacadeFullyQualifiedName}.
-  private ${model.camelCapitalizedName}()
-  {}
-  
-  public static class Builder
-  {
-<#else>
-public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}ModelType
-{
-  public ${model.camelCapitalizedName}(${javaType} value)<@checkLimitsThrows model/>
-  {
-    super(value);
-  }
-  
-  public static class Builder extends ${model.camelCapitalizedName}ModelType.Builder
-  {
-</#if>
-    ${methodAnnotation}
-    public ${model.camelCapitalizedName} build(${javaBaseType} value)<@checkLimitsThrows model/>
-    {
-      return new ${model.camelCapitalizedName}(value);
-    }
-    
-    ${methodAnnotation}
-    public ${javaBaseType} to${javaBaseType}(${model.camelCapitalizedName} instance)
-    {
-      return instance.getValue();
-    }
-  }
----->
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-proforma-java-SubEpilogue.ftl">

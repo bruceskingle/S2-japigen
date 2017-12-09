@@ -141,7 +141,6 @@ public class GenerateMojo extends AbstractMojo
       log.info( "templateGroupId      = " + ta.getGroupId());
       log.info( "templateVersion      = " + ta.getVersion());
       log.info( "templatePrefix       = " + ta.getPrefix());
-      log.info( "modelFactoryClassName= " + ta.getModelFactoryClassName());
     }
     
     log.info( "pomDataModel-------------------------------------------------------------------------------");
@@ -155,22 +154,9 @@ public class GenerateMojo extends AbstractMojo
     }
     log.info( "--------------------------------------------------------------------------------------------");
     
-    String modelFactoryClassName = null;
-    File modelFactoryClassFile = null;
-    
     for(TemplateArtifact ta : templateArtifacts)
     {
-      File file = copyArtefact(japigenDir, ta.getGroupId(), ta.getArtifactId(), ta.getVersion(), ta.getPrefix(), null);
-      
-      if(ta.getModelFactoryClassName() != null)
-      {
-        if(modelFactoryClassFile != null)
-        {
-          log.error("Multiple model factrories declared, \"" + modelFactoryClassName + "\" will be ignored");
-        }
-        modelFactoryClassName = ta.getModelFactoryClassName();
-        modelFactoryClassFile = file;
-      }
+      copyArtefact(japigenDir, ta.getGroupId(), ta.getArtifactId(), ta.getVersion(), ta.getPrefix(), null);
     }
     
     List<File> srcList = new ArrayList<>();
@@ -186,12 +172,6 @@ public class GenerateMojo extends AbstractMojo
     try
     {
       ModelSetParserContext modelSetContext = new ModelSetParserContext(new MavenLogFactoryAdaptor(log));
-      
-      if(modelFactoryClassName != null)
-      {
-        modelSetContext.setModelFactoryClassFile(modelFactoryClassFile);
-        modelSetContext.setModelFactoryClass(modelFactoryClassName);
-      }
       
       for(File src : srcList)
         modelSetContext.addGenerationSource(src);

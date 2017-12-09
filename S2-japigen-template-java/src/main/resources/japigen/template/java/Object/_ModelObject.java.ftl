@@ -2,6 +2,8 @@
 <@setPrologueJavaType model/>
 import javax.annotation.concurrent.Immutable;
 
+import com.google.protobuf.ByteString;
+
 import com.symphony.s2.japigen.runtime.JapigenRuntime;
 import com.symphony.s2.japigen.runtime.ModelObject;
 
@@ -51,12 +53,14 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
     
 <#list model.fields as field>
 <@setJavaType field/>
-<@printField/>
 <#if requiresChecks>
-<@checkLimits field field.camelName/>
+<@checkLimits "    " field field.camelName/>
 </#if>
     ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
-    jsonObject.${addJsonNode}("${field.camelName}", ${javaGetValuePrefix}${field.camelName}_${javaGetValuePostfix});
+    if(${field.camelName}_ != null)
+    {
+      jsonObject.${addJsonNode}("${field.camelName}", ${javaGetValuePrefix}${field.camelName}_${javaGetValuePostfix});
+    }
 </#list>
 
     jsonObject_ = jsonObject.immutify();
@@ -74,42 +78,10 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
     }
     
 <#list model.fields as field>
-<@setJavaType field/>
-<@printField/>
     if(jsonObject_.containsKey("${field.camelName}"))
     {
       IJsonDomNode  node = jsonObject_.get("${field.camelName}");
-  <#switch field.elementType>
-    <#case "Ref">
-      ${field.camelName}_ = ${javaConstructTypePrefix}node${javaConstructTypePostfix};
-      <#break>
-      
-    <#case "Array">
-      if(node instanceof JsonArray)
-      {
-        ${field.camelName}_ = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
-        <@checkItemLimits field field.camelName "${field.camelName}_"/>
-      }
-      else
-      {
-        throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
-      }
-      <#break>
-      
-    <#default>
-      if(node instanceof I${javaElementClassName}Provider)
-      {
-        ${javaFieldClassName} ${field.camelName} = ${javaConstructTypePrefix}((I${javaElementClassName}Provider)node).as${javaElementClassName}()${javaConstructTypePostfix};
-      <#if requiresChecks>
-        <@checkLimits field field.camelName/>
-      </#if>
-        ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
-      }
-      else
-      {
-        throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
-      }
-  </#switch>
+  <@generateCreateFieldFromJsonDomNode "      " field "${field.camelName}_"/>
     }
     else
     {
@@ -162,7 +134,7 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
       <#list field.fields as ref>
         <#assign subfield=ref.reference>
         <@setJavaType ref/>
-        <@checkLimits ref subfield.camelName/>
+        <@checkLimits "      " ref subfield.camelName/>
       ${subfield.camelName}_ = ${javaTypeCopyPrefix}${subfield.camelName}${javaTypeCopyPostfix};
       </#list>
     }
@@ -208,17 +180,16 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
       return ${field.camelName}__;
     }
     
-    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<@checkLimitsThrows field/>
+    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
     {
-    <@checkLimits field field.camelName/>
+    <@checkLimits "      " field field.camelName/>
       ${field.camelName}__${javaBuilderTypeCopyPrefix}${field.camelName}${javaBuilderTypeCopyPostfix};
       return (${model.camelCapitalizedName}.Builder)this;
     }
     <#switch field.elementType>
       <#case "Ref">
 
-<@printField/>
-    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<@checkLimitsThrows field/>
+    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
     {
       ${field.camelName}__ = new ${javaClassName}(${field.camelName});
       return (${model.camelCapitalizedName}.Builder)this;

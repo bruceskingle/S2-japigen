@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.symphonyoss.s2.common.dom.DomSerializer;
 import org.symphonyoss.s2.common.dom.DomWriter;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
+import org.symphonyoss.s2.common.dom.json.IJsonObject;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
 import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
@@ -60,16 +61,6 @@ public class TestOneOfEverything
   @Test
   public void testSubset() throws BadFormatException
   {
-    double d = 1.0 / 3.0;
-    float f = (float)d;
-    
-    System.err.format("d=%e f=%e equals=%s", d, f, d==f);
-    
-    d = 1.0 / 2.0;
-    f = (float)d;
-    
-    System.err.format("d=%e f=%e equals=%s", d, f, d==f);
-    
     ImmutableJsonObject dom = ObjectWithOneOfEverything.newBuilder()
         .withABoolean(true)
         .withADouble(7.0)
@@ -82,7 +73,7 @@ public class TestOneOfEverything
         .withCanonicalMode(true)
         .build();
     
-    test("", serializer.serialize(ObjectWithOneOfEverything.newBuilder()
+    test("{\"_type\":\"https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/oneOfEverything.json#/components/schemas/ObjectWithOneOfEverything\",\"aBoolean\":true,\"aDouble\":7.0,\"aDoubleMinMax\":5.0,\"aListOfByteString\":[\"SGVsbG8\",\"V29ybGQ\"],\"aSetOfByteString\":[],\"secs\":10}", serializer.serialize(ObjectWithOneOfEverything.newBuilder()
     .withABoolean(true)
     .withADouble(7.0)
     .withADoubleMinMax(new DoubleMinMax(5.0))
@@ -133,11 +124,32 @@ public class TestOneOfEverything
     System.out.println("Jackson DOM:");
     System.out.println(tree);
     
-    IJsonDomNode adaptor = JacksonAdaptor.adapt(tree);
+    IJsonDomNode adapted = JacksonAdaptor.adapt(tree);
     
     System.out.println("Adapted node:");
-    writer.write(adaptor);
+    writer.write(adapted);
+    writer.flush();
     
+    if(adapted instanceof IJsonObject)
+    {
+      //((MutableJsonObject)adapted).addIfNotNull("_type", "foo");
+      try
+      {
+        ObjectWithOneOfEverything obj2 = new ObjectWithOneOfEverything((ImmutableJsonObject) adapted.immutify());
+        
+        System.out.println("Reconstructed object:");
+        writer.write(obj2.getJsonObject());
+      }
+      catch(BadFormatException e)
+      {
+        System.err.println("Failed to deserialize from JSON");
+        e.printStackTrace();
+      }
+    }
+    else
+    {
+      System.err.println("Expected an object but received a " + adapted.getClass().getName());
+    }
     writer.close();
     
     System.out.println("Test Complete");

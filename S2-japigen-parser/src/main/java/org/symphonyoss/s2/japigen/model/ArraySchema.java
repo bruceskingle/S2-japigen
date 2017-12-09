@@ -34,7 +34,7 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
  * @author Bruce Skingle
  *
  */
-public class ArraySchema extends Schema
+public class ArraySchema extends Type
 {
   private final AbstractSchema items_;
   private final String cardinality_;
@@ -121,5 +121,11 @@ public class ArraySchema extends Schema
     super.getReferencedTypes(result);
     
     items_.getReferencedTypes(result);
+  }
+
+  @Override
+  public boolean getCanFailValidation()
+  {
+    return minItems_ != null || maxItems_ != null || super.getCanFailValidation();
   }
 }

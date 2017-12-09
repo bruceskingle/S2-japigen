@@ -1,5 +1,9 @@
 <#include "../S2-japigen-proforma-java-Prologue.ftl">
 <@setPrologueJavaType model/>
+import javax.annotation.concurrent.Immutable;
+
+import com.google.protobuf.ByteString;
+
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 
 import org.symphonyoss.s2.common.exception.BadFormatException;
@@ -10,12 +14,13 @@ import ${javaGenPackage}.${model.camelCapitalizedName}ModelObject;
 
 <@setJavaType model/>
 <#include "../../../template/java/Object/Object.ftl">
+@Immutable
 public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}ModelObject implements I${model.camelCapitalizedName}
 {
 <#-- Constrictor from fields -->  
   private ${model.camelCapitalizedName}(
 <#list model.fields as field><@setJavaType field/>
-    ${javaFieldClassName?right_pad(25)} ${field.camelName}<#sep>,
+    ${javaClassName?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
 
   )<@checkLimitsClassThrows model/>
