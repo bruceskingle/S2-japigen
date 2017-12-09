@@ -176,7 +176,7 @@ public class GenerateMojo extends AbstractMojo
       for(File src : srcList)
         modelSetContext.addGenerationSource(src);
       
-      modelSetContext.parse();
+      modelSetContext.process();
       
       GenerationContext generationContext = new GenerationContext(
           targetDir, proformaTargetDir, proformaCopyDir);

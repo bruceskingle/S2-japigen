@@ -28,6 +28,8 @@ import java.util.Set;
 
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.ParserError;
+import org.symphonyoss.s2.japigen.parser.error.ParserInfo;
 
 public class OneOfSchema extends AbstractContainerSchema
 {
@@ -41,7 +43,7 @@ public class OneOfSchema extends AbstractContainerSchema
     
     if(discriminator_ == null)
     {
-      context.error("oneOf fields require a discriminator");
+      context.raise(new ParserError("oneOf fields require a discriminator"));
     }
   }
 
@@ -64,11 +66,11 @@ public class OneOfSchema extends AbstractContainerSchema
     
     if(getParent() instanceof Schemas)
     {
-      getContext().info("OneOf parent is Schemas for %s", getName());
+      getContext().raise(new ParserInfo("OneOf parent is Schemas for %s", getName()));
     }
     else
     {
-      getContext().error("OneOf is only allowed in a top level schema (parent is %s for %s)", getParent().getClass(), getName());
+      getContext().raise(new ParserError("OneOf is only allowed in a top level schema (parent is %s for %s)", getParent().getClass(), getName()));
     }
   }
 }

@@ -31,6 +31,8 @@ import java.util.Set;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.ParserError;
+import org.symphonyoss.s2.japigen.parser.error.ParserInfo;
 
 /**
  * Schema for an object.
@@ -54,7 +56,7 @@ public class ObjectSchema extends Schema
         String fieldName = child.getJsonNode().asText();
         
         if(requiredButUndefinedSet_.contains(fieldName))
-          child.error("Duplication of required field \"%s\"", fieldName);
+          child.raise(new ParserError("Duplication of required field \"%s\"", fieldName));
         else
           requiredButUndefinedSet_.add(fieldName);
       }
@@ -63,7 +65,7 @@ public class ObjectSchema extends Schema
     ParserContext properties = context.get("properties");
     if(properties==null)
     {
-      context.error("Elements with \"type\": \"object\" require \"properties\":");
+      context.raise(new ParserError("Elements with \"type\": \"object\" require \"properties\":"));
     }
     else
     {
@@ -80,7 +82,7 @@ public class ObjectSchema extends Schema
     
     for(String requiredField : requiredButUndefinedSet_)
     {
-      context.error("Required field \"%s\" is not defined!", requiredField);
+      context.raise(new ParserError("Required field \"%s\" is not defined!", requiredField));
     }
   }
   
@@ -169,12 +171,12 @@ public class ObjectSchema extends Schema
   {
     if(getParent() instanceof Schemas)
     {
-      getContext().info("ObjectSchema parent is Schemas for %s", getName());
+      getContext().raise(new ParserInfo("ObjectSchema parent is Schemas for %s", getName()));
       super.generate(generationContext, dataModel);
     }
     else
     {
-      getContext().info("ObjectSchema ignored for generation (parent is %s for %s)", getParent().getClass(), getName());
+      getContext().raise(new ParserInfo("ObjectSchema ignored for generation (parent is %s for %s)", getParent().getClass(), getName()));
     }
     
   }

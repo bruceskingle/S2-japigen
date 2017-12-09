@@ -67,7 +67,7 @@ public class TestParser
     
     modelSetContext.addGenerationSource(new File("src/main/Resources/" + fileName + ".json"));
     
-    modelSetContext.parse();
+    modelSetContext.process();
     
     IndentedWriter out = new IndentedWriter(System.out);
     

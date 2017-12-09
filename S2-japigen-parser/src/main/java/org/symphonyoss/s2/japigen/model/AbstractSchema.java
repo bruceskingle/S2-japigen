@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.symphonyoss.s2.japigen.model.ValueMap.Entry;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.OnlyOneAllowedError;
 
 /**
  * An abstract Schema object, which could be an object, reference to an object,
@@ -163,7 +164,7 @@ class SchemaBuilder
       }
       else
       {
-        context_.error("\"%s\" and \"%s\" may not both be present.", resultNode_.getName(), node.getName());
+        context_.raise(new OnlyOneAllowedError(resultNode_, node));
       }
     }
     return null;

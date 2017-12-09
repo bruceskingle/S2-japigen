@@ -26,6 +26,8 @@ package org.symphonyoss.s2.japigen.model;
 import java.util.Set;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.ParserError;
+import org.symphonyoss.s2.japigen.parser.error.UnexpectedTypeError;
 
 public abstract class AbstractContainerSchema extends Schema
 {
@@ -40,7 +42,7 @@ public abstract class AbstractContainerSchema extends Schema
       if(childSchema instanceof ReferenceOrSchema)
         add((ReferenceOrSchema) childSchema);
       else
-        child.error("Expected an ObjectOrReferenceSchema, but found " + childSchema);
+        child.raise(new UnexpectedTypeError(ReferenceOrSchema.class, childSchema));
         
     }
   }
@@ -63,7 +65,7 @@ public abstract class AbstractContainerSchema extends Schema
       if(!(child instanceof ObjectSchema ||
           child instanceof ReferenceSchema
           ))
-        getContext().error("OneOf and AllOf may only contain Schema Objects (i.e. a ref or an object)");
+        getContext().raise(new ParserError("OneOf and AllOf may only contain Schema Objects (i.e. a ref or an object)"));
   }
 
   @Override

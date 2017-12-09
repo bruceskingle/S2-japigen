@@ -26,35 +26,31 @@ package org.symphonyoss.s2.japigen.parser;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.symphonyoss.s2.japigen.parser.error.UnexpectedTypeError;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class ParserContext implements Iterable<ParserContext>
+public class ParserContext extends BaseParserContext implements Iterable<ParserContext>
 {
-  private static Logger log_ = LoggerFactory.getLogger(ParserContext.class);
-
   private final ParserContext     parent_;
-  private final RootParserContext rootParserContext_;
-  private final String            path_;
   private final JsonNode          jsonNode_;
   private final String            name_;
 
   /* package */ ParserContext(RootParserContext rootParserContext, JsonNode rootNode)
   {
+    super(rootParserContext, "#");
+    
     parent_ = this;
-    rootParserContext_ = rootParserContext;
-    path_ = "#";
+    
     jsonNode_ = rootNode;
     name_ = rootParserContext.getInputSourceName();
   }
   
   public ParserContext(ParserContext parent, String name, JsonNode jsonNode)
   {
+    super(parent.getRootParserContext(), parent.getPath() + "/" + name);
+    
     parent_ = parent;
-    rootParserContext_ = parent.getRootParserContext();
-    path_ = parent.path_ + "/" + name;
     jsonNode_ = jsonNode;
     name_ = name;
   }
@@ -72,16 +68,6 @@ public class ParserContext implements Iterable<ParserContext>
     }
     
     return new ParserContext(this, name, jsonNode_.get(name));
-  }
-
-  public RootParserContext getRootParserContext()
-  {
-    return rootParserContext_;
-  }
-
-  public String getPath()
-  {
-    return path_;
   }
 
   public JsonNode getJsonNode()
@@ -142,21 +128,6 @@ public class ParserContext implements Iterable<ParserContext>
     }
   }
 
-  public void error(String format, Object ...args)
-  {
-    rootParserContext_.error(String.format("%n%nERROR: %s%nat %s%n%n", String.format(format, args), path_));
-  }
-  
-  public void info(String format, Object ...args)
-  {
-    log_.info(String.format("%s%nat %s", String.format(format, args), path_));
-  }
-  
-  public void warn(String format, Object ...args)
-  {
-    log_.warn(String.format("%s%nat %s", String.format(format, args), path_));
-  }
-
   public String getTextNode(String fieldName)
   {
     JsonNode node = jsonNode_.get(fieldName);
@@ -165,7 +136,7 @@ public class ParserContext implements Iterable<ParserContext>
     {
 
       if(!node.isTextual())
-        error("Expected \"%s\" to be a string value not %s", fieldName, node.getNodeType());
+        raise(new UnexpectedTypeError(fieldName, String.class, node));
       
       return node.asText();
     }
@@ -180,7 +151,7 @@ public class ParserContext implements Iterable<ParserContext>
     if(node != null)
     {
       if(!node.isNumber())
-        error("Expected \"%s\" to be a long value not %s", fieldName, node.getNodeType());
+        raise(new UnexpectedTypeError(fieldName, Long.class, node));
       
       return node.asLong();
     }
@@ -195,7 +166,7 @@ public class ParserContext implements Iterable<ParserContext>
     if(node != null)
     {
       if(!node.isNumber())
-        error("Expected \"%s\" to be a long value not %s", fieldName, node.getNodeType());
+        raise(new UnexpectedTypeError(fieldName, Long.class, node));
       
       return node.asLong(defaultValue);
     }
@@ -211,7 +182,7 @@ public class ParserContext implements Iterable<ParserContext>
     {
 
       if(!node.isNumber())
-        error("Expected \"%s\" to be a double value not %s", fieldName, node.getNodeType());
+        raise(new UnexpectedTypeError(fieldName, Double.class, node));
       
       return node.asDouble();
     }
@@ -227,7 +198,7 @@ public class ParserContext implements Iterable<ParserContext>
     {
 
       if(!node.isNumber())
-        error("Expected \"%s\" to be a double value not %s", fieldName, node.getNodeType());
+        raise(new UnexpectedTypeError(fieldName, Double.class, node));
       
       return node.asDouble(defaultValue);
     }

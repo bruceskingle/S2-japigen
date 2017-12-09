@@ -21,36 +21,14 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.model;
+package org.symphonyoss.s2.japigen.parser.error;
 
-import org.symphonyoss.s2.japigen.parser.ParserContext;
-import org.symphonyoss.s2.japigen.parser.error.UnknownFormatWarning;
-
-public class StringType extends Type
+public class ArraysRequireElementsError extends ParserError
 {
-
-  public StringType(ModelElement parent, ParserContext context)
+  public static final String MESSAGE = "Elements with \"type\": \"array\" require \"items\":";
+  
+  public ArraysRequireElementsError()
   {
-    super(parent, context, "String");
-    
-    switch(getFormat())
-    {
-      case "byte":
-      case "":
-        break;
-        
-      case "bytes":
-        context.raise(new UnknownFormatWarning(getFormat(), "Did you mean \"byte\"?"));
-        break;
-        
-      default:
-        context.raise(new UnknownFormatWarning(getFormat()));
-    }
-  }
-
-  @Override
-  public boolean getHasByteString()
-  {
-    return "byte".equals(getFormat());
+    super(MESSAGE);
   }
 }

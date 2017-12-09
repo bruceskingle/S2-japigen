@@ -29,6 +29,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.UnexpectedTypeError;
 
 public class Schemas extends ModelElement
 {
@@ -55,7 +56,7 @@ public class Schemas extends ModelElement
         add(schema.getName(), objectSchema);
       }
       else
-        schema.error("Expected an Object Schema but found " + objectSchema);
+        schema.raise(new UnexpectedTypeError(ReferenceOrSchema.class, objectSchema));
     }
   }
   

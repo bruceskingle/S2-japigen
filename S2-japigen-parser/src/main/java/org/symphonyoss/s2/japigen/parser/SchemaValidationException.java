@@ -21,36 +21,34 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.model;
+package org.symphonyoss.s2.japigen.parser;
 
-import org.symphonyoss.s2.japigen.parser.ParserContext;
-import org.symphonyoss.s2.japigen.parser.error.UnknownFormatWarning;
-
-public class StringType extends Type
+public class SchemaValidationException extends ParsingException
 {
+  private static final long serialVersionUID = 1L;
 
-  public StringType(ModelElement parent, ParserContext context)
+  public SchemaValidationException()
   {
-    super(parent, context, "String");
-    
-    switch(getFormat())
-    {
-      case "byte":
-      case "":
-        break;
-        
-      case "bytes":
-        context.raise(new UnknownFormatWarning(getFormat(), "Did you mean \"byte\"?"));
-        break;
-        
-      default:
-        context.raise(new UnknownFormatWarning(getFormat()));
-    }
   }
 
-  @Override
-  public boolean getHasByteString()
+  public SchemaValidationException(String message, Throwable cause, boolean enableSuppression,
+      boolean writableStackTrace)
   {
-    return "byte".equals(getFormat());
+    super(message, cause, enableSuppression, writableStackTrace);
+  }
+
+  public SchemaValidationException(String message, Throwable cause)
+  {
+    super(message, cause);
+  }
+
+  public SchemaValidationException(String message)
+  {
+    super(message);
+  }
+
+  public SchemaValidationException(Throwable cause)
+  {
+    super(cause);
   }
 }

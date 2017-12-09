@@ -33,7 +33,12 @@ public class Components extends ModelElement
   {
     super(parent, parserContext, "Components");
     
-    add(SCHEMAS, new Schemas(this, parserContext.get(SCHEMAS)));
+    ParserContext schemas = parserContext.get(SCHEMAS);
+    
+    if(schemas != null)
+    {
+      add(SCHEMAS, new Schemas(this, schemas));
+    }
   }
   
   @Override

@@ -23,6 +23,12 @@
 
 package org.symphonyoss.s2.japigen.parser;
 
+/**
+ * A generic parsing error.
+ * 
+ * @author Bruce Skingle
+ *
+ */
 public class ParsingException extends JapigenException
 {
   private static final long serialVersionUID = 1L;

@@ -21,36 +21,34 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.model;
+package org.symphonyoss.s2.japigen.parser.error;
 
-import org.symphonyoss.s2.japigen.parser.ParserContext;
-import org.symphonyoss.s2.japigen.parser.error.UnknownFormatWarning;
-
-public class StringType extends Type
+public class UnknownFormatWarning extends ParserWarning
 {
+  private final String format_;
+  private final String hint_;
 
-  public StringType(ModelElement parent, ParserContext context)
+  public UnknownFormatWarning(String format)
   {
-    super(parent, context, "String");
-    
-    switch(getFormat())
-    {
-      case "byte":
-      case "":
-        break;
-        
-      case "bytes":
-        context.raise(new UnknownFormatWarning(getFormat(), "Did you mean \"byte\"?"));
-        break;
-        
-      default:
-        context.raise(new UnknownFormatWarning(getFormat()));
-    }
+    super("Unknown format \"%s\" ignored.", format);
+    format_ = format;
+    hint_ = "";
   }
 
-  @Override
-  public boolean getHasByteString()
+  public UnknownFormatWarning(String format, String hint)
   {
-    return "byte".equals(getFormat());
+    super("Unknown format \"%s\" ignored. %s", format, hint);
+    format_ = format;
+    hint_ = hint;
+  }
+
+  public String getFormat()
+  {
+    return format_;
+  }
+
+  public String getHint()
+  {
+    return hint_;
   }
 }

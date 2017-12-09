@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.ArraysRequireElementsError;
 
 /**
  * Schema for an array.
@@ -48,7 +49,7 @@ public class ArraySchema extends Type
     ParserContext items = context.get("items");
     if(items==null)
     {
-      context.error("Elements with \"type\": \"array\" require \"items\":");
+      context.raise(new ArraysRequireElementsError());
       items_ = null;
     }
     else

@@ -40,6 +40,8 @@ import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.CodeGenerationAbortedInfo;
+import org.symphonyoss.s2.japigen.parser.error.RequiredItemMissingError;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -114,7 +116,7 @@ public class Model extends ModelElement
     
     if(japigenId_ == null)
     {
-      parserContext.error("%s is missing", JAPIGEN.X_ID);
+      parserContext.raise(new RequiredItemMissingError(JAPIGEN.X_ID));
     }
     
     Date now = new Date();
@@ -151,7 +153,7 @@ public class Model extends ModelElement
   {
     if(getContext().getRootParserContext().hasErrors())
     {
-      getContext().error("Code generation aborted due to model validation errors");
+      getContext().raise(new CodeGenerationAbortedInfo());
     }
     else
     {

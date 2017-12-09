@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.ParsingException;
+import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
 /**
  * A schema defined as
@@ -76,7 +77,7 @@ public class ReferenceSchema extends ReferenceOrSchema
         }
         catch (URISyntaxException e)
         {
-          context.error("Invalid base URI \"%s\"", s.substring(0, i));
+          context.raise(new ParserError("Invalid base URI \"%s\"", s.substring(0, i)));
         }
       }
       
@@ -87,7 +88,7 @@ public class ReferenceSchema extends ReferenceOrSchema
     }
     catch (URISyntaxException | ParsingException e)
     {
-      context.error("Invalid URI \"%s\"", node.getJsonNode().asText());
+      context.raise(new ParserError("Invalid URI \"%s\"", node.getJsonNode().asText()));
     }
     
   }
@@ -118,11 +119,11 @@ public class ReferenceSchema extends ReferenceOrSchema
             getByPath(fragment_.split("/"), 0); 
       }  
       if(referent == null)
-        getContext().error("Referenced schema \"%s\" not found.", uri_);
+        getContext().raise(new ParserError("Referenced schema \"%s\" not found.", uri_));
       else if(referent instanceof Schema)
         reference_ = (Schema) referent;
       else
-        getContext().error("Referenced schema \"%s\" is not a schema but a %s", uri_, referent.getClass().getName());
+        getContext().raise(new ParserError("Referenced schema \"%s\" is not a schema but a %s", uri_, referent.getClass().getName()));
     }
   }
 

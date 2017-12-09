@@ -25,6 +25,7 @@ package org.symphonyoss.s2.japigen.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.net.URL;
 import java.util.Deque;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import java.util.Map;
 import org.symphonyoss.s2.japigen.model.Model;
 import org.symphonyoss.s2.japigen.parser.log.Logger;
 import org.symphonyoss.s2.japigen.parser.log.LoggerFactory;
+import org.symphonyoss.s2.japigen.parser.log.Slf4jLogFactoryAdaptor;
 
 public class ModelSetParserContext
 {
@@ -46,7 +48,22 @@ public class ModelSetParserContext
   private Deque<Model>                validateQueue_      = new LinkedList<>();
   private Deque<Model>                generateQueue_      = new LinkedList<>();
   private Map<URL, Model>             modelMap_           = new HashMap<>();
-    
+  
+  /**
+   * Create a ModelSetParserContext with the default (SLF4J) logger adaptor.
+   */
+  public ModelSetParserContext()
+  {
+    this(new Slf4jLogFactoryAdaptor());
+  }
+  
+  /**
+   * Create a ModelSetParserContext with thegiven LoggerFactory.
+   * This is provided so that the maven plugin (mojo) can receive log entries in the 
+   * maven logger.
+   * 
+   * @param logFactory
+   */
   public ModelSetParserContext(LoggerFactory logFactory)
   {
     logFactory_ = logFactory;
@@ -76,7 +93,34 @@ public class ModelSetParserContext
     }
   }
   
-  public void parse() throws ParsingException
+  public void addGenerationSource(URL baseUrl, Reader reader) throws ParsingException
+  {
+    RootParserContext context = new RootParserContext(this, baseUrl, reader);
+    generationContexts_.put(baseUrl, context);
+    parseQueue_.add(context);
+  }
+  
+  public Model  parseOneModel() throws ParsingException
+  {
+    RootParserContext context = parseQueue_.pollFirst();
+    
+    if(context == null)
+      throw new ParsingException("No models left to parse");
+
+    Parser parser = new Parser();
+    Model model = parser.parse(context);
+    validateQueue_.add(model);
+    modelMap_.put(context.getUrl(), model);
+    
+    return model;
+  }
+  
+  /**
+   * Parse, validate and generate for all source inputs.
+   * 
+   * @throws ParsingException if there is a parsing error.
+   */
+  public void process() throws ParsingException
   {
     Parser parser = new Parser();
     RootParserContext context;
@@ -91,11 +135,16 @@ public class ModelSetParserContext
     
     while((model = validateQueue_.pollFirst()) != null)
     {
-        model.validate();
-        
-        generateQueue_.add(model);
-        model.getContext().getRootParserContext().epilogue("Validation");
+      validate(model);
     }
+  }
+
+  public void validate(Model model)
+  {
+    model.validate();
+    
+    generateQueue_.add(model);
+    model.getContext().getRootParserContext().epilogue("Validation");
   }
 
   public void addReferencedModel(URL url) throws ParsingException

@@ -25,7 +25,13 @@ package org.symphonyoss.s2.japigen.parser.log;
 
 public class Slf4jLogFactoryAdaptor implements LoggerFactory
 {
-
+  private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(Slf4jLogFactoryAdaptor.class);
+  
+  public Slf4jLogFactoryAdaptor()
+  {
+    LOG.info("slf4j logging enabled");
+  }
+  
   @Override
   public Logger getLogger(Class<?> type)
   {

@@ -21,36 +21,39 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.model;
+package org.symphonyoss.s2.japigen.parser.error;
 
-import org.symphonyoss.s2.japigen.parser.ParserContext;
-import org.symphonyoss.s2.japigen.parser.error.UnknownFormatWarning;
+import com.fasterxml.jackson.databind.JsonNode;
 
-public class StringType extends Type
+public class UnexpectedTypeError extends ParserError
 {
+  private final Class<?> expected_;
+  private final Object found_;
 
-  public StringType(ModelElement parent, ParserContext context)
+  public UnexpectedTypeError(Class<?> expected, Object found)
   {
-    super(parent, context, "String");
+    super("Expected an instance of %s, but found %s", expected.getName(), found.getClass().getName());
     
-    switch(getFormat())
-    {
-      case "byte":
-      case "":
-        break;
-        
-      case "bytes":
-        context.raise(new UnknownFormatWarning(getFormat(), "Did you mean \"byte\"?"));
-        break;
-        
-      default:
-        context.raise(new UnknownFormatWarning(getFormat()));
-    }
+    expected_ = expected;
+    found_ = found;
   }
 
-  @Override
-  public boolean getHasByteString()
+  public UnexpectedTypeError(String fieldName, Class<?> expected, JsonNode node)
   {
-    return "byte".equals(getFormat());
+    super("Expected \"%s\" to be a %s value not %s", fieldName, expected.getName(), node.getNodeType());
+    
+    expected_ = expected;
+    found_ = node;
   }
+
+  public Class<?> getExpected()
+  {
+    return expected_;
+  }
+
+  public Object getFound()
+  {
+    return found_;
+  }
+
 }

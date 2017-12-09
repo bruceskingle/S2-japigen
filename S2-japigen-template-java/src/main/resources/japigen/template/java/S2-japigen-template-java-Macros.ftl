@@ -659,45 +659,6 @@ ${indent}  throw new BadFormatException("${name} is required.");
  #----------------------------------------------------------------------------------------------------->
 <#macro generateCreateFieldFromJsonDomNode indent field var>
   <@setJavaType field/>
-  <@printField/>
-  /****************************
-  //OLD VERSION
-  <#switch field.elementType>
-    <#case "Ref">
-    // CASE Ref
-${indent}${var} = ${javaConstructTypePrefix}node${javaConstructTypePostfix};
-      <#break>
-      
-    <#case "Array">
-    // CASE Array
-${indent}if(node instanceof JsonArray)
-${indent}{
-${indent}  ${var} = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
-${indent}  <@checkItemLimits field field.camelName var/>
-${indent}}
-${indent}else
-${indent}{
-${indent}  throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
-${indent}}
-      <#break>
-      
-    <#default>
-    // CASE default
-${indent}if(node instanceof I${javaElementClassName}Provider)
-${indent}{
-${indent}  ${javaFieldClassName} ${field.camelName} = ${javaConstructTypePrefix}((I${javaElementClassName}Provider)node).as${javaElementClassName}()${javaConstructTypePostfix};
-      <#if requiresChecks>
-        <@checkLimits "${indent}  " field field.camelName/>
-      </#if>
-${indent}  ${var} = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
-${indent}}
-${indent}else
-${indent}{
-${indent}  throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
-${indent}}
-  </#switch>
-// NEW VERSION 
-***************/
   <#if isGenerated>
 ${indent}${var} = ${javaConstructTypePrefix}node${javaConstructTypePostfix};
 

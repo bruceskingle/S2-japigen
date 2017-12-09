@@ -24,6 +24,7 @@
 package org.symphonyoss.s2.japigen.model;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.UnknownFormatWarning;
 
 public class DoubleType extends Type
 {
@@ -34,7 +35,6 @@ public class DoubleType extends Type
   {
     super(parent, context, "Double");
     
-    
     switch(getFormat())
     {
       case "float":
@@ -43,7 +43,7 @@ public class DoubleType extends Type
         break;
         
       default:
-        context.error("Unknown format \"%s\"", getFormat());
+        context.raise(new UnknownFormatWarning(getFormat()));
     }
     
     minimum_ = context.getDoubleNode("minimum");

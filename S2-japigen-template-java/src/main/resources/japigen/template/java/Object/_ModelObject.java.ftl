@@ -35,7 +35,6 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
   private final ${"ImmutableJsonObject"?right_pad(25)}  jsonObject_;
 <#list model.fields as field>
   <@setJavaType field/>
-  <@printField/>
   private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
 </#list>
   

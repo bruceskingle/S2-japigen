@@ -54,7 +54,7 @@ public class Parser
     {
       rootParserContext.prologue();
       ObjectMapper mapper = new ObjectMapper();
-      JsonNode rootNode = mapper.readTree(rootParserContext.getInputStream());
+      JsonNode rootNode = mapper.readTree(rootParserContext.getReader());
       
       ProcessingReport report = schema_.validate(rootNode);
       
@@ -66,11 +66,7 @@ public class Parser
       {
         rootParserContext.error("Schema validation FAILED:");
         log_.error(report.toString());
-  //      for(ProcessingMessage messge : report)
-  //      {
-  //        log_.error(messge.getMessage());
-  //        log_.error(messge.asJson().toString());
-  //      }
+        throw new SchemaValidationException(report.toString());
       }
       
       Model model = new Model(new ParserContext(rootParserContext, rootNode));

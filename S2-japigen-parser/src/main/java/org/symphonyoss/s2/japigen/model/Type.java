@@ -24,6 +24,7 @@
 package org.symphonyoss.s2.japigen.model;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
 public abstract class Type extends Schema
 {
@@ -55,7 +56,7 @@ public abstract class Type extends Schema
         return new BooleanType(parent, context);
         
       default:
-        context.error("Type \"%s\" is of unknown type \"%s\"", context.getName(), node.getJsonNode().asText());
+        context.raise(new ParserError("Type \"%s\" is of unknown type \"%s\"", context.getName(), node.getJsonNode().asText()));
     }
 
     return null;

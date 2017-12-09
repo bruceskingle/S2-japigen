@@ -1,0 +1,14 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.0.1",
+    "title": "Japigen Template Type Check",
+    "license": {
+      "name": "Apache2"
+    }
+  },
+  "x-japigen-id": "https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/typeCheck.json",
+  "paths": {},
+  "components": {
+  }
+}

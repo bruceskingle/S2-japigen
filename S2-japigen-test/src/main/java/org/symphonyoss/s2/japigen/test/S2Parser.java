@@ -41,7 +41,7 @@ public class S2Parser
     modelSetContext.addGenerationSource(new File("src/main/Resources/s2-typedef.json"));
     modelSetContext.addGenerationSource(new File("src/main/Resources/s2.json"));
     
-    modelSetContext.parse();
+    modelSetContext.process();
     
     IndentedWriter out = new IndentedWriter(System.out);
     
