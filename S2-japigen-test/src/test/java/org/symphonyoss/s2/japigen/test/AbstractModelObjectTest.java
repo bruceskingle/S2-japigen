@@ -21,12 +21,26 @@
  * under the License.
  */
 
-package com.symphony.s2.japigen.runtime;
+package org.symphonyoss.s2.japigen.test;
 
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
-import org.symphonyoss.s2.common.exception.BadFormatException;
+import org.junit.Assert;
 
-public interface IModelSchemas
+public class AbstractModelObjectTest
 {
-  ModelObject create(ImmutableJsonObject jsonObject) throws BadFormatException;
+  public void assertEquals(Object expected, Object received)
+  {
+    if(!expected.equals(received))
+    {
+      System.out.format("expected %s%nreceived %s%n", expected, received);
+      System.out.flush();
+      
+      Assert.assertEquals(expected, received);
+    }
+  }
+
+  public void fail(String msg)
+  {
+    System.err.println(msg);
+    Assert.fail(msg);
+  }
 }

@@ -23,40 +23,40 @@
 
 package org.symphonyoss.s2.japigen.test;
 
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.symphonyoss.s2.common.dom.DomBatchSerializer;
 import org.symphonyoss.s2.common.dom.DomSerializer;
 import org.symphonyoss.s2.common.dom.DomWriter;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.IJsonObject;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
-import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
 import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
 import org.symphonyoss.s2.common.exception.BadFormatException;
+import org.symphonyoss.s2.common.reader.LinePartialReader;
+import org.symphonyoss.s2.common.reader.LinePartialReader.Factory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
+import com.symphony.s2.japigen.runtime.ModelObject;
+import com.symphony.s2.japigen.test.oneofeverything.OneOfEverythingModelSchemas;
+import com.symphony.s2.japigen.test.oneofeverything.facade.ASimpleObject;
 import com.symphony.s2.japigen.test.oneofeverything.facade.DoubleMinMax;
 import com.symphony.s2.japigen.test.oneofeverything.facade.ObjectWithOneOfEverything;
+import com.symphony.s2.japigen.test.oneofeverything.facade.OneOfEverythingSchemas;
 
-public class TestOneOfEverything
+public class TestOneOfEverything extends AbstractModelObjectTest
 {
-  private void test(String expected, String received)
-  {
-    if(!expected.equals(received))
-    {
-      System.out.format("expected %s%nreceived %s%n", expected, received);
-      System.out.flush();
-      
-      Assert.assertEquals(expected, received);
-    }
-  }
   
   @Test
   public void testSubset() throws BadFormatException
@@ -73,7 +73,7 @@ public class TestOneOfEverything
         .withCanonicalMode(true)
         .build();
     
-    test("{\"_type\":\"https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/oneOfEverything.json#/components/schemas/ObjectWithOneOfEverything\",\"aBoolean\":true,\"aDouble\":7.0,\"aDoubleMinMax\":5.0,\"aListOfByteString\":[\"SGVsbG8\",\"V29ybGQ\"],\"aSetOfByteString\":[],\"secs\":10}", serializer.serialize(ObjectWithOneOfEverything.newBuilder()
+    assertEquals("{\"_type\":\"https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/oneOfEverything.json#/components/schemas/ObjectWithOneOfEverything\",\"aBoolean\":true,\"aDouble\":7.0,\"aDoubleMinMax\":5.0,\"aListOfByteString\":[\"SGVsbG8\",\"V29ybGQ\"],\"aSetOfByteString\":[],\"secs\":10}", serializer.serialize(ObjectWithOneOfEverything.newBuilder()
     .withABoolean(true)
     .withADouble(7.0)
     .withADoubleMinMax(new DoubleMinMax(5.0))
@@ -82,7 +82,8 @@ public class TestOneOfEverything
     .build().getJsonObject()));
   }
   
-  public static void main(String[] argv) throws IOException, BadFormatException
+  @Test
+  public void testRoundTrip() throws IOException, BadFormatException
   {
     ObjectWithOneOfEverything obj;
     
@@ -91,18 +92,7 @@ public class TestOneOfEverything
     
 
     
-    obj = ObjectWithOneOfEverything.newBuilder()
-    .withABoolean(false)
-    .withADouble(27.0)
-    .withADoubleMinMax(5.0)
-    .withSecs(20L)
-    .withAByteString(ByteString.copyFrom("Hello World".getBytes()))
-    .withAFloat(3.14f)
-    .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("Hello".getBytes()), ByteString.copyFrom("World".getBytes())))
-    .withASetOfByteString(ImmutableSet.of(ByteString.copyFrom("This is a set".getBytes()), ByteString.copyFrom("So the items are unique".getBytes())))
-    .withNanos(200)
-    .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("More".getBytes()), ByteString.copyFrom("Strings".getBytes())))
-    .build();
+    obj = createTestObject1();
     
     writer.write(obj.getJsonObject());
     
@@ -139,19 +129,96 @@ public class TestOneOfEverything
         
         System.out.println("Reconstructed object:");
         writer.write(obj2.getJsonObject());
+        
+        assertEquals(obj, obj2);
       }
       catch(BadFormatException e)
       {
         System.err.println("Failed to deserialize from JSON");
         e.printStackTrace();
+        writer.close();
+        throw e;
       }
     }
     else
     {
-      System.err.println("Expected an object but received a " + adapted.getClass().getName());
+      fail("Expected an object but received a " + adapted.getClass().getName());
     }
     writer.close();
     
     System.out.println("Test Complete");
+  }
+
+  @Test
+  public void testOneSchemas() throws BadFormatException, IOException
+  {
+    ASimpleObject source = createTestObject3();
+    String serial = source.serialize();
+    OneOfEverythingSchemas schemas = new OneOfEverythingSchemas();
+    Reader reader = new StringReader(serial);
+    ModelObject deserialized = schemas.parse(reader);
+    
+    assertEquals(source, deserialized);
+  }
+  
+  @Test
+  public void testMultipleSchemas() throws BadFormatException, IOException
+  {
+    CharArrayWriter writer = new CharArrayWriter();
+    
+    ASimpleObject source1 = createTestObject3();
+    writer.write(source1.serialize());
+    writer.write('\n');
+    
+    ASimpleObject source2 = createTestObject2();
+    writer.write(source2.serialize());
+    writer.write('\n');
+    
+    ObjectWithOneOfEverything source3 = createTestObject1();
+    writer.write(source3.serialize());
+    writer.write('\n');
+    
+    OneOfEverythingSchemas schemas = new OneOfEverythingSchemas();
+    
+    try(Factory readerFactory = new LinePartialReader.Factory(new CharArrayReader(writer.toCharArray())))
+    {
+      assertEquals(source1, schemas.parse(readerFactory.getNextReader()));
+      assertEquals(source2, schemas.parse(readerFactory.getNextReader()));
+      assertEquals(source3, schemas.parse(readerFactory.getNextReader()));
+      
+      Assert.assertEquals(null, readerFactory.getNextReader());
+    }
+  }
+  
+  private ASimpleObject createTestObject3() throws BadFormatException
+  {
+    return ASimpleObject.newBuilder()
+        .withName("Simple3")
+        .withValue("Value Three\nhas\nthree lines.")
+        .build();
+  }
+
+  private ASimpleObject createTestObject2() throws BadFormatException
+  {
+    return ASimpleObject.newBuilder()
+        .withName("Simple2")
+        .withValue("Value Two")
+        .build();
+  }
+
+  private ObjectWithOneOfEverything createTestObject1() throws BadFormatException
+  {
+    return ObjectWithOneOfEverything.newBuilder()
+        .withABoolean(false)
+        .withADouble(27.0)
+        .withADoubleMinMax(5.0)
+        .withSecs(20L)
+        .withAByteString(ByteString.copyFrom("Hello World".getBytes()))
+        .withAFloat(3.14f)
+        .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("Hello".getBytes()), ByteString.copyFrom("World".getBytes())))
+        .withASetOfByteString(ImmutableSet.of(ByteString.copyFrom("This is a set".getBytes()), ByteString.copyFrom("So the items are unique".getBytes())))
+        .withNanos(200)
+        .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("More".getBytes()), ByteString.copyFrom("Strings".getBytes())))
+        .build();
   }
 }

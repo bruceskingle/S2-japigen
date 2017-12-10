@@ -5,7 +5,7 @@ import com.symphony.s2.japigen.runtime.ModelSchemas;
 
 import ${javaGenPackage}.${model.camelCapitalizedName}ModelSchemas;
 
-public abstract class ${model.camelCapitalizedName}Schemas extends ${model.camelCapitalizedName}ModelSchemas implements I${model.camelCapitalizedName}Schemas
+public class ${model.camelCapitalizedName}Schemas extends ${model.camelCapitalizedName}ModelSchemas implements I${model.camelCapitalizedName}Schemas
 {
   
 }

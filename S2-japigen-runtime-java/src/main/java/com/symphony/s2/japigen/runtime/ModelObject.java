@@ -23,7 +23,10 @@
 
 package com.symphony.s2.japigen.runtime;
 
-public class ModelObject implements IModelObject
+import org.symphonyoss.s2.common.dom.DomSerializer;
+
+public abstract class ModelObject implements IModelObject
 {
-  
+  protected static final DomSerializer SERIALIZER = DomSerializer.newBuilder().withCanonicalMode(true).build();
+
 }

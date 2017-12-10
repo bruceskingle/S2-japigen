@@ -23,7 +23,44 @@
 
 package com.symphony.s2.japigen.runtime;
 
-public class ModelSchemas implements IModelSchemas
-{
+import java.io.IOException;
+import java.io.Reader;
 
+import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
+import org.symphonyoss.s2.common.dom.json.IJsonObject;
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
+import org.symphonyoss.s2.common.exception.BadFormatException;
+
+import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public abstract class ModelSchemas implements IModelSchemas
+{
+  private ObjectMapper  mapper_ = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
+  
+  public ModelObject parse(Reader reader) throws IOException, BadFormatException
+  {
+    try
+    {
+      JsonNode tree = mapper_.readTree(reader);
+      
+      IJsonDomNode adapted = JacksonAdaptor.adapt(tree);
+      
+      if(adapted instanceof IJsonObject)
+      {
+        return create((ImmutableJsonObject) adapted.immutify());
+      }
+      else
+      {
+        throw new BadFormatException("Expected a JSON Object but read a " + adapted.getClass().getName());
+      }
+    }
+    catch(JsonProcessingException e)
+    {
+      throw new BadFormatException("Failed to parse input", e);
+    }
+  }
 }

@@ -52,26 +52,21 @@ import ${javaFacadePackage}.${model.camelCapitalizedName}Schemas;
 
 public abstract class ${model.camelCapitalizedName}ModelSchemas extends ModelSchemas implements I${model.camelCapitalizedName}ModelSchemas
 {
+  @Override
   public ModelObject create(ImmutableJsonObject jsonObject) throws BadFormatException
   {
-    IImmutableJsonDomNode typeNode = jsonObject.get(JapigenRuntime.JSON_TYPE);
-    if(!(typeNode instanceof IStringProvider))
-    {
-      throw new BadFormatException(JapigenRuntime.JSON_TYPE + " attribute must be present");
-    }
+    String typeId = jsonObject.getString(JapigenRuntime.JSON_TYPE);
     
-    switch(((IStringProvider)typeNode).asString())
+    switch(typeId)
     {
 // model ${model.camelCapitalizedName}
 // model.model ${model.model.camelCapitalizedName}
 
 <#list model.children as object>
-// object.camelCapitalizedName ${object.camelCapitalizedName};
-// object.elementType ${object.elementType}
   <#switch object.elementType>
     <#case "Object">
     <#case "AllOf">
-      case "${object.camelCapitalizedName}":
+      case ${object.camelCapitalizedName}.TYPE_ID:
         return new ${object.camelCapitalizedName}(jsonObject);
 
       <#break>
@@ -82,7 +77,7 @@ public abstract class ${model.camelCapitalizedName}ModelSchemas extends ModelSch
   </#switch>
 </#list>
       default:
-        throw new BadFormatException("Unknown type \"" + jsonObject.get(JapigenRuntime.JSON_TYPE) + "\"");
+        throw new BadFormatException("Unknown type \"" + typeId + "\"");
         
     }
   }

@@ -33,6 +33,7 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
   public static final String TYPE_ID = "${model.model.japigenId}#/components/schemas/${model.name}";
   
   private final ${"ImmutableJsonObject"?right_pad(25)}  jsonObject_;
+  private final ${"String"?right_pad(25)}  asString_;
 <#list model.fields as field>
   <@setJavaType field/>
   private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
@@ -63,12 +64,14 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
 </#list>
 
     jsonObject_ = jsonObject.immutify();
+    asString_ = SERIALIZER.serialize(jsonObject_);
   }
   
 <#-- Constructor from Json   -->  
   protected ${model.camelCapitalizedName}ModelObject(ImmutableJsonObject jsonObject) throws BadFormatException
   {
     jsonObject_ = jsonObject;
+    asString_ = SERIALIZER.serialize(jsonObject_);
 
     IImmutableJsonDomNode typeNode = jsonObject_.get(JapigenRuntime.JSON_TYPE);
     if(!(typeNode instanceof IStringProvider && TYPE_ID.equals(((IStringProvider)typeNode).asString())))
@@ -152,6 +155,33 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
     
     is this even called? ------------------------------->
 </#list>
+  
+  @Override
+  public String toString()
+  {
+    return asString_;
+  }
+
+  @Override
+  public String serialize()
+  {
+    return asString_;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return asString_.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if(obj instanceof ${modelJavaClassName}ModelObject)
+      return asString_.equals(((${modelJavaClassName}ModelObject)obj).asString_);
+    
+    return false;
+  }
   
   public static abstract class Builder
   {
