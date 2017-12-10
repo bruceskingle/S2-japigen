@@ -6,6 +6,7 @@ import com.google.protobuf.ByteString;
 
 import com.symphony.s2.japigen.runtime.JapigenRuntime;
 import com.symphony.s2.japigen.runtime.ModelObject;
+import com.symphony.s2.japigen.runtime.ModelObjectFactory;
 
 import org.symphonyoss.s2.common.dom.IBooleanProvider;
 import org.symphonyoss.s2.common.dom.IStringProvider;
@@ -40,7 +41,7 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
 </#list>
   
 <#-- Constructor from fields -->  
-  protected ${model.camelCapitalizedName}ModelObject(
+  protected ${modelJavaClassName}ModelObject(
 <#list model.fields as field><@setJavaType field/>
     ${javaClassName?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
@@ -68,7 +69,7 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
   }
   
 <#-- Constructor from Json   -->  
-  protected ${model.camelCapitalizedName}ModelObject(ImmutableJsonObject jsonObject) throws BadFormatException
+  protected ${modelJavaClassName}ModelObject(ImmutableJsonObject jsonObject) throws BadFormatException
   {
     jsonObject_ = jsonObject;
     asString_ = SERIALIZER.serialize(jsonObject_);
@@ -183,51 +184,61 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
     return false;
   }
   
-  public static abstract class Builder
+  public static abstract class Factory extends ModelObjectFactory<${modelJavaClassName}>
   {
-  <#list model.fields as field>
+    private ${model.model.camelCapitalizedName}ModelFactory modelFactory_;
+    
+    public Factory(${model.model.camelCapitalizedName}ModelFactory modelFactory)
+    {
+      modelFactory_ = modelFactory;
+    }
+    
+    public static abstract class Builder extends ModelObjectFactory.Builder
+    {
+    <#list model.fields as field>
+      <@setJavaType field/>
+      private ${javaClassName?right_pad(25)}  ${field.camelName}__${javaBuilderTypeNew};
+    </#list>
+      
+      protected Builder()
+      {
+      }
+      
+      protected Builder(Builder initial)
+      {
+    <#list model.fields as field>
     <@setJavaType field/>
-    private ${javaClassName?right_pad(25)}  ${field.camelName}__${javaBuilderTypeNew};
-  </#list>
-    
-    protected Builder()
-    {
+        ${field.camelName}__${javaBuilderTypeCopyPrefix}initial.${field.camelName}__${javaBuilderTypeCopyPostfix};
+    </#list>
+      }
+    <#list model.fields as field>
+      <@setJavaType field/>
+      
+      public ${javaClassName} get${field.camelCapitalizedName}()
+      {
+        return ${field.camelName}__;
+      }
+      
+      public Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
+      {
+      <@checkLimits "      " field field.camelName/>
+        ${field.camelName}__${javaBuilderTypeCopyPrefix}${field.camelName}${javaBuilderTypeCopyPostfix};
+        return (Builder)this;
+      }
+      <#switch field.elementType>
+        <#case "Ref">
+  
+      public Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
+      {
+        ${field.camelName}__ = new ${javaClassName}(${field.camelName});
+        return (Builder)this;
+      }
+          <#break>
+      </#switch>
+    </#list>
+      
+      public abstract ${modelJavaClassName} build()<@checkLimitsClassThrows model/>;
     }
-    
-    protected Builder(Builder initial)
-    {
-  <#list model.fields as field>
-  <@setJavaType field/>
-      ${field.camelName}__${javaBuilderTypeCopyPrefix}initial.${field.camelName}__${javaBuilderTypeCopyPostfix};
-  </#list>
-    }
-  <#list model.fields as field>
-    <@setJavaType field/>
-    
-    public ${javaClassName} get${field.camelCapitalizedName}()
-    {
-      return ${field.camelName}__;
-    }
-    
-    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
-    {
-    <@checkLimits "      " field field.camelName/>
-      ${field.camelName}__${javaBuilderTypeCopyPrefix}${field.camelName}${javaBuilderTypeCopyPostfix};
-      return (${model.camelCapitalizedName}.Builder)this;
-    }
-    <#switch field.elementType>
-      <#case "Ref">
-
-    public ${model.camelCapitalizedName}.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
-    {
-      ${field.camelName}__ = new ${javaClassName}(${field.camelName});
-      return (${model.camelCapitalizedName}.Builder)this;
-    }
-        <#break>
-    </#switch>
-  </#list>
-    
-    public abstract ${modelJavaClassName} build()<@checkLimitsClassThrows model/>;
   }
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

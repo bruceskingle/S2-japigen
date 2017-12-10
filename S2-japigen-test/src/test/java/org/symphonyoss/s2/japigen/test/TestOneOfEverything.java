@@ -26,13 +26,11 @@ package org.symphonyoss.s2.japigen.test;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.symphonyoss.s2.common.dom.DomBatchSerializer;
 import org.symphonyoss.s2.common.dom.DomSerializer;
 import org.symphonyoss.s2.common.dom.DomWriter;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
@@ -40,28 +38,33 @@ import org.symphonyoss.s2.common.dom.json.IJsonObject;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
 import org.symphonyoss.s2.common.exception.BadFormatException;
-import org.symphonyoss.s2.common.reader.LinePartialReader;
-import org.symphonyoss.s2.common.reader.LinePartialReader.Factory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
-import com.symphony.s2.japigen.runtime.ModelObject;
-import com.symphony.s2.japigen.test.oneofeverything.OneOfEverythingModelSchemas;
+import com.symphony.s2.japigen.runtime.IModelObject;
+import com.symphony.s2.japigen.runtime.IModelObjectConsumer;
+import com.symphony.s2.japigen.runtime.IModelRegistry;
+import com.symphony.s2.japigen.runtime.ModelRegistry;
 import com.symphony.s2.japigen.test.oneofeverything.facade.ASimpleObject;
 import com.symphony.s2.japigen.test.oneofeverything.facade.DoubleMinMax;
 import com.symphony.s2.japigen.test.oneofeverything.facade.ObjectWithOneOfEverything;
-import com.symphony.s2.japigen.test.oneofeverything.facade.OneOfEverythingSchemas;
+import com.symphony.s2.japigen.test.oneofeverything.facade.OneOfEverythingFactory;
 
 public class TestOneOfEverything extends AbstractModelObjectTest
 {
+  private final OneOfEverythingFactory            oneOfEverythingFactory_ = new OneOfEverythingFactory();
+  private final IModelRegistry                    modelRegistry_          = new ModelRegistry()
+                                                                            .register(oneOfEverythingFactory_);
+  private final ObjectWithOneOfEverything.Factory objectFactory_          = oneOfEverythingFactory_
+                                                                            .getObjectWithOneOfEverythingFactory();
   
   @Test
   public void testSubset() throws BadFormatException
   {
-    ImmutableJsonObject dom = ObjectWithOneOfEverything.newBuilder()
+    ImmutableJsonObject dom = objectFactory_.newBuilder()
         .withABoolean(true)
         .withADouble(7.0)
         .withADoubleMinMax(new DoubleMinMax(5.0))
@@ -73,7 +76,8 @@ public class TestOneOfEverything extends AbstractModelObjectTest
         .withCanonicalMode(true)
         .build();
     
-    assertEquals("{\"_type\":\"https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/oneOfEverything.json#/components/schemas/ObjectWithOneOfEverything\",\"aBoolean\":true,\"aDouble\":7.0,\"aDoubleMinMax\":5.0,\"aListOfByteString\":[\"SGVsbG8\",\"V29ybGQ\"],\"aSetOfByteString\":[],\"secs\":10}", serializer.serialize(ObjectWithOneOfEverything.newBuilder()
+    assertEquals("{\"_type\":\"https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/oneOfEverything.json#/components/schemas/ObjectWithOneOfEverything\",\"aBoolean\":true,\"aDouble\":7.0,\"aDoubleMinMax\":5.0,\"aListOfByteString\":[\"SGVsbG8\",\"V29ybGQ\"],\"aSetOfByteString\":[],\"secs\":10}",
+        serializer.serialize(objectFactory_.newBuilder()
     .withABoolean(true)
     .withADouble(7.0)
     .withADoubleMinMax(new DoubleMinMax(5.0))
@@ -125,7 +129,7 @@ public class TestOneOfEverything extends AbstractModelObjectTest
       //((MutableJsonObject)adapted).addIfNotNull("_type", "foo");
       try
       {
-        ObjectWithOneOfEverything obj2 = new ObjectWithOneOfEverything((ImmutableJsonObject) adapted.immutify());
+        ObjectWithOneOfEverything obj2 = objectFactory_.newInstance((ImmutableJsonObject) adapted.immutify());
         
         System.out.println("Reconstructed object:");
         writer.write(obj2.getJsonObject());
@@ -154,9 +158,8 @@ public class TestOneOfEverything extends AbstractModelObjectTest
   {
     ASimpleObject source = createTestObject3();
     String serial = source.serialize();
-    OneOfEverythingSchemas schemas = new OneOfEverythingSchemas();
     Reader reader = new StringReader(serial);
-    ModelObject deserialized = schemas.parse(reader);
+    IModelObject deserialized = modelRegistry_.parseOne(reader);
     
     assertEquals(source, deserialized);
   }
@@ -165,34 +168,50 @@ public class TestOneOfEverything extends AbstractModelObjectTest
   public void testMultipleSchemas() throws BadFormatException, IOException
   {
     CharArrayWriter writer = new CharArrayWriter();
+    IModelObject[] source = new IModelObject[3];
     
-    ASimpleObject source1 = createTestObject3();
-    writer.write(source1.serialize());
+    source[0] = createTestObject3();
+    writer.write(source[0].serialize());
     writer.write('\n');
     
-    ASimpleObject source2 = createTestObject2();
-    writer.write(source2.serialize());
+    source[1] = createTestObject2();
+    writer.write(source[1].serialize());
     writer.write('\n');
     
-    ObjectWithOneOfEverything source3 = createTestObject1();
-    writer.write(source3.serialize());
+    source[2] = createTestObject1();
+    writer.write(source[2].serialize());
     writer.write('\n');
     
-    OneOfEverythingSchemas schemas = new OneOfEverythingSchemas();
+    writer.close();
     
-    try(Factory readerFactory = new LinePartialReader.Factory(new CharArrayReader(writer.toCharArray())))
+    Reader  reader = new CharArrayReader(writer.toCharArray());
+    Consumer consumer = new Consumer(source);
+    
+    modelRegistry_.parseStream(reader, consumer);
+    
+    Assert.assertEquals(3, consumer.count_);
+  }
+  
+  class Consumer implements IModelObjectConsumer
+  {
+    int count_;
+    IModelObject[] source_;
+    
+    public Consumer(IModelObject[] source)
     {
-      assertEquals(source1, schemas.parse(readerFactory.getNextReader()));
-      assertEquals(source2, schemas.parse(readerFactory.getNextReader()));
-      assertEquals(source3, schemas.parse(readerFactory.getNextReader()));
-      
-      Assert.assertEquals(null, readerFactory.getNextReader());
+      source_ = source;
+    }
+
+    @Override
+    public void consume(IModelObject modelObject)
+    {
+      assertEquals(source_[count_++], modelObject);
     }
   }
   
   private ASimpleObject createTestObject3() throws BadFormatException
   {
-    return ASimpleObject.newBuilder()
+    return oneOfEverythingFactory_.getASimpleObjectFactory().newBuilder()
         .withName("Simple3")
         .withValue("Value Three\nhas\nthree lines.")
         .build();
@@ -200,7 +219,7 @@ public class TestOneOfEverything extends AbstractModelObjectTest
 
   private ASimpleObject createTestObject2() throws BadFormatException
   {
-    return ASimpleObject.newBuilder()
+    return oneOfEverythingFactory_.getASimpleObjectFactory().newBuilder()
         .withName("Simple2")
         .withValue("Value Two")
         .build();
@@ -208,7 +227,7 @@ public class TestOneOfEverything extends AbstractModelObjectTest
 
   private ObjectWithOneOfEverything createTestObject1() throws BadFormatException
   {
-    return ObjectWithOneOfEverything.newBuilder()
+    return objectFactory_.newBuilder()
         .withABoolean(false)
         .withADouble(27.0)
         .withADoubleMinMax(5.0)

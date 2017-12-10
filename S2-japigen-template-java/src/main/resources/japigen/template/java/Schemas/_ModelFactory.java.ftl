@@ -6,13 +6,14 @@ import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
+import com.symphony.s2.japigen.runtime.IModelRegistry;
 import com.symphony.s2.japigen.runtime.JapigenRuntime;
 import com.symphony.s2.japigen.runtime.ModelObject;
-import com.symphony.s2.japigen.runtime.ModelSchemas;
+import com.symphony.s2.japigen.runtime.ModelFactory;
 
 
 <#--- if templateDebug?? --->
-<#-- Print all Schemas -->
+<#-- Print all Factory -->
 /* =====================================================================================================
  * Schema ${model}
  * ===================================================================================================*/
@@ -35,8 +36,6 @@ import com.symphony.s2.japigen.runtime.ModelSchemas;
  <#--- /#if -->
 
 <#list model.children as object>
-// object.camelCapitalizedName ${object.camelCapitalizedName};
-// object.elementType ${object.elementType}
 <#switch object.elementType>
     <#case "Object">
     <#case "AllOf">
@@ -48,38 +47,55 @@ import ${javaFacadePackage}.${object.camelCapitalizedName};
       <#break>
   </#switch>
 </#list>
-import ${javaFacadePackage}.${model.camelCapitalizedName}Schemas;
 
-public abstract class ${model.camelCapitalizedName}ModelSchemas extends ModelSchemas implements I${model.camelCapitalizedName}ModelSchemas
+public abstract class ${model.camelCapitalizedName}ModelFactory extends ModelFactory implements I${model.camelCapitalizedName}ModelFactory
 {
-  @Override
-  public ModelObject create(ImmutableJsonObject jsonObject) throws BadFormatException
-  {
-    String typeId = jsonObject.getString(JapigenRuntime.JSON_TYPE);
-    
-    switch(typeId)
-    {
-// model ${model.camelCapitalizedName}
-// model.model ${model.model.camelCapitalizedName}
-
 <#list model.children as object>
   <#switch object.elementType>
     <#case "Object">
     <#case "AllOf">
-      case ${object.camelCapitalizedName}.TYPE_ID:
-        return new ${object.camelCapitalizedName}(jsonObject);
-
+  private final ${object.camelCapitalizedName}.Factory  ${object.camelName}Factory_ = new ${object.camelCapitalizedName}.Factory(this);
       <#break>
     
     <#case "OneOf">
-// ${object.elementType} needs to be added
+    // ${object.elementType} needs to be added
       <#break>
   </#switch>
 </#list>
-      default:
-        throw new BadFormatException("Unknown type \"" + typeId + "\"");
-        
-    }
+  @Override
+  public void registerWith(IModelRegistry registry)
+  {
+<#list model.children as object>
+  <#switch object.elementType>
+    <#case "Object">
+    <#case "AllOf">
+    registry.register(${object.camelCapitalizedName}.TYPE_ID,
+      ${object.camelName}Factory_);
+      <#break>
+    
+    <#case "OneOf">
+    // ${object.elementType} needs to be added
+      <#break>
+  </#switch>
+</#list>
   }
+<#list model.children as object>
+  <#switch object.elementType>
+    <#case "Object">
+    <#case "AllOf">
+    
+    public ${object.camelCapitalizedName}.Factory get${object.camelCapitalizedName}Factory()
+    {
+      return ${object.camelName}Factory_;
+    }
+      <#break>
+    
+    <#case "OneOf">
+    
+    // ${object.elementType} needs to be added
+      <#break>
+  </#switch>
+</#list>
+
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

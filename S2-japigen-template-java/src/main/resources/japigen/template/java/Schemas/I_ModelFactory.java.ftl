@@ -3,11 +3,10 @@ import org.symphonyoss.s2.common.exception.BadFormatException;
 
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 
-import com.symphony.s2.japigen.runtime.IModelSchemas;
+import com.symphony.s2.japigen.runtime.IModelFactory;
 import com.symphony.s2.japigen.runtime.ModelObject;
 
-public interface I${model.camelCapitalizedName}ModelSchemas extends IModelSchemas
+public interface I${model.camelCapitalizedName}ModelFactory extends IModelFactory
 {
-  ModelObject create(ImmutableJsonObject jsonObject) throws BadFormatException;
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

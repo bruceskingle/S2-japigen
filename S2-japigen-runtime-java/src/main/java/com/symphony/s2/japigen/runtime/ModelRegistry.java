@@ -25,23 +25,59 @@ package com.symphony.s2.japigen.runtime;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.IJsonObject;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
 import org.symphonyoss.s2.common.exception.BadFormatException;
+import org.symphonyoss.s2.common.reader.LinePartialReader;
+import org.symphonyoss.s2.common.reader.LinePartialReader.Factory;
 
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public abstract class ModelSchemas implements IModelSchemas
+public class ModelRegistry implements IModelRegistry
 {
+  private static final Logger LOG = LoggerFactory.getLogger(ModelRegistry.class);
+  
+  private Map<String, IModelObjectFactory<?>>  factoryMap_ = new HashMap<>();
   private ObjectMapper  mapper_ = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
   
-  public ModelObject parse(Reader reader) throws IOException, BadFormatException
+  @Override
+  public IModelRegistry register(IModelFactory factory)
+  {
+    factory.registerWith(this);
+    return this;
+  }
+  
+  @Override
+  public IModelRegistry register(String name, IModelObjectFactory<?> factory)
+  {
+    factoryMap_.put(name, factory);
+    return this;
+  }
+  
+  @Override
+  public IModelObject newInstance(ImmutableJsonObject jsonObject) throws BadFormatException
+  {
+    String typeId = jsonObject.getString(JapigenRuntime.JSON_TYPE);
+    IModelObjectFactory<?> factory = factoryMap_.get(typeId);
+    
+    if(factory == null)
+      throw new BadFormatException("Unknown type \"" + typeId + "\"");
+    
+    return factory.newInstance(jsonObject);
+  }
+  
+  @Override
+  public IModelObject parseOne(Reader reader) throws IOException, BadFormatException
   {
     try
     {
@@ -51,7 +87,7 @@ public abstract class ModelSchemas implements IModelSchemas
       
       if(adapted instanceof IJsonObject)
       {
-        return create((ImmutableJsonObject) adapted.immutify());
+        return newInstance((ImmutableJsonObject) adapted.immutify());
       }
       else
       {
@@ -61,6 +97,31 @@ public abstract class ModelSchemas implements IModelSchemas
     catch(JsonProcessingException e)
     {
       throw new BadFormatException("Failed to parse input", e);
+    }
+  }
+
+  @Override
+  public void parseStream(Reader reader, IModelObjectConsumer consumer) throws BadFormatException
+  {
+    try(Factory readerFactory = new LinePartialReader.Factory(reader))
+    {
+      LinePartialReader partialReader;
+      
+      while((partialReader = readerFactory.getNextReader())!=null)
+      {
+        try
+        {
+          consumer.consume(parseOne(partialReader));
+        }
+        finally
+        {
+          partialReader.close();
+        }
+      }
+    }
+    catch (IOException e)
+    {
+      LOG.error("Failed to close LinePartialReader.Factory", e);
     }
   }
 }
