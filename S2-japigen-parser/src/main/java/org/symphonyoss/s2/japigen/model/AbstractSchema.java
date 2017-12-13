@@ -55,6 +55,15 @@ public abstract class AbstractSchema extends ModelElement
     
     return context.getName();
   }
+  
+  public boolean  getIsAnonymousInnerClass()
+  {
+    ParserContext context = getContext();
+    if(context == null)
+      return false;
+    
+    return context.isAnonymousInner();
+  }
 
   protected AbstractSchema createSchema(ParserContext context)
   {

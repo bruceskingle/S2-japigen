@@ -35,6 +35,7 @@ public class ParserContext extends BaseParserContext implements Iterable<ParserC
   private final ParserContext     parent_;
   private final JsonNode          jsonNode_;
   private final String            name_;
+  private final boolean           anonymousInner_;
 
   /* package */ ParserContext(RootParserContext rootParserContext, JsonNode rootNode)
   {
@@ -44,15 +45,17 @@ public class ParserContext extends BaseParserContext implements Iterable<ParserC
     
     jsonNode_ = rootNode;
     name_ = rootParserContext.getInputSourceName();
+    anonymousInner_ = false;
   }
   
-  public ParserContext(ParserContext parent, String name, JsonNode jsonNode)
+  public ParserContext(ParserContext parent, String name, JsonNode jsonNode, boolean anonymousInner)
   {
     super(parent.getRootParserContext(), parent.getPath() + "/" + name);
     
     parent_ = parent;
     jsonNode_ = jsonNode;
     name_ = name;
+    anonymousInner_ = anonymousInner;
   }
   
   public ParserContext getParent()
@@ -67,7 +70,7 @@ public class ParserContext extends BaseParserContext implements Iterable<ParserC
       return null;
     }
     
-    return new ParserContext(this, name, jsonNode_.get(name));
+    return new ParserContext(this, name, jsonNode_.get(name), false);
   }
 
   public JsonNode getJsonNode()
@@ -78,6 +81,11 @@ public class ParserContext extends BaseParserContext implements Iterable<ParserC
   public String getName()
   {
     return name_;
+  }
+
+  public boolean isAnonymousInner()
+  {
+    return anonymousInner_;
   }
 
   @Override
@@ -106,7 +114,7 @@ public class ParserContext extends BaseParserContext implements Iterable<ParserC
     public ParserContext next()
     {
       Entry<String, JsonNode> e = it_.next();
-      return new ParserContext(ParserContext.this, e.getKey(), e.getValue());
+      return new ParserContext(ParserContext.this, e.getKey(), e.getValue(), false);
     }
   }
   
@@ -114,7 +122,7 @@ public class ParserContext extends BaseParserContext implements Iterable<ParserC
   {
     Iterator<JsonNode> it_    = jsonNode_.elements();
     int                index_ = 0;
-    
+
     @Override
     public boolean hasNext()
     {
@@ -124,7 +132,7 @@ public class ParserContext extends BaseParserContext implements Iterable<ParserC
     @Override
     public ParserContext next()
     {
-      return new ParserContext(ParserContext.this, String.format("[%d]", index_++), it_.next());
+      return new ParserContext(ParserContext.this, String.format("$%d", index_++), it_.next(), true);
     }
   }
 

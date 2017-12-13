@@ -331,11 +331,28 @@
         <#assign javaConstructTypePrefix="new ${javaClassName}(">
       </#if>
       <#assign javaConstructTypePostfix=")">
-      <#if model.reference.elementType=="Array">
-        <#assign javaGetValuePostfix=".getElements()">
-      <#else>
-        <#assign javaGetValuePostfix=".getValue()">
-      </#if>
+      <#switch model.reference.elementType>
+        <#case "Array">
+          <#assign javaGetValuePostfix=".getElements()">
+          <#break>
+        
+        <#case "Object">
+        <#case "AllOf">
+        <#case "OneOf">
+          <#assign javaGetValuePostfix=".getJsonObject()">
+          <#assign addJsonNode="add">
+          <#break>
+        
+        <#default>
+          <#if isExternal>
+            <#assign javaGetValuePrefix="${javaGeneratedBuilderClassName}.to${javaElementClassName}(">
+            <#assign javaGetValuePostfix=")">
+            <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
+            <#assign javaConstructTypePostfix=")">
+          <#else>
+            <#assign javaGetValuePostfix=".getValue()">
+          </#if>
+      </#switch>
       <@decorateIfArray model.reference/>
       <#break>
       
@@ -348,7 +365,8 @@
         <#assign javaConstructTypePrefix="new ${javaClassName}(">
       </#if>
       <#assign javaConstructTypePostfix=")">
-      <#assign javaGetValuePostfix=".getValue()">
+      <#assign javaGetValuePostfix=".getJsonObject()">
+      <#assign addJsonNode="add">
       <#break>
   </#switch>
 </#macro>
@@ -414,6 +432,7 @@
       <#break>
     
     <#case "Field">
+    <#case "OneOf">
       <#assign javaClassName=fieldClassName>
       <#break>
 
@@ -469,6 +488,11 @@
     <#case "Ref">
       <#return getJavaElementType(model.reference)/>
       <#break>
+    
+    <#case "OneOf">
+    <#case "AllOf">
+      <#return "IModelObject">
+      <#break>
       
     <#default>
       <#-- this is the only place we need to check for an unknown element type -->
@@ -477,9 +501,105 @@
 </#function>
 
 
+<#------------------------------------------------------------------------------------------------------
+ # Generate imports for the nested types included in the given model element
+ #
+ # @param model     A model element
+ #----------------------------------------------------------------------------------------------------->
+<#macro importNestedTypes model>
+  <#if model.elementType!="AllOf">
+    <#list model.children as field>
+      <#switch field.elementType>
+        <#case "Object">
+        <#case "AllOf">
+        <#case "OneOf">
+import ${javaFacadePackage}.${field.camelCapitalizedName};
+          <@importNestedTypes field/>
+          <#break>
+      </#switch>
+    </#list>
+  </#if> 
+</#macro>
+
+<#------------------------------------------------------------------------------------------------------
+ # Generate Factory declarations
+ #
+ # This is probably only needed from _ModelFactory.java.ftl
+ #
+ # @param model     A model element.
+ # @param object    A field within the model element.
+ #----------------------------------------------------------------------------------------------------->
+<#macro declareFactories model object>
+  <#if object.elementType!="AllOf">
+    <#list object.children as child>
+      <#switch child.elementType>
+        <#case "Object">
+        <#case "AllOf">
+          <@declareFactories model child/>
+          <#-- FALL THROUGH -->
+        <#case "OneOf">
+  private final ${(child.camelCapitalizedName + ".Factory")?right_pad(35)}  ${(child.camelName + "Factory_")?right_pad(35)} = new ${child.camelCapitalizedName}.Factory((${model.camelCapitalizedName}Factory)this);
+          <#break>
+      </#switch>
+    </#list>
+  </#if>
+</#macro>
+
+<#------------------------------------------------------------------------------------------------------
+ # Generate Factory registrations
+ #
+ # This is probably only needed from _ModelFactory.java.ftl
+ #
+ # @param model     A model element.
+ # @param object    A field within the model element.
+ #----------------------------------------------------------------------------------------------------->
+<#macro registerFactories model object>
+  <#if object.elementType!="AllOf">
+    <#list object.children as child>
+      <#switch child.elementType>
+        <#case "Object">
+        <#case "AllOf"> 
+          <#-- FALL THROUGH -->      
+        <#case "OneOf">
+    registry.register(${(child.camelCapitalizedName + ".TYPE_ID,")?right_pad(45)} ${child.camelName}Factory_);
+          <@registerFactories model child/>
+          <#break>
+      </#switch>
+    </#list>
+  </#if>
+</#macro>
+
+<#------------------------------------------------------------------------------------------------------
+ # Generate Factory getters
+ #
+ # This is probably only needed from _ModelFactory.java.ftl
+ #
+ # @param model     A model element.
+ # @param object    A field within the model element.
+ #----------------------------------------------------------------------------------------------------->
+<#macro getFactories model object>
+  <#if object.elementType!="AllOf">
+    <#list object.children as child>
+      <#switch child.elementType>
+        <#case "Object">
+        <#case "AllOf">
+          <@getFactories model child/>
+          <#-- FALL THROUGH -->
+        <#case "OneOf">
+
+    public ${child.camelCapitalizedName}.Factory get${child.camelCapitalizedName}Factory()
+    {
+      return ${child.camelName}Factory_;
+    }
+          <#break>
+      </#switch>
+    </#list>
+  </#if>
+</#macro>
+
 
 <#macro importFieldTypes model includeImpls>
-  <#if model.hasList || model.hasSet>
+  <#if model.hasList || model.hasSet || model.elementType=="OneOf">
 import java.util.Iterator;
   </#if>
   <#if model.hasList>
@@ -501,21 +621,16 @@ import com.google.protobuf.ByteString;
   </#if>
   
   <#list model.referencedTypes as field>
-    <#switch field.elementType>
-      <#case "OneOf">
-import ${javaFacadePackage}.${model.camelCapitalizedName}.${field.camelCapitalizedName};
-this just seems wrong, is it even ever called?
-//import ${field.model.modelMap["javaFacadePackage"]}.${model.camelCapitalizedName}.${field.camelCapitalizedName};
-      <#break>
-  
-      <#default>
-  <@setJavaType field/>
-<#if javaFullyQualifiedClassName?has_content>import ${javaFullyQualifiedClassName};</#if>
-<#if javaGeneratedBuilderFullyQualifiedClassName?has_content>
+    <@setJavaType field/>
+    <#if javaFullyQualifiedClassName?has_content>
+import ${javaFullyQualifiedClassName};
+    </#if>
+    <#if javaGeneratedBuilderFullyQualifiedClassName?has_content>
 import ${javaGeneratedBuilderFullyQualifiedClassName};
-</#if>
-    </#switch>  
+    </#if>
+    <@importNestedTypes field/>
   </#list>
+  <@importNestedTypes model/>
 </#macro>
 
 <#------------------------------------------------------------------------------------------------------
@@ -628,6 +743,14 @@ ${indent}  throw new BadFormatException("${name} is required.");
 </#macro>
 
 
+<#------------------------------------------------------------------------------------------------------
+ # Generate limit checks for the given Array type if necessary
+ #
+ # @param indent    TO BE ADDED: An indent string which is output at the start of each line generated
+ # @param model     A model element representing the field to generate for
+ # @param var       The name of a variable to which the extracted value will be assigned 
+ # @param name      The name of an array value being checked
+ #----------------------------------------------------------------------------------------------------->
 <#macro checkItemLimits model name var>
   <#switch model.elementType>
     <#case "Array">
@@ -658,10 +781,33 @@ ${indent}  throw new BadFormatException("${name} is required.");
  # @param var       The name of a variable to which the extracted value will be assigned 
  #----------------------------------------------------------------------------------------------------->
 <#macro generateCreateFieldFromJsonDomNode indent field var>
+// generateCreateFieldFromJsonDomNode field.elementType = ${field.elementType} field = ${field}
   <@setJavaType field/>
+  <#if field.elementType=="Ref">
+    <#assign elementType=field.reference.elementType>
+  <#else>
+    <#assign elementType=field.elementType>
+  </#if>
+  
   <#if isGenerated>
+    <#switch elementType>
+      <#case "Object">
+      <#case "AllOf">
+      <#case "OneOf">
+${indent}if(node instanceof ImmutableJsonObject)
+${indent}{
+${indent}  ${var} = _factory.getFactory().get${javaClassName}Factory().newInstance((ImmutableJsonObject)node);
+${indent}}
+${indent}else
+${indent}{
+${indent}  throw new BadFormatException("${field.camelName} must be an Object node not " + node.getClass().getName());
+${indent}}
+        <#break>
+      
+      <#default>
 ${indent}${var} = ${javaConstructTypePrefix}node${javaConstructTypePostfix};
-
+        <#break>
+    </#switch>
   <#else>
     <#if isArrayType>
 ${indent}if(node instanceof JsonArray)

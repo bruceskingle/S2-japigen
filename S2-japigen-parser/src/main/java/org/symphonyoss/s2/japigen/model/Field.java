@@ -24,6 +24,7 @@
 package org.symphonyoss.s2.japigen.model;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
 public class Field extends AbstractSchema
 {
@@ -69,6 +70,17 @@ public class Field extends AbstractSchema
   public boolean  getCanFailValidation()
   {
     return required_ || type_.getCanFailValidation();
+  }
+
+  @Override
+  public void validate()
+  {
+    super.validate();
+    
+    if(type_ == null)
+      getContext().raise(new ParserError("Field type must be specified"));
+    else
+      type_.validate();
   }
 
   public static AbstractSchema create(ModelElement parent, ParserContext context, boolean required)

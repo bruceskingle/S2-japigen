@@ -4,6 +4,14 @@
  * Generating for AllOf ${model}
  *------------------------------------------------------------------------------------------------- */
 </#if>
+
+
+
+THIS IS NEVER CALLED AND CAN BE DELETED
+
+
+
+
 /**
 <#if isFacade??>
  * Facade for

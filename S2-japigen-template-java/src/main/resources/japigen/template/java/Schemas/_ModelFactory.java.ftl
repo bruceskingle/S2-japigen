@@ -11,6 +11,17 @@ import com.symphony.s2.japigen.runtime.JapigenRuntime;
 import com.symphony.s2.japigen.runtime.ModelObject;
 import com.symphony.s2.japigen.runtime.ModelFactory;
 
+import ${javaFacadePackage}.${model.camelCapitalizedName}Factory;
+<#list model.children as object>
+<#switch object.elementType>
+    <#case "Object">
+    <#case "AllOf">
+    <#case "OneOf">
+import ${javaFacadePackage}.${object.camelCapitalizedName};
+<@importNestedTypes object/>
+      <#break>
+  </#switch>
+</#list>
 
 <#--- if templateDebug?? --->
 <#-- Print all Factory -->
@@ -18,84 +29,43 @@ import com.symphony.s2.japigen.runtime.ModelFactory;
  * Schema ${model}
  * ===================================================================================================*/
 <#list model.children as object>
+
 <@setModelJavaType object/>
 <@printModel/>
 <#switch object.elementType>
   <#case "Object">
     <#list object.fields as field>
-<@setJavaType field/>
+      <@setJavaType field/>
       <@printField/>
     </#list>
     <#break>
 </#switch>
-
-
-
-
  </#list>
  <#--- /#if -->
 
-<#list model.children as object>
-<#switch object.elementType>
-    <#case "Object">
-    <#case "AllOf">
-import ${javaFacadePackage}.${object.camelCapitalizedName};
-      <#break>
-    
-    <#case "OneOf">
-// ${object.elementType} needs to be added
-      <#break>
-  </#switch>
-</#list>
-
-public abstract class ${model.camelCapitalizedName}ModelFactory extends ModelFactory implements I${model.camelCapitalizedName}ModelFactory
-{
-<#list model.children as object>
-  <#switch object.elementType>
-    <#case "Object">
-    <#case "AllOf">
-  private final ${object.camelCapitalizedName}.Factory  ${object.camelName}Factory_ = new ${object.camelCapitalizedName}.Factory(this);
-      <#break>
-    
-    <#case "OneOf">
-    // ${object.elementType} needs to be added
-      <#break>
-  </#switch>
-</#list>
-  @Override
-  public void registerWith(IModelRegistry registry)
-  {
-<#list model.children as object>
-  <#switch object.elementType>
-    <#case "Object">
-    <#case "AllOf">
+<#--- #macro declareFactory object>
+  private final ${(object.camelCapitalizedName + ".Factory")?right_pad(35)}  ${(object.camelName + "Factory_")?right_pad(35)} = new ${object.camelCapitalizedName}.Factory((${model.camelCapitalizedName}Factory)this);
+</#macro>
+<#macro registerFactory object>
     registry.register(${object.camelCapitalizedName}.TYPE_ID,
       ${object.camelName}Factory_);
-      <#break>
-    
-    <#case "OneOf">
-    // ${object.elementType} needs to be added
-      <#break>
-  </#switch>
-</#list>
-  }
-<#list model.children as object>
-  <#switch object.elementType>
-    <#case "Object">
-    <#case "AllOf">
-    
+</#macro>
+<#macro getFactory object>
+
     public ${object.camelCapitalizedName}.Factory get${object.camelCapitalizedName}Factory()
     {
       return ${object.camelName}Factory_;
     }
-      <#break>
-    
-    <#case "OneOf">
-    
-    // ${object.elementType} needs to be added
-      <#break>
-  </#switch>
-</#list>
+</#macro --->
 
+public abstract class ${model.camelCapitalizedName}ModelFactory extends ModelFactory implements I${model.camelCapitalizedName}ModelFactory
+{
+<@declareFactories model model/>
+  @Override
+  public void registerWith(IModelRegistry registry)
+  {
+<@registerFactories model model/>
+  }
+<@getFactories model model/>
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

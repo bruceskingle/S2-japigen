@@ -36,6 +36,9 @@ public class JAPIGEN
   public static final String X_CARDINALITY       = "x-japigen-cardinality";
   public static final String X_CARDINALITY_LIST  = "LIST";
   public static final String X_CARDINALITY_SET   = "SET";
+  public static final String DISCRIMINATOR       = "discriminator";
+  public static final String PROPERTY_NAME       = "propertyName";
+  public static final String MAPPING             = "mapping";
 
   /* Root property names in the template data model */
 

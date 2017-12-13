@@ -37,7 +37,7 @@ public class TestParser
   public static void main(String[] argv) throws JapigenException
   {
     if(argv.length==0)
-      testParser("test/oneOfEverything");
+      testParser("src/main/Resources/test/oneOfEverything.json");
     else
       for(String fileName : argv)
         testParser(fileName);
@@ -65,7 +65,7 @@ public class TestParser
 //    modelSetContext.setModelFactoryClassFile(new File("../S2-japigen-template-java/target/classes"));
 //    modelSetContext.setModelFactoryClass("org.symphonyoss.s2.japigen.java.JavaModelFactory");
     
-    modelSetContext.addGenerationSource(new File("src/main/Resources/" + fileName + ".json"));
+    modelSetContext.addGenerationSource(new File(fileName));
     
     modelSetContext.process();
     

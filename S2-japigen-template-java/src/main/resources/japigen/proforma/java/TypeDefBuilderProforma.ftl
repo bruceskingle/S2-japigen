@@ -16,7 +16,7 @@ import ${modelJavaFullyQualifiedClassName};
 
 public class ${model.camelCapitalizedName}Builder
 {
-  public static ${modelJavaClassName} build(${modelJavaFieldClassName} value)
+  public static ${modelJavaClassName} build(${modelJavaFieldClassName} value) throws BadFormatException
   {
     // TODO Auto-generated method stub
     return new ${modelJavaClassName}(value);

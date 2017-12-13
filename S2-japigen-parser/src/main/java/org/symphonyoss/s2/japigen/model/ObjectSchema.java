@@ -169,14 +169,14 @@ public class ObjectSchema extends Schema
   @Override
   public void generate(GenerationContext generationContext, Map<String, Object> dataModel) throws GenerationException
   {
-    if(getParent() instanceof Schemas)
+    if(getParent() instanceof AllOfSchema)
     {
-      getContext().raise(new ParserInfo("ObjectSchema parent is Schemas for %s", getName()));
-      super.generate(generationContext, dataModel);
+      getContext().raise(new ParserInfo("ObjectSchema ignored for generation (parent is %s for %s)", getParent().getClass(), getName()));
     }
     else
     {
-      getContext().raise(new ParserInfo("ObjectSchema ignored for generation (parent is %s for %s)", getParent().getClass(), getName()));
+      getContext().raise(new ParserInfo("ObjectSchema parent is Schemas for %s", getName()));
+      super.generate(generationContext, dataModel);
     }
     
   }

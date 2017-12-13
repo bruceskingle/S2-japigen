@@ -146,14 +146,12 @@
         }
       },
       
-      "SetOfByteString": {
+      "SetOfFloatMinMax": {
         "description": "A set of byte String.",
         "type": "array",
         "x-japigen-cardinality": "SET",
         "items": {
-          "description": "A set of byte String array element.",
-          "type": "string",
-          "format": "byte"
+          "$ref": "#/components/schemas/FloatMinMax"
         }
       },
       
@@ -280,31 +278,10 @@
       "EitherFloatOrInt": {
         "oneOf": [
           {
-            "type": "object",
-            "required": [
-              "eitherFloat"
-            ],
-            "properties": {
-              "eitherFloat": {
-                "description": "Either A float",
-                "type": "number",
-                "format": "float"
-              }
-            }
+            "$ref": "#/components/schemas/FloatMinMax"
           },
           {
-            "type": "object",
-            "required": [
-              "eitherInt"
-            ],
-            "properties": {
-              "eitherInt": {
-                "description": "Either An int32",
-                "type": "integer",
-                "format": "int32"
-              }
-            }
-            
+            "$ref": "#/components/schemas/Int32MinMax"
           }
         ],
         "discriminator": {
@@ -414,8 +391,74 @@
             }
           }
         ]
+      },
+      "NestedObject": {
+        "description": "An object with a field of type oneOf.",
+        "type": "object",
+        "required": [
+          "outerNestedObject"
+        ],
+        "properties": {
+          "yetAnotherBoolean": {
+            "description": "A boolean.",
+            "type": "boolean"
+          },
+          "outerNestedObject": {
+            "type": "object",
+            "required": [
+              "innerNestedObject"
+            ],
+            "properties": {
+              "outerName": {
+                "type": "string"
+              },
+              "outerValue": {
+                "type": "string"
+              },
+              "innerNestedObject": {
+                "type": "object",
+                "properties": {
+                  "innerName": {
+                    "type": "string"
+                  },
+                  "innerValue": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "FundamentalObject": {
+        "description": "An object with a field of type oneOf.",
+        "type": "object",
+        "required": [
+          "fundamentalPayloadType"
+        ],
+        "properties": {
+          "anotherBoolean": {
+            "description": "A boolean.",
+            "type": "boolean"
+          },
+          "fundamentalPayloadType": {
+            "type": "string"
+          },
+          "fundamentalPayload": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DoubleMinMax"
+              },
+              {
+                "$ref": "#/components/schemas/Int64MinMax"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "fundamentalPayloadType"
+            }
+          }
+        }
       }
-      
     }
   }
 }

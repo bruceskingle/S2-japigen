@@ -33,7 +33,7 @@ public interface IModelRegistry
 {
   IModelRegistry register(IModelFactory factory);
 
-  IModelRegistry register(String name, IModelObjectFactory<?> factory);
+  IModelRegistry register(String name, IModelObjectFactory<?,?> factory);
 
   IModelObject newInstance(ImmutableJsonObject jsonObject) throws BadFormatException;
 

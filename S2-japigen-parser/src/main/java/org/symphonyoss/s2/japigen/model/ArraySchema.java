@@ -28,6 +28,7 @@ import java.util.Set;
 import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ArraysRequireElementsError;
+import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
 /**
  * Schema for an array.
@@ -70,6 +71,17 @@ public class ArraySchema extends Type
         cardinality_ = JAPIGEN.X_CARDINALITY_LIST;
     }
       
+  }
+
+  @Override
+  public void validate()
+  {
+    super.validate();
+    
+    if(items_ == null)
+      getContext().raise(new ParserError("Array items must be specified"));
+    else
+      items_.validate();
   }
 
   public AbstractSchema getItems()

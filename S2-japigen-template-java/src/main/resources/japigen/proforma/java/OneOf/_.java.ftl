@@ -18,55 +18,13 @@ import ${javaGenPackage}.${model.model.camelCapitalizedName}ModelFactory;
 @Immutable
 public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}ModelObject implements I${model.camelCapitalizedName}
 {
-<#-- Constrictor from fields -->  
-  private ${model.camelCapitalizedName}(
-    ${(modelJavaClassName + ".Factory")?right_pad(25)} _factory,
-<#list model.fields as field><@setJavaType field/>
-    ${javaClassName?right_pad(25)} ${field.camelName}<#sep>,
-</#list>
-
-  )<@checkLimitsClassThrows model/>
+  <#-- Constrictor from fields -->  
+  private ${model.camelCapitalizedName}(${modelJavaClassName}.Factory  _factory, Object payload) throws BadFormatException
   {
-    super(
-      _factory,
-<#list model.fields as field>
-<@setJavaType field/>
-      ${field.camelName}<#sep>, 
-</#list>
-
-    );
+    super(_factory, payload);
   }
-<#--     list model.fields as field>
-  <@setJavaType field/>
-  <#switch field.elementType>
-    <#case "OneOf">
-      <@setJavaType field/>
-    THIS IS NEVER CALLED I THINK  
-  public class ${field.camelCapitalizedName} extends ${field.camelCapitalizedName}ModelObject
-  {
-    public ${field.camelCapitalizedName}(
-      <#list field.fields as ref>
-        <#assign subfield=ref.reference>
-        <@setJavaType ref/>
-      ${javaClassName?right_pad(25)} ${subfield.camelName}<#sep>,
-      </#list>
-      
-    )<@checkLimitsClassThrows model/>
-    {
-      super(
-      <#list field.fields as ref>
-        <#assign subfield=ref.reference>
-        ${subfield.camelName}<#sep>,
-      </#list>
-      );
-    }
-  }
-      <#break>
-    </#switch>
-</#list   -->
-  
-<#-- Constrictor from Json   -->
 
+  <#-- Constrictor from Json   -->
   private ${model.camelCapitalizedName}(${modelJavaClassName}.Factory _factory, ImmutableJsonObject _jsonObject) throws BadFormatException
   {
     super(_factory, _jsonObject);
@@ -126,7 +84,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
       }
     
       @Override
-      public ${model.camelCapitalizedName} build()<@checkLimitsClassThrows model/>
+      public ${model.camelCapitalizedName} build() throws BadFormatException
       {
         /*
          * This is where you would place hand written code to enforce further constraints
@@ -135,11 +93,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
          
         return new ${model.camelCapitalizedName}(
           factory_,
-    <#list model.fields as field>
-      <@setJavaType field/>
-          get${field.camelCapitalizedName}()<#sep>, 
-    </#list>
-    
+          getPayload() 
         );
       }
     }

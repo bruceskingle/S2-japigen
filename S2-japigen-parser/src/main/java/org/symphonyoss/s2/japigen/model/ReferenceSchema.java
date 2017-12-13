@@ -211,8 +211,30 @@ public class ReferenceSchema extends ReferenceOrSchema
   {
     return reference_.getCanFailValidation() || super.getCanFailValidation();
   }
+  
+  @Override
+  public boolean getHasSet()
+  {
+    return reference_.getHasSet();
+  }
+  
+  @Override
+  public boolean getHasList()
+  {
+    return reference_.getHasList();
+  }
 
+  @Override
+  public boolean getHasCollections()
+  {
+    return reference_.getHasCollections();
+  }
 
+  @Override
+  public boolean getHasByteString()
+  {
+    return reference_.getHasByteString();
+  }
 
   @Override
   public String toString()

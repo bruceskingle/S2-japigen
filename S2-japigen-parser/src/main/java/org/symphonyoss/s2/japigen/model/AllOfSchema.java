@@ -50,20 +50,25 @@ public class AllOfSchema extends AbstractContainerSchema
     
     fields_ = new ArrayList<>();
     
-    gatherFields(this, fields_);
+    System.err.println("gatherFields(" + this + ")");
+    gatherFields(this, fields_, true);
+    System.err.println("gatherFields(" + this + ") DONE");
+    System.err.println();
   }
 
-  private void gatherFields(Schema schema, List<ModelElement> fields)
+  private void gatherFields(Schema schema, List<ModelElement> fields, boolean gatherObjects)
   {
+    System.err.println("gatherFields(" + schema + ", " + gatherObjects + ")");
     for(ModelElement e : schema.getChildren())
     {
-      if(e instanceof ReferenceSchema && e.getReference() instanceof ObjectSchema)
+      if(gatherObjects && e instanceof ReferenceSchema && e.getReference() instanceof ObjectSchema)
       {
-        gatherFields((ObjectSchema)e.getReference(), fields);
+        System.err.println("gatherFields object ref(" + schema + ", " + gatherObjects + ")");
+        gatherFields((ObjectSchema)e.getReference(), fields, false);
       }
-      else if(e instanceof ObjectSchema)
+      else if(gatherObjects && e instanceof ObjectSchema)
       {
-        gatherFields((ObjectSchema)e, fields);
+        gatherFields((ObjectSchema)e, fields, false);
       }
       else
       {

@@ -1,59 +1,26 @@
-<#include "../S2-japigen-template-java-Prologue.ftl">
-<@setPrologueJavaType model/>
-import javax.annotation.concurrent.Immutable;
+<#include "ObjectHeader.ftl">
 
-import com.google.protobuf.ByteString;
-
-import com.symphony.s2.japigen.runtime.JapigenRuntime;
-import com.symphony.s2.japigen.runtime.ModelObject;
-import com.symphony.s2.japigen.runtime.ModelObjectFactory;
-
-import org.symphonyoss.s2.common.dom.IBooleanProvider;
-import org.symphonyoss.s2.common.dom.IStringProvider;
-import org.symphonyoss.s2.common.dom.IIntegerProvider;
-import org.symphonyoss.s2.common.dom.ILongProvider;
-import org.symphonyoss.s2.common.dom.IFloatProvider;
-import org.symphonyoss.s2.common.dom.IDoubleProvider;
-import org.symphonyoss.s2.common.dom.IByteStringProvider;
-import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
-import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
-import org.symphonyoss.s2.common.dom.json.JsonArray;
-import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
-
-import org.symphonyoss.s2.common.exception.BadFormatException;
-
-<@importFieldTypes model true/>
-
-import ${javaFacadePackage}.${modelJavaClassName};
-
-<#include "Object.ftl">
-@Immutable
-public abstract class ${modelJavaClassName}ModelObject extends ModelObject implements I${modelJavaClassName}ModelObject
-{
-  public static final String TYPE_ID = "${model.model.japigenId}#/components/schemas/${model.name}";
-  
-  private final ${"ImmutableJsonObject"?right_pad(25)}  jsonObject_;
-  private final ${"String"?right_pad(25)}  asString_;
 <#list model.fields as field>
   <@setJavaType field/>
   private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
 </#list>
-  
 <#-- Constructor from fields -->  
   protected ${modelJavaClassName}ModelObject(
+    ${(modelJavaClassName + ".Factory")?right_pad(25)} _factory,
 <#list model.fields as field><@setJavaType field/>
     ${javaClassName?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
 
   )<@checkLimitsClassThrows model/>
   {
+    _factory_ = _factory;
     MutableJsonObject jsonObject = new MutableJsonObject();
     
     jsonObject.addIfNotNull(JapigenRuntime.JSON_TYPE, TYPE_ID);
     
 <#list model.fields as field>
 <@setJavaType field/>
+<@printField/>
 <#if requiresChecks>
 <@checkLimits "    " field field.camelName/>
 </#if>
@@ -69,8 +36,9 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
   }
   
 <#-- Constructor from Json   -->  
-  protected ${modelJavaClassName}ModelObject(ImmutableJsonObject jsonObject) throws BadFormatException
+  protected ${modelJavaClassName}ModelObject(${modelJavaClassName}.Factory _factory, ImmutableJsonObject jsonObject) throws BadFormatException
   {
+    _factory_ = _factory;
     jsonObject_ = jsonObject;
     asString_ = SERIALIZER.serialize(jsonObject_);
 
@@ -96,11 +64,6 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
     }
 </#list>
   }
-
-  public ImmutableJsonObject getJsonObject()
-  {
-    return jsonObject_;
-  }
 <#list model.fields as field>
   <@setJavaType field/>
   
@@ -109,88 +72,66 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
   {
     return ${field.camelName}_;
   }
-  <#-------------------------------------
-  
   
   
   <#switch field.elementType>
     <#case "OneOf">
-      <@setJavaType field/>
+      <@printField/>
       
   public class ${field.camelCapitalizedName}ModelObject
   {
-      <#list field.fields as ref>
-        <#assign subfield=ref.reference>
-        <@setJavaType ref/>
-    private ${javaFieldClassName?right_pad(25)}  ${subfield.camelName}_;
-      </#list>
+    private final ${"String"?right_pad(25)}  _discriminator_;
+    private final ${"Object"?right_pad(25)}  _payload_;
   
-    public ${field.camelCapitalizedName}ModelObject(
-      <#list field.fields as ref>
-        <#assign subfield=ref.reference>
-        <@setJavaType ref/>
-      ${javaFieldClassName?right_pad(25)} ${subfield.camelName}<#sep>,
-      </#list>
-      
-    )
+    public ${field.camelCapitalizedName}ModelObject(Object payload) throws BadFormatException
     {
-      <#list field.fields as ref>
-        <#assign subfield=ref.reference>
+      if(payload == null)
+      {
+        throw new BadFormatException("OneOf payload cannot be null");
+      }
+      <#list field.children as ref>
+      else if(payload instanceof ${javaClassName})
+      {
         <@setJavaType ref/>
-        <@checkLimits "      " ref subfield.camelName/>
-      ${subfield.camelName}_ = ${javaTypeCopyPrefix}${subfield.camelName}${javaTypeCopyPostfix};
+        <@checkLimits "        " ref "(${javaClassName})payload"/>
+        _payload_ = ${javaTypeCopyPrefix}payload${javaTypeCopyPostfix};
+        _discriminator_ = "${ref.name}";
+      }
       </#list>
+      else
+      {
+        throw new BadFormatException("Unknown payload type \"" + payload.getClass().getName() + "\"");
+      }
     }
-      <#list field.fields as ref>
-        <#assign subfield=ref.reference>
-        <@setJavaType ref/>
-        
-    public ${javaFieldClassName} get${subfield.camelCapitalizedName}()
+    public Object getPayload()
     {
-      return ${subfield.camelName}_;
+      return _payload_;
     }
-      </#list>
+    
+    public String getDiscriminator()
+    {
+      return _discriminator_;
+    }
   }
       <#break>
     </#switch>
     
-    is this even called? ------------------------------->
 </#list>
+
+<#include "ObjectBody.ftl">
   
-  @Override
-  public String toString()
+  public static abstract class Factory extends ModelObjectFactory<${modelJavaClassName}, ${model.model.camelCapitalizedName}Factory>
   {
-    return asString_;
-  }
-
-  @Override
-  public String serialize()
-  {
-    return asString_;
-  }
-
-  @Override
-  public int hashCode()
-  {
-    return asString_.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj)
-  {
-    if(obj instanceof ${modelJavaClassName}ModelObject)
-      return asString_.equals(((${modelJavaClassName}ModelObject)obj).asString_);
+    private ${model.model.camelCapitalizedName}Factory factory_;
     
-    return false;
-  }
-  
-  public static abstract class Factory extends ModelObjectFactory<${modelJavaClassName}>
-  {
-    private ${model.model.camelCapitalizedName}ModelFactory modelFactory_;
-    
-    public Factory(${model.model.camelCapitalizedName}ModelFactory modelFactory)
+    public Factory(${model.model.camelCapitalizedName}Factory modelFactory)
     {
-      modelFactory_ = modelFactory;
+      factory_ = modelFactory;
+    }
+    
+    public ${model.model.camelCapitalizedName}Factory getFactory()
+    {
+      return factory_;
     }
     
     public static abstract class Builder extends ModelObjectFactory.Builder
@@ -219,20 +160,29 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
         return ${field.camelName}__;
       }
       
-      public Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
+      <@printField/>
+      public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
       {
       <@checkLimits "      " field field.camelName/>
         ${field.camelName}__${javaBuilderTypeCopyPrefix}${field.camelName}${javaBuilderTypeCopyPostfix};
-        return (Builder)this;
+        return (${modelJavaClassName}.Factory.Builder)this;
       }
       <#switch field.elementType>
         <#case "Ref">
-  
-      public Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
+          <#switch field.reference.elementType>
+            <#case "OneOf">
+            <#case "AllOf">
+            <#case "Object">
+              <#break>
+            
+            <#default>
+      public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<#if isExternal || field.canFailValidation> throws BadFormatException</#if>
       {
-        ${field.camelName}__ = new ${javaClassName}(${field.camelName});
-        return (Builder)this;
+        ${field.camelName}__ = ${javaConstructTypePrefix}${field.camelName}${javaConstructTypePostfix};
+        return (${modelJavaClassName}.Factory.Builder)this;
       }
+              <#break>
+          </#switch>
           <#break>
       </#switch>
     </#list>
@@ -240,5 +190,11 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
       public abstract ${modelJavaClassName} build()<@checkLimitsClassThrows model/>;
     }
   }
+  
+  <#list model.children as field>
+    <#if field.isAnonymousInnerClass>
+      // AnonymousInnerClass ${field.name}
+    </#if>
+  </#list>
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

@@ -47,7 +47,7 @@ public class ModelRegistry implements IModelRegistry
 {
   private static final Logger LOG = LoggerFactory.getLogger(ModelRegistry.class);
   
-  private Map<String, IModelObjectFactory<?>>  factoryMap_ = new HashMap<>();
+  private Map<String, IModelObjectFactory<?,?>>  factoryMap_ = new HashMap<>();
   private ObjectMapper  mapper_ = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
   
   @Override
@@ -58,7 +58,7 @@ public class ModelRegistry implements IModelRegistry
   }
   
   @Override
-  public IModelRegistry register(String name, IModelObjectFactory<?> factory)
+  public IModelRegistry register(String name, IModelObjectFactory<?,?> factory)
   {
     factoryMap_.put(name, factory);
     return this;
@@ -68,7 +68,7 @@ public class ModelRegistry implements IModelRegistry
   public IModelObject newInstance(ImmutableJsonObject jsonObject) throws BadFormatException
   {
     String typeId = jsonObject.getString(JapigenRuntime.JSON_TYPE);
-    IModelObjectFactory<?> factory = factoryMap_.get(typeId);
+    IModelObjectFactory<?,?> factory = factoryMap_.get(typeId);
     
     if(factory == null)
       throw new BadFormatException("Unknown type \"" + typeId + "\"");
