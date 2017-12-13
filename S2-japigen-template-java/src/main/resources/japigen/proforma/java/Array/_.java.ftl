@@ -2,6 +2,7 @@
 <@setPrologueJavaType model/>
 import javax.annotation.concurrent.Immutable;
 
+import com.symphony.s2.japigen.runtime.IModelObject;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 import org.symphonyoss.s2.common.exception.BadFormatException;
 

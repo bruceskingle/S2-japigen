@@ -503,6 +503,7 @@
     
     <#case "OneOf">
     <#case "AllOf">
+    <#case "Object">
       <#return "IModelObject">
       <#break>
       

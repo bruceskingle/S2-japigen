@@ -468,6 +468,16 @@
           }
         }
       },
+      "ListOfObjects": {
+        "description": "A list of objects.",
+        "type": "array",
+        "x-japigen-cardinality": "LIST",
+        "minItems": 1,
+        "maxItems": 5,
+        "items": {
+          "$ref": "#/components/schemas/FundamentalObject"
+        }
+      },
       "Colour": {
         "description": "An enumeration.",
         "type": "string",
