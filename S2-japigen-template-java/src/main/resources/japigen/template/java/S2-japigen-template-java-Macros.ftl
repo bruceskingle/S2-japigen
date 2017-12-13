@@ -644,8 +644,6 @@ import ${javaGeneratedBuilderFullyQualifiedClassName};
 <#------------------------------------------------------------------------------------------------------
  # Generate enums if necessary
  #
- # This is a macro sub-routine, from templates you probably should be calling checkLimits.
- #
  # @param indent    An indent string which is output at the start of each line generated
  # @param model     A model element representing the field to generate for
  #----------------------------------------------------------------------------------------------------->
@@ -657,6 +655,14 @@ import ${javaGeneratedBuilderFullyQualifiedClassName};
   </#if>
 </#macro>
 
+<#------------------------------------------------------------------------------------------------------
+ # Generate enums variables
+ #
+ # This is a macro sub-routine, from templates you probably should be calling generateEnums.
+ #
+ # @param indent    An indent string which is output at the start of each line generated
+ # @param model     A model element representing the field to generate for
+ #----------------------------------------------------------------------------------------------------->
 <#macro generateEnumVars indent model>
   <#list model.fields as field>
     <#switch field.elementType>
@@ -671,6 +677,14 @@ import ${javaGeneratedBuilderFullyQualifiedClassName};
   </#list>
 </#macro>
 
+<#------------------------------------------------------------------------------------------------------
+ # Generate a single enum variable
+ #
+ # This is a macro sub-routine, from templates you probably should be calling generateEnums.
+ #
+ # @param indent    An indent string which is output at the start of each line generated
+ # @param model     A model element representing the field to generate for
+ #----------------------------------------------------------------------------------------------------->
 <#macro generateOneEnumVar indent field>
   <#if field.enum??>
     <#assign hasEnums=true>
@@ -678,6 +692,14 @@ ${indent}private static final Set<String> _enumOf${field.camelName} = new HashSe
   </#if>
 </#macro>
 
+<#------------------------------------------------------------------------------------------------------
+ # Generate enums values
+ #
+ # This is a macro sub-routine, from templates you probably should be calling generateEnums.
+ #
+ # @param indent    An indent string which is output at the start of each line generated
+ # @param model     A model element representing the field to generate for
+ #----------------------------------------------------------------------------------------------------->
 <#macro generateEnumValues indent model>
 
 ${indent}static
@@ -697,6 +719,14 @@ ${indent}}
 
 </#macro>
 
+<#------------------------------------------------------------------------------------------------------
+ # Generate values for a single enums variable
+ #
+ # This is a macro sub-routine, from templates you probably should be calling generateEnums.
+ #
+ # @param indent    An indent string which is output at the start of each line generated
+ # @param model     A model element representing the field to generate for
+ #----------------------------------------------------------------------------------------------------->
 <#macro generateOneEnumValue indent field>
     <#if field.enum??>
 
