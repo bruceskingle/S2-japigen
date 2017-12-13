@@ -34,7 +34,8 @@ import ${javaFacadePackage}.${modelJavaClassName};
 public abstract class ${modelJavaClassName}ModelObject extends ModelObject implements I${modelJavaClassName}ModelObject
 {
   public static final String TYPE_ID = "${model.model.japigenId}#/components/schemas/${model.name}";
-  
+
+<@generateEnums "  " model/>
   private final ${(modelJavaClassName + ".Factory")?right_pad(25)} _factory_;
   private final ${"ImmutableJsonObject"?right_pad(25)}  jsonObject_;
   private final ${"String"?right_pad(25)}  asString_;

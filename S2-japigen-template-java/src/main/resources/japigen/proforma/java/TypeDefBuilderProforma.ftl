@@ -16,6 +16,45 @@ import ${modelJavaFullyQualifiedClassName};
 
 public class ${model.camelCapitalizedName}Builder
 {
+<#if model.enum??>
+  public static ${modelJavaClassName} valueOf(${modelJavaFieldClassName} value) throws BadFormatException
+  {
+    // TODO Auto-generated method stub
+    return ${modelJavaClassName}.valueOf(value);
+  }
+  
+  public static ${modelJavaFieldClassName} to${modelJavaFieldClassName}(${modelJavaClassName} instance)
+  {
+    // TODO Auto-generated method stub
+    return instance.toString();
+  }
+
+  <@setJavaType model/>
+  public static ${modelJavaClassName} build(IJsonDomNode node) throws BadFormatException
+  {
+    // TODO Auto-generated method stub
+    if(node instanceof I${javaElementClassName}Provider)
+    {
+      String value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
+      
+      try
+      {
+        return ${modelJavaClassName}.valueOf(value);
+      }
+      catch(IllegalArgumentException e)
+      {
+        throw new BadFormatException("Value \"" + value + "\" of ${model.camelCapitalizedName} is not a valid enum constant");
+      }
+    }
+    else
+    {
+      if(node == null)
+        throw new BadFormatException("${model.camelCapitalizedName} is required.");
+      else
+        throw new BadFormatException("${model.camelCapitalizedName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
+    }
+  }
+<#else>
   public static ${modelJavaClassName} build(${modelJavaFieldClassName} value) throws BadFormatException
   {
     // TODO Auto-generated method stub
@@ -45,4 +84,5 @@ public class ${model.camelCapitalizedName}Builder
       throw new BadFormatException("${model.camelCapitalizedName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
     }
   }
+</#if>
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-proforma-java-SubEpilogue.ftl">

@@ -39,6 +39,7 @@ public class JAPIGEN
   public static final String DISCRIMINATOR       = "discriminator";
   public static final String PROPERTY_NAME       = "propertyName";
   public static final String MAPPING             = "mapping";
+  public static final String ENUM                = "enum";
 
   /* Root property names in the template data model */
 

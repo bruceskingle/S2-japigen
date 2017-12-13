@@ -326,7 +326,11 @@
       
     <#case "Ref">
       <#if javaGeneratedBuilderClassName?has_content>
-        <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
+        <#if model.reference.enum??>
+          <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.valueOf(">
+        <#else>
+          <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
+        </#if>
       <#else>
         <#assign javaConstructTypePrefix="new ${javaClassName}(">
       </#if>
@@ -347,8 +351,6 @@
           <#if isExternal>
             <#assign javaGetValuePrefix="${javaGeneratedBuilderClassName}.to${javaElementClassName}(">
             <#assign javaGetValuePostfix=")">
-            <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
-            <#assign javaConstructTypePostfix=")">
           <#else>
             <#assign javaGetValuePostfix=".getValue()">
           </#if>
@@ -426,8 +428,14 @@
         <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}Builder">
         <#assign javaGeneratedBuilderFullyQualifiedClassName="${javaFacadePackage}.${javaGeneratedBuilderClassName}">
       <#else>
-        <#assign javaClassName=model.camelCapitalizedName>
-        <#assign javaFullyQualifiedClassName="${javaFacadePackage}.${javaClassName}">
+        <#if model.enum??>
+          <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}">
+          <#assign javaGeneratedBuilderFullyQualifiedClassName="${javaGenPackage}.${javaGeneratedBuilderClassName}">
+          <#assign javaClassName=model.camelCapitalizedName>
+        <#else>
+          <#assign javaClassName=model.camelCapitalizedName>
+          <#assign javaFullyQualifiedClassName="${javaFacadePackage}.${javaClassName}">
+        </#if>
       </#if>
       <#break>
     
@@ -634,6 +642,71 @@ import ${javaGeneratedBuilderFullyQualifiedClassName};
 </#macro>
 
 <#------------------------------------------------------------------------------------------------------
+ # Generate enums if necessary
+ #
+ # This is a macro sub-routine, from templates you probably should be calling checkLimits.
+ #
+ # @param indent    An indent string which is output at the start of each line generated
+ # @param model     A model element representing the field to generate for
+ #----------------------------------------------------------------------------------------------------->
+<#macro generateEnums indent model>
+  <#assign hasEnums=false>
+  <@generateEnumVars indent model/>
+  <#if hasEnums>
+    <@generateEnumValues indent model/>
+  </#if>
+</#macro>
+
+<#macro generateEnumVars indent model>
+  <#list model.fields as field>
+    <#switch field.elementType>
+      <#case "Field">
+        <@generateOneEnumVar indent field.type/>
+        <#break>
+      
+      <#case "Object">
+        <@generateEnumVars indent field/>
+        <#break>
+    </#switch>
+  </#list>
+</#macro>
+
+<#macro generateOneEnumVar indent field>
+  <#if field.enum??>
+    <#assign hasEnums=true>
+${indent}private static final Set<String> _enumOf${field.camelName} = new HashSet<>();
+  </#if>
+</#macro>
+
+<#macro generateEnumValues indent model>
+
+${indent}static
+${indent}{
+  <#list model.fields as field>
+    <#switch field.elementType>
+      <#case "Field">
+        <@generateOneEnumValue indent field.type/>
+        <#break>
+      
+      <#case "Object">
+        <@generateEnumValues indent field/>
+        <#break>
+    </#switch>
+  </#list>
+${indent}}
+
+</#macro>
+
+<#macro generateOneEnumValue indent field>
+    <#if field.enum??>
+
+      <#list field.enum.values as value>
+${indent}  _enumOf${field.camelName}.add("${value}");
+      </#list>
+    </#if>
+</#macro>
+
+<#------------------------------------------------------------------------------------------------------
  # 
  # Limit checking.
  #
@@ -683,6 +756,7 @@ import ${javaGeneratedBuilderFullyQualifiedClassName};
  #----------------------------------------------------------------------------------------------------->
 <#macro checkLimits2 indent model name>
   <#if model.minimum??>
+  
 ${indent}if(${name} != null && ${name} < ${model.minimumAsString})
 ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is less than the minimum allowed of ${model.minimum}");
   </#if>
@@ -690,6 +764,11 @@ ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is les
 
 ${indent}if(${name} != null && ${name} > ${model.maximumAsString})
 ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is more than the maximum allowed of ${model.maximum}");
+  </#if>
+  <#if model.enum??>
+
+${indent}if(!_enumOf${name}.contains(${name}))
+${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is not one of the permitted enum constants.");
   </#if>
 </#macro>
 
@@ -709,11 +788,11 @@ ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is mor
       <#break>
       
     <#case "Field">
-      <@checkLimits2 indent model.type name/>
       <#if model.required>
+      
 ${indent}if(${name} == null)
 ${indent}  throw new BadFormatException("${name} is required.");
-
+        <@checkLimits2 indent model.type name/>
       </#if>
       <#break>
   </#switch>
@@ -781,7 +860,30 @@ ${indent}}
         <#break>
       
       <#default>
+        <#if field.elementType=="Ref" && field.reference.enum??>
+${indent}if(node instanceof I${javaElementClassName}Provider)
+${indent}{
+${indent}  ${javaElementClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
+
+${indent}  try
+${indent}  {
+${indent}    ${var} = ${javaConstructTypePrefix}value${javaConstructTypePostfix};
+${indent}  }
+${indent}  catch(IllegalArgumentException | NullPointerException e)
+${indent}  {
+${indent}    throw new BadFormatException("Value \"" + value + "\" for ${field.camelName} is not a valid enum constant");
+${indent}  }
+${indent}}
+${indent}else
+${indent}{
+${indent}  if(node == null)
+${indent}    throw new BadFormatException("${field.camelName} is required.");
+${indent}  else
+${indent}    throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
+${indent}}        
+        <#else>
 ${indent}${var} = ${javaConstructTypePrefix}node${javaConstructTypePostfix};
+        </#if>
         <#break>
     </#switch>
   <#else>
@@ -806,7 +908,10 @@ ${indent}  ${var} = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix
 ${indent}}
 ${indent}else
 ${indent}{
-${indent}  throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
+${indent}  if(node == null)
+${indent}    throw new BadFormatException("${field.camelName} is required.");
+${indent}  else
+${indent}    throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
 ${indent}}
     </#if>
   </#if>

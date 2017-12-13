@@ -23,14 +23,36 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
 public abstract class Type extends Schema
 {
+  private EnumSchema enum_;
+
   public Type(ModelElement parent, ParserContext context, String type)
   {
     super(parent, context, type);
+    
+    ParserContext enumNode = getContext().get(JAPIGEN.ENUM);
+    
+    if(enumNode != null)
+    {
+      if(!isEnumAllowed())
+      {
+        getContext().raise(new ParserError("%s is not suported on this type.", JAPIGEN.ENUM));
+      }
+      else if(enumNode.getJsonNode().isArray())
+      {
+        enum_ = new EnumSchema(this, enumNode);
+        add(enum_);
+      }
+      else
+      {
+        getContext().raise(new ParserError("%s must be an array", JAPIGEN.ENUM));
+      }
+    }
   }
 
   public static AbstractSchema create(ModelElement parent, ParserContext context, ParserContext node)
@@ -60,5 +82,22 @@ public abstract class Type extends Schema
     }
 
     return null;
+  }
+  
+  public boolean isEnumAllowed()
+  {
+    // Overridden in StringType
+    return false;
+  }
+
+  public EnumSchema getEnum()
+  {
+    return enum_;
+  }
+
+  @Override
+  public boolean getHasSet()
+  {
+    return enum_ != null || super.getHasSet();
   }
 }

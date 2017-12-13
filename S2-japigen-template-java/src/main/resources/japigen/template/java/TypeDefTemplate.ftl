@@ -71,6 +71,13 @@ public class ${modelJavaClassName}ModelType
     return value_;
   }
   
+  <#if model.enum??>
+  // ENUM
+    <#list model.enum.values as value>
+    // value ${value}
+    </#list>
+  </#if>
+  
   public static abstract class Builder
   {
     public abstract ${modelJavaClassName} build(${modelJavaFieldClassName} value)<#if model.canFailValidation> throws BadFormatException</#if>;

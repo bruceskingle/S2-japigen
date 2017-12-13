@@ -447,15 +447,49 @@
           "fundamentalPayload": {
             "oneOf": [
               {
-                "$ref": "#/components/schemas/DoubleMinMax"
+                "$ref": "#/components/schemas/Texture"
               },
               {
-                "$ref": "#/components/schemas/Int64MinMax"
+                "$ref": "#/components/schemas/Colour"
               }
             ],
             "discriminator": {
               "propertyName": "fundamentalPayloadType"
             }
+          }
+        }
+      },
+      "Colour": {
+        "description": "An enumeration.",
+        "type": "string",
+        "enum": [
+          "black",
+          "white",
+          "red",
+          "blue",
+          "green"
+        ]
+      },
+      "Texture": {
+        "description": "An external enumeration.",
+        "type": "string",
+        "enum": [
+          "rough",
+          "smooth"
+        ],
+        "x-japigen-attributes": {
+          "javaExternalPackage":  "org.symphonyoss.s2.japigen.test.oneofeverything",
+          "javaExternalType":     "TestTexture"
+         }
+      },
+      "AnEnumObject": {
+        "type": "object",
+        "properties": {
+          "texture": {
+            "$ref": "#/components/schemas/Texture"
+          },
+          "colour": {
+            "$ref": "#/components/schemas/Colour"
           }
         }
       }

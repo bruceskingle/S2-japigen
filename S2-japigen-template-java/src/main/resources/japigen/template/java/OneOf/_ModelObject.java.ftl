@@ -42,7 +42,7 @@
       <#break>
         
     <#default>
-      jsonObject.addIfNotNull("${field.camelName}", ((${javaClassName})payload).getValue());
+      jsonObject.addIfNotNull("${field.camelName}", ${javaGetValuePrefix}((${javaClassName})payload)${javaGetValuePostfix});
 </#switch>
 
       _discriminator_ = "${field.name}";
@@ -159,7 +159,7 @@
             
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
       {
-        _payload__ = new ${javaClassName}(${field.camelName});
+        _payload__ = ${javaConstructTypePrefix}${field.camelName}${javaConstructTypePostfix};
         return (${modelJavaClassName}.Factory.Builder)this;
       }
               <#break>

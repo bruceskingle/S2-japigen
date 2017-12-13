@@ -23,46 +23,34 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.symphonyoss.s2.japigen.parser.ParserContext;
-import org.symphonyoss.s2.japigen.parser.error.UnknownFormatWarning;
+import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
-public class StringType extends Type
+import com.fasterxml.jackson.databind.JsonNode;
+
+public class EnumSchema extends ModelElement
 {
-
-  public StringType(ModelElement parent, ParserContext context)
+  private Set<String>   values_ = new HashSet<>();
+  
+  public EnumSchema(ModelElement parent, ParserContext parserContext)
   {
-    super(parent, context, "String");
+    super(parent, parserContext, "Enum");
     
-    switch(getFormat())
+    for(JsonNode child : parserContext.getJsonNode())
     {
-      case "byte":
-      case "":
-        break;
-        
-      case "bytes":
-        context.raise(new UnknownFormatWarning(getFormat(), "Did you mean \"byte\"?"));
-        break;
-        
-      default:
-        context.raise(new UnknownFormatWarning(getFormat()));
+      if(!values_.add(child.asText()))
+      {
+        parserContext.raise(new ParserError("Duplicate enum constant \"%s\"", child.asText()));
+      }
     }
   }
 
-  @Override
-  public boolean getHasByteString()
+  public Set<String> getValues()
   {
-    return "byte".equals(getFormat());
+    return values_;
   }
 
-  @Override
-  public boolean isEnumAllowed()
-  {
-    return true;
-  }
-
-  @Override
-  public boolean getCanFailValidation()
-  {
-    return getEnum() != null;
-  }
 }

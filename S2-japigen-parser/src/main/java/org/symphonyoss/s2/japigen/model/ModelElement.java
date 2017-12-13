@@ -227,21 +227,37 @@ public class ModelElement
 
   public boolean getHasSet()
   {
+    for(ModelElement child : getChildren())
+      if(child.getHasSet())
+        return true;
+    
     return false;
   }
   
   public boolean getHasList()
   {
+    for(ModelElement child : getChildren())
+      if(child.getHasList())
+        return true;
+    
     return false;
   }
   
   public boolean getHasCollections()
   {
+    for(ModelElement child : getChildren())
+      if(child.getHasCollections())
+        return true;
+    
     return false;
   }
   
   public boolean getHasByteString()
   {
+    for(ModelElement child : getChildren())
+      if(child.getHasByteString())
+        return true;
+    
     return false;
   }
   

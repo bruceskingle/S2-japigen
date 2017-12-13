@@ -17,12 +17,12 @@
     MutableJsonObject jsonObject = new MutableJsonObject();
     
     jsonObject.addIfNotNull(JapigenRuntime.JSON_TYPE, TYPE_ID);
-    
 <#list model.fields as field>
 <@setJavaType field/>
 <#if requiresChecks>
 <@checkLimits "    " field field.camelName/>
 </#if>
+
     ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
     if(${field.camelName}_ != null)
     {
