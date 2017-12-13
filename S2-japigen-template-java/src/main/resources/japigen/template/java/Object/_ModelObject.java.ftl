@@ -20,7 +20,6 @@
     
 <#list model.fields as field>
 <@setJavaType field/>
-<@printField/>
 <#if requiresChecks>
 <@checkLimits "    " field field.camelName/>
 </#if>
@@ -72,11 +71,8 @@
   {
     return ${field.camelName}_;
   }
-  
-  
   <#switch field.elementType>
     <#case "OneOf">
-      <@printField/>
       
   public class ${field.camelCapitalizedName}ModelObject
   {
@@ -160,7 +156,6 @@
         return ${field.camelName}__;
       }
       
-      <@printField/>
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
       {
       <@checkLimits "      " field field.camelName/>

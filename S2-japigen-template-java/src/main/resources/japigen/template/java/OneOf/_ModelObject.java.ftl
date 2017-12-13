@@ -141,7 +141,6 @@
     <#list model.fields as field>
       <@setJavaType field/>
       
-      <@printField/>
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
       {
       <@checkLimits "        " field field.camelName/>
