@@ -425,8 +425,12 @@
         <#assign javaClassName=model.attributes['javaExternalType']>
         <#assign javaFullyQualifiedClassName="${model.attributes['javaExternalPackage']}.${javaClassName}">
         <#assign requiresChecks=false>
-        <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}Builder">
-        <#assign javaGeneratedBuilderFullyQualifiedClassName="${javaFacadePackage}.${javaGeneratedBuilderClassName}">
+        <#if (model.attributes['isDirectExternal']!"false") != "true">
+          <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}Builder">
+          <#assign javaGeneratedBuilderFullyQualifiedClassName="${javaFacadePackage}.${javaGeneratedBuilderClassName}">
+        <#else>
+          <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}">
+        </#if>
       <#else>
         <#if model.enum??>
           <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}">

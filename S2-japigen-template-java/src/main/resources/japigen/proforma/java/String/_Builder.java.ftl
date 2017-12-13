@@ -1,4 +1,4 @@
-<#if model.attributes['javaExternalType']??>
+<#if model.attributes['javaExternalType']?? && (model.attributes['isDirectExternal']!"false") != "true">
 <#include "../S2-japigen-proforma-java-Prologue.ftl">
 <@setPrologueJavaType model/>
 <#include "../TypeDefBuilderProforma.ftl">

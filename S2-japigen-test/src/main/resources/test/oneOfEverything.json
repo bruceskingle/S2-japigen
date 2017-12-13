@@ -239,7 +239,7 @@
         }
       },
       "Hash": {
-        "description": "A Hash value, encoded as Base64.",
+        "description": "A Hash value, encoded as Base64, represented by an external class which we cant change so we need a factory generated.",
         "type": "string",
         "format": "byte",
         "x-japigen-attributes": {
@@ -247,7 +247,16 @@
           "javaExternalType":     "TestHash"
         }
       },
-      
+      "DirectHash": {
+        "description": "A Hash value, encoded as Base64, represented by an external class which has our expected factory methods.",
+        "type": "string",
+        "format": "byte",
+        "x-japigen-attributes": {
+          "javaExternalPackage":  "org.symphonyoss.s2.japigen.test.oneofeverything",
+          "javaExternalType":     "DirectHash",
+          "isDirectExternal":     "true"
+        }
+      },
       "anAllOf": {
         "allOf": [
           {
@@ -490,6 +499,12 @@
           },
           "colour": {
             "$ref": "#/components/schemas/Colour"
+          },
+          "aHash": {
+            "$ref": "#/components/schemas/Hash"
+          },
+          "aDirectHash": {
+            "$ref": "#/components/schemas/DirectHash"
           }
         }
       }
