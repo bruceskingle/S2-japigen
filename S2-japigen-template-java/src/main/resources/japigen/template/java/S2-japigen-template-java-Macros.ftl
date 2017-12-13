@@ -864,6 +864,7 @@ ${indent}  throw new BadFormatException("${name} is required.");
 <#------------------------------------------------------------------------------------------------------
  # 
  # Create a field from a Json DOM node.
+ # The java variable "node" must have already been set to an IJsonDomNode and must not be null.
  #
  # NB this macro calls <@setJavaType field/>
  # @param indent    An indent string which is output at the start of each line generated
@@ -877,13 +878,20 @@ ${indent}  throw new BadFormatException("${name} is required.");
   <#else>
     <#assign elementType=field.elementType>
   </#if>
-  
+${indent}if(node == null)
+${indent}{
+<#if isNotNullable>
+${indent}  throw new BadFormatException("${field.camelName} is required.");
+<#else>
+${indent}  ${var} = null;
+</#if>
+${indent}}
   <#if isGenerated>
     <#switch elementType>
       <#case "Object">
       <#case "AllOf">
       <#case "OneOf">
-${indent}if(node instanceof ImmutableJsonObject)
+${indent}else if(node instanceof ImmutableJsonObject)
 ${indent}{
 ${indent}  ${var} = _factory.getFactory().get${javaClassName}Factory().newInstance((ImmutableJsonObject)node);
 ${indent}}
@@ -894,8 +902,18 @@ ${indent}}
         <#break>
       
       <#default>
-        <#if field.elementType=="Ref" && field.reference.enum??>
-${indent}if(node instanceof I${javaElementClassName}Provider)
+        <#if isArrayType>
+${indent}else if(node instanceof JsonArray)
+${indent}{
+${indent}  ${var} = ${javaConstructTypePrefix}((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class)${javaConstructTypePostfix};
+${indent}  <@checkItemLimits field field.camelName var/>
+${indent}}
+${indent}else
+${indent}{
+${indent}  throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
+${indent}}
+        <#else>
+${indent}else if(node instanceof I${javaElementClassName}Provider)
 ${indent}{
 ${indent}  ${javaElementClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
 
@@ -903,26 +921,21 @@ ${indent}  try
 ${indent}  {
 ${indent}    ${var} = ${javaConstructTypePrefix}value${javaConstructTypePostfix};
 ${indent}  }
-${indent}  catch(IllegalArgumentException | NullPointerException e)
+${indent}  catch(RuntimeException e)
 ${indent}  {
-${indent}    throw new BadFormatException("Value \"" + value + "\" for ${field.camelName} is not a valid enum constant");
+${indent}    throw new BadFormatException("Value \"" + value + "\" for ${field.camelName} is not a valid value", e);
 ${indent}  }
 ${indent}}
 ${indent}else
 ${indent}{
-${indent}  if(node == null)
-${indent}    throw new BadFormatException("${field.camelName} is required.");
-${indent}  else
 ${indent}    throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
-${indent}}        
-        <#else>
-${indent}${var} = ${javaConstructTypePrefix}node${javaConstructTypePostfix};
-        </#if>
+${indent}}
+        </#if>      
         <#break>
     </#switch>
   <#else>
     <#if isArrayType>
-${indent}if(node instanceof JsonArray)
+${indent}else if(node instanceof JsonArray)
 ${indent}{
 ${indent}  ${var} = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
 ${indent}  <@checkItemLimits field field.camelName var/>
@@ -932,7 +945,7 @@ ${indent}{
 ${indent}  throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
 ${indent}}
     <#else>  
-${indent}if(node instanceof I${javaElementClassName}Provider)
+${indent}else if(node instanceof I${javaElementClassName}Provider)
 ${indent}{
 ${indent}  ${javaFieldClassName} ${field.camelName} = ${javaConstructTypePrefix}((I${javaElementClassName}Provider)node).as${javaElementClassName}()${javaConstructTypePostfix};
       <#if requiresChecks>
@@ -942,9 +955,6 @@ ${indent}  ${var} = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix
 ${indent}}
 ${indent}else
 ${indent}{
-${indent}  if(node == null)
-${indent}    throw new BadFormatException("${field.camelName} is required.");
-${indent}  else
 ${indent}    throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
 ${indent}}
     </#if>

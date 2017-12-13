@@ -171,6 +171,7 @@
               <#break>
             
             <#default>
+            
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<#if isExternal || field.canFailValidation> throws BadFormatException</#if>
       {
         ${field.camelName}__ = ${javaConstructTypePrefix}${field.camelName}${javaConstructTypePostfix};

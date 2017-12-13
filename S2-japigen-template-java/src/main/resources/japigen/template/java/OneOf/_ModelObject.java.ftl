@@ -60,6 +60,9 @@
 <#-- Constructor from Json   -->  
   protected ${modelJavaClassName}ModelObject(${modelJavaClassName}.Factory _factory, ImmutableJsonObject node) throws BadFormatException
   {
+    if(node == null)
+      throw new BadFormatException("node is required");
+      
     _factory_ = _factory;
     jsonObject_ = node;
     asString_ = SERIALIZER.serialize(jsonObject_);

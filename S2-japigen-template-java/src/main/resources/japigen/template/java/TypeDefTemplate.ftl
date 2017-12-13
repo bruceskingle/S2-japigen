@@ -81,7 +81,6 @@ public class ${modelJavaClassName}ModelType
   public static abstract class Builder
   {
     public abstract ${modelJavaClassName} build(${modelJavaFieldClassName} value)<#if model.canFailValidation> throws BadFormatException</#if>;
-    public abstract ${modelJavaClassName} build(IJsonDomNode node) throws BadFormatException;
     public abstract ${modelJavaFieldClassName} to${modelJavaFieldClassName}(${modelJavaClassName} instance);
   }
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-template-java-SubEpilogue.ftl">
