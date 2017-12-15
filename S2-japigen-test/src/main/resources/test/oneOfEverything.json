@@ -12,7 +12,67 @@
     "javaGenPackage":  "com.symphony.s2.japigen.test.oneofeverything",
     "javaFacadePackage":  "com.symphony.s2.japigen.test.oneofeverything.facade"
   },
-  "paths": {},
+  "paths": {
+    "/hello/{greeting}": {
+      "get": {
+        "summary": "Say Hello",
+        "operationId": "sayHello",
+        "tags": [
+          "hello"
+        ],
+        "parameters": [
+          {
+            "name": "greeting",
+            "in": "path",
+            "description": "A greeting from the client",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DefString"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many items to return at one time (max 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An paged array of objects",
+            "headers": {
+              "x-next": {
+                "description": "A link to the next page of responses",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefString"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefString"
+                }
+              }
+            }
+          }
+        }
+      }
+    }},
   "components": {
     "schemas": {
       "DefInt": {

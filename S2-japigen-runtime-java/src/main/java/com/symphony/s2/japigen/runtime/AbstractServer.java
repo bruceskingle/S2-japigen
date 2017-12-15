@@ -23,29 +23,38 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Collection;
-
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
-import org.symphonyoss.s2.common.exception.BadFormatException;
+import org.symphonyoss.s2.common.http.HttpServer;
+import org.symphonyoss.s2.common.http.HttpServerBuilder;
 import org.symphonyoss.s2.common.http.IUrlPathServlet;
 
-public interface IModelRegistry
+public abstract class AbstractServer implements IServer
 {
-  IModelRegistry register(IModelFactory factory);
-
-  IModelRegistry register(String name, IModelObjectFactory<?,?> factory);
-
-  IModelObject newInstance(ImmutableJsonObject jsonObject) throws BadFormatException;
-
-  IModelObject parseOne(Reader reader) throws IOException, BadFormatException;
+  private HttpServer   httpServer_;
+  private IModelRegistry modelRegistry_ = new ModelRegistry();
   
-  void parseStream(Reader reader, IModelObjectConsumer consumer) throws BadFormatException;
+  public void start()
+  {
+    HttpServerBuilder builder = new HttpServerBuilder()
+        .setHttpPort(8080);
+    
+    registerModels(modelRegistry_);
+    
+    for(IUrlPathServlet servlet : modelRegistry_.getServlets())
+    {
+      builder.addServlet(servlet);
+    }
+    
+    modelRegistry_.start();
+    
+    httpServer_ = builder.build();
+    
+    httpServer_.start();
+  }
   
-  Collection<IUrlPathServlet> getServlets();
-
-  void start();
-  
-  void stop();
+  public void stop()
+  {
+    httpServer_.stop();
+    
+    modelRegistry_.stop();
+  }
 }

@@ -55,4 +55,13 @@ public class JAPIGEN
   public static final String IS_FACADE           = "isFacade";
   public static final String TEMPLATE_NAME       = "templateName";
   public static final String TEMPLATE_DEBUG      = "templateDebug";
+  public static final String PATHS               = "paths";
+  public static final String METHOD_GET          = "get";
+  public static final String METHOD_POST         = "post";
+  public static final String METHOD_PUT          = "put";
+  public static final String METHOD_DELETE       = "delete";
+  public static final String METHOD_OPTIONS      = "options";
+  public static final String METHOD_HEAD         = "head";
+  public static final String METHOD_PATCH        = "patch";
+  public static final String METHOD_TRACE        = "trace";
 }

@@ -21,31 +21,37 @@
  * under the License.
  */
 
-package com.symphony.s2.japigen.runtime;
+package org.symphonyoss.s2.japigen.test.oneofeverything;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.util.Collection;
 
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
-import org.symphonyoss.s2.common.exception.BadFormatException;
-import org.symphonyoss.s2.common.http.IUrlPathServlet;
+import com.symphony.s2.japigen.runtime.AbstractServer;
+import com.symphony.s2.japigen.runtime.IModelRegistry;
+import com.symphony.s2.japigen.test.oneofeverything.facade.OneOfEverythingFactory;
 
-public interface IModelRegistry
+public class OneOfEverythingServer extends AbstractServer
 {
-  IModelRegistry register(IModelFactory factory);
-
-  IModelRegistry register(String name, IModelObjectFactory<?,?> factory);
-
-  IModelObject newInstance(ImmutableJsonObject jsonObject) throws BadFormatException;
-
-  IModelObject parseOne(Reader reader) throws IOException, BadFormatException;
+  private OneOfEverythingFactory  modelFactory_ = new OneOfEverythingFactory();
   
-  void parseStream(Reader reader, IModelObjectConsumer consumer) throws BadFormatException;
-  
-  Collection<IUrlPathServlet> getServlets();
+  @Override
+  public void registerModels(IModelRegistry registry)
+  {
+    registry.register(modelFactory_);
+  }
 
-  void start();
-  
-  void stop();
+  public static void main(String[] argv) throws IOException
+  {
+    OneOfEverythingServer server = new OneOfEverythingServer();
+    
+    server.start();
+    
+    System.out.println("Server started, press RETURN to terminate");
+    System.in.read();
+    
+    System.out.println("Stopping...");
+    
+    server.stop();
+    
+    System.out.println("Finished.");
+  }
 }

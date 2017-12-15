@@ -25,7 +25,10 @@ package com.symphony.s2.japigen.runtime;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -35,6 +38,7 @@ import org.symphonyoss.s2.common.dom.json.IJsonObject;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
 import org.symphonyoss.s2.common.exception.BadFormatException;
+import org.symphonyoss.s2.common.http.IUrlPathServlet;
 import org.symphonyoss.s2.common.reader.LinePartialReader;
 import org.symphonyoss.s2.common.reader.LinePartialReader.Factory;
 
@@ -49,10 +53,13 @@ public class ModelRegistry implements IModelRegistry
   
   private Map<String, IModelObjectFactory<?,?>>  factoryMap_ = new HashMap<>();
   private ObjectMapper  mapper_ = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
+  private List<IUrlPathServlet> servlets_ = new LinkedList<>();
+  private List<IModelFactory>   models_ = new LinkedList<>();
   
   @Override
   public IModelRegistry register(IModelFactory factory)
   {
+    models_.add(factory);
     factory.registerWith(this);
     return this;
   }
@@ -123,5 +130,25 @@ public class ModelRegistry implements IModelRegistry
     {
       LOG.error("Failed to close LinePartialReader.Factory", e);
     }
+  }
+
+  @Override
+  public Collection<IUrlPathServlet> getServlets()
+  {
+    return servlets_;
+  }
+
+  @Override
+  public void start()
+  {
+    for(IModelFactory model : models_)
+      model.start();
+  }
+
+  @Override
+  public void stop()
+  {
+    for(IModelFactory model : models_)
+      model.stop();
   }
 }

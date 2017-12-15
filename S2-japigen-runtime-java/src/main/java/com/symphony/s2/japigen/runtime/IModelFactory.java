@@ -26,4 +26,8 @@ package com.symphony.s2.japigen.runtime;
 public interface IModelFactory
 {
   void registerWith(IModelRegistry registry);
+
+  void start();
+
+  void stop();
 }

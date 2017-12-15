@@ -58,6 +58,8 @@ public class Model extends ModelElement
   private SimpleDateFormat    yearMonthFormat_ = new SimpleDateFormat("yyyy-MM");
   private SimpleDateFormat    dateFormat_      = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
   private URI                 japigenId_;
+
+  private Paths paths_;
   
   public Model(ParserContext parserContext)
   {
@@ -74,9 +76,12 @@ public class Model extends ModelElement
           add(openapi_);
           break;
           
+        case JAPIGEN.PATHS:
+            paths_ = new Paths(this, subContext);
+          break;
+          
         case "info":
-        case "paths":
-        case "components":
+          case "components":
           break;
           
         case JAPIGEN.X_MODEL:

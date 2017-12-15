@@ -21,31 +21,29 @@
  * under the License.
  */
 
-package com.symphony.s2.japigen.runtime;
+package org.symphonyoss.s2.japigen.model;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.UnexpectedTypeError;
 
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
-import org.symphonyoss.s2.common.exception.BadFormatException;
-import org.symphonyoss.s2.common.http.IUrlPathServlet;
-
-public interface IModelRegistry
+public class Paths extends ModelElement
 {
-  IModelRegistry register(IModelFactory factory);
+  private static Logger log_ = LoggerFactory.getLogger(Paths.class);
 
-  IModelRegistry register(String name, IModelObjectFactory<?,?> factory);
+  public Paths(Model model, ParserContext parserContext)
+  {
+    super(model, parserContext, "Paths");
+    
+    for(ParserContext path : parserContext)
+    {
+      log_.debug("Found path \"" + path.getName() + "\" at " + path.getPath());
+      
+      PathItem pathSchema = new PathItem(this, path);
+      
+      add(pathSchema.getName(), pathSchema);
+    }
+  }
 
-  IModelObject newInstance(ImmutableJsonObject jsonObject) throws BadFormatException;
-
-  IModelObject parseOne(Reader reader) throws IOException, BadFormatException;
-  
-  void parseStream(Reader reader, IModelObjectConsumer consumer) throws BadFormatException;
-  
-  Collection<IUrlPathServlet> getServlets();
-
-  void start();
-  
-  void stop();
 }
