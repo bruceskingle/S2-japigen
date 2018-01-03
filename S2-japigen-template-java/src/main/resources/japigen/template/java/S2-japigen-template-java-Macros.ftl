@@ -175,6 +175,7 @@
     <#case "Object">
     <#case "AllOf">
     <#case "OneOf">
+    <#case "Path">
       <#assign modelJavaElementClassName=model.camelCapitalizedName/>
       <#break>
       
@@ -224,6 +225,9 @@
  #
  #----------------------------------------------------------------------------------------------------->
 <#macro setJavaType model>
+// setJavaType
+// model.class = ${model.class}
+// model = ${model}
   <#assign javaField=model>
   <#assign javaClassName="">
   <#assign javaFullyQualifiedClassName="">
@@ -254,6 +258,7 @@
    #
    #-->
   <#assign javaElementClassName=getJavaElementType(model)/>
+  // TT javaElementClassName = ${javaElementClassName}
   <#-- 
    #
    # now set javaFieldClassName
@@ -271,7 +276,7 @@
    # now set decorator attributes
    #
    #-->
-   <@decorate model true/>
+   <@decorate model/>
 </#macro>
 
 <#macro setFieldClassName model>
@@ -311,13 +316,13 @@
   </#switch>
 </#macro>
 
-<#macro decorate model isNotRef>
+<#macro decorate model>
   <#switch model.elementType>
     <#case "Field">
       <#if model.required>
         <#assign isNotNullable=true>
       </#if>
-      <@decorateIfArray model.type/>
+      <@decorate model.type/>
       <#break>
       
     <#case "Array">
@@ -404,48 +409,61 @@
   </#if>
 </#macro>
 
+<#macro setClassName2 model>
+  <#assign isGenerated=true>
+  <#if model.attributes['javaExternalType']??>
+    <#assign isExternal=true>
+    <#assign javaClassName=model.attributes['javaExternalType']>
+    <#assign javaFullyQualifiedClassName="${model.attributes['javaExternalPackage']}.${javaClassName}">
+    <#assign requiresChecks=false>
+    <#if (model.attributes['isDirectExternal']!"false") != "true">
+      <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}Builder">
+      <#assign javaGeneratedBuilderFullyQualifiedClassName="${javaFacadePackage}.${javaGeneratedBuilderClassName}">
+    <#else>
+      <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}">
+    </#if>
+  <#else>
+    <#if model.enum??>
+      <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}">
+      <#assign javaGeneratedBuilderFullyQualifiedClassName="${javaGenPackage}.${javaGeneratedBuilderClassName}">
+      <#assign javaClassName=model.camelCapitalizedName>
+    <#else>
+      <#assign javaClassName=model.camelCapitalizedName>
+      <#assign javaFullyQualifiedClassName="${javaFacadePackage}.${javaClassName}">
+    </#if>
+  </#if>
+</#macro>
+
 <#macro setClassName model fieldClassName>
+// TT setClassName model = ${model} fieldClassName = ${fieldClassName} model.elementType = ${model.elementType}
   <#switch model.elementType>
     <#case "Ref">
       <@setClassName model.reference model.reference.camelCapitalizedName/>
+      <@setClassName2 model.reference/>
+			<#break>
+      
+    <#case "XXXXXX">
       <#assign javaFullyQualifiedClassName="${javaFacadePackage}.${javaClassName}">
       <#assign requiresChecks=false>
       <#break>
+      
     <#case "Array">
     <#case "Integer">
     <#case "Double">
     <#case "String">
-    <#case "Boolean">    
+    <#case "Boolean"> 
+    	  <#assign javaClassName=fieldClassName>
+      <#break>
+         
     <#case "Object">
     <#case "AllOf">
     <#case "OneOf">
-      <#assign isGenerated=true>
-      <#if model.attributes['javaExternalType']??>
-        <#assign isExternal=true>
-        <#assign javaClassName=model.attributes['javaExternalType']>
-        <#assign javaFullyQualifiedClassName="${model.attributes['javaExternalPackage']}.${javaClassName}">
-        <#assign requiresChecks=false>
-        <#if (model.attributes['isDirectExternal']!"false") != "true">
-          <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}Builder">
-          <#assign javaGeneratedBuilderFullyQualifiedClassName="${javaFacadePackage}.${javaGeneratedBuilderClassName}">
-        <#else>
-          <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}">
-        </#if>
-      <#else>
-        <#if model.enum??>
-          <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}">
-          <#assign javaGeneratedBuilderFullyQualifiedClassName="${javaGenPackage}.${javaGeneratedBuilderClassName}">
-          <#assign javaClassName=model.camelCapitalizedName>
-        <#else>
-          <#assign javaClassName=model.camelCapitalizedName>
-          <#assign javaFullyQualifiedClassName="${javaFacadePackage}.${javaClassName}">
-        </#if>
-      </#if>
+    	  <@setClassName2 model/>
       <#break>
     
     <#case "Field">
-    <#case "OneOf">
-      <#assign javaClassName=fieldClassName>
+    // TT its a field
+      <@setClassName model.type fieldClassName/>
       <#break>
 
   </#switch>
@@ -633,8 +651,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
   </#if>
   
+  // importFieldTypes
   <#list model.referencedTypes as field>
     <@setJavaType field/>
+    <@printField/>
     <#if javaFullyQualifiedClassName?has_content>
 import ${javaFullyQualifiedClassName};
     </#if>
@@ -815,6 +835,7 @@ ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is not
  # @param name      The name of the value being checked which is output in the message of thrown exceptions
  #----------------------------------------------------------------------------------------------------->
 <#macro checkLimits indent model name>
+// checkLimits name = ${name} elementType = ${model.elementType}
   <#switch model.elementType>
     <#case "Integer">
     <#case "Double">
@@ -827,8 +848,8 @@ ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is not
       
 ${indent}if(${name} == null)
 ${indent}  throw new BadFormatException("${name} is required.");
-        <@checkLimits2 indent model.type name/>
       </#if>
+      <@checkLimits2 indent model.type name/>
       <#break>
   </#switch>
 </#macro>
@@ -874,11 +895,21 @@ ${indent}  throw new BadFormatException("${name} is required.");
  #----------------------------------------------------------------------------------------------------->
 <#macro generateCreateFieldFromJsonDomNode indent field var>
   <@setJavaType field/>
-  <#if field.elementType=="Ref">
-    <#assign elementType=field.reference.elementType>
+  <@printField/>
+  // TRACE1 isGenerated = ${isGenerated?c}
+  <#if field.type.elementType=="Field">
+    <#if field.elementType=="Ref">
+	    <#assign elementType=field.type.reference.elementType>
+	  <#else>
+	    <#assign elementType=field.type.elementType>
+	  </#if>
   <#else>
-    <#assign elementType=field.elementType>
-  </#if>
+	  <#if field.elementType=="Ref">
+	    <#assign elementType=field.reference.elementType>
+	  <#else>
+	    <#assign elementType=field.elementType>
+	  </#if>
+	</#if>
 ${indent}if(node == null)
 ${indent}{
 <#if isNotNullable>
@@ -887,7 +918,9 @@ ${indent}  throw new BadFormatException("${field.camelName} is required.");
 ${indent}  ${var} = null;
 </#if>
 ${indent}}
+// TRACE2 isGenerated = ${isGenerated?c}
   <#if isGenerated>
+  //TRACE 2a elementType = ${elementType}
     <#switch elementType>
       <#case "Object">
       <#case "AllOf">
@@ -914,6 +947,7 @@ ${indent}{
 ${indent}  throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
 ${indent}}
         <#else>
+        //TRACE 3
 ${indent}else if(node instanceof I${javaElementClassName}Provider)
 ${indent}{
 ${indent}  ${javaElementClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
@@ -961,4 +995,3 @@ ${indent}}
     </#if>
   </#if>
 </#macro>
-

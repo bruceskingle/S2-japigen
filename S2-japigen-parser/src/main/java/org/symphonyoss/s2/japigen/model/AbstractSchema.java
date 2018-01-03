@@ -39,23 +39,13 @@ import org.symphonyoss.s2.japigen.parser.error.OnlyOneAllowedError;
 public abstract class AbstractSchema extends ModelElement
 {
   
-  public AbstractSchema(ModelElement parent, ParserContext context, String type)
+  public AbstractSchema(ModelElement parent, ParserContext context, String type, String name)
   {
-    super(parent, context, type);
+    super(parent, context, type, name);
   }
   
  
 
-  @Override
-  public String getName()
-  {
-    ParserContext context = getContext();
-    if(context == null)
-      return "Unnamed " + getClass().getName();
-    
-    return context.getName();
-  }
-  
   public boolean  getIsAnonymousInnerClass()
   {
     ParserContext context = getContext();
@@ -72,12 +62,17 @@ public abstract class AbstractSchema extends ModelElement
   
   /* package */ static AbstractSchema createSchema(ModelElement parent, ParserContext context)
   {
+    return createSchema(parent, context, context.getName());
+  }
+  
+  /* package */ static AbstractSchema createSchema(ModelElement parent, ParserContext context, String name)
+  {
     SchemaBuilder builder = new SchemaBuilder(parent, context);
     
-    builder.build("allOf", (m, c, n) -> new AllOfSchema(m, c, n));
-    builder.build("oneOf", (m, c, n) -> new OneOfSchema(m, c, n));
-    builder.build("$ref", (m, c, n) -> new ReferenceSchema(m, c, n));
-    builder.build("type", (m, c, n) -> Type.create(m, c, n));
+    builder.build("allOf", (m, c, n) -> new AllOfSchema(m, c, n, name));
+    builder.build("oneOf", (m, c, n) -> new OneOfSchema(m, c, n, name));
+    builder.build("$ref", (m, c, n) -> new ReferenceSchema(m, c, n, name));
+    builder.build("type", (m, c, n) -> Type.create(m, c, n, name));
     
     if(builder.getResult() == null)
     {
@@ -85,7 +80,7 @@ public abstract class AbstractSchema extends ModelElement
       
       if(properties != null)
       {
-        return new ObjectSchema(parent, context);
+        return new ObjectSchema(parent, context, name);
       }
     }
     

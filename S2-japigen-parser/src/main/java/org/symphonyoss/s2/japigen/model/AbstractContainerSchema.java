@@ -31,9 +31,9 @@ import org.symphonyoss.s2.japigen.parser.error.UnexpectedTypeError;
 
 public abstract class AbstractContainerSchema extends Schema
 {
-  public AbstractContainerSchema(ModelElement parent, ParserContext context, ParserContext node, String type)
+  public AbstractContainerSchema(ModelElement parent, ParserContext context, ParserContext node, String type, String name)
   {
-    super(parent, context, type);
+    super(parent, context, type, name);
     
     for(ParserContext child : node)
     {
@@ -48,11 +48,11 @@ public abstract class AbstractContainerSchema extends Schema
   }
 
   @Override
-  protected void getReferencedTypes(Set<Schema> result)
+  protected void getReferencedTypes(Set<AbstractSchema> result)
   {
     super.getReferencedTypes(result);
     
-    for(ModelElement child : getChildren())
+    for(ModelElement child : getFields())
       child.getReferencedTypes(result);
   }
   

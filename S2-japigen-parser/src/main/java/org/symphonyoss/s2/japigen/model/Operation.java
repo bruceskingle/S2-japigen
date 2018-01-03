@@ -23,53 +23,56 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
-public class Operation extends ModelElement
+public class Operation extends ParameterContainer
 {
   private static Logger log_ = LoggerFactory.getLogger(Operation.class);
-
-  private List<Parameter> parameters_ = new ArrayList<>();
   
+  private final PathItem pathItem_;
+  private final String      summary_;
+
   public Operation(PathItem parent, ParserContext parserContext)
   {
-    super(parent, parserContext, "Method");
-    
-    ParserContext listContext = parserContext.get("parameters");
-    
-    if(listContext == null)
-    {
-      parserContext.raise(new ParserError("A \"parameters\" node is required."));
-      return;
-    }
-    
-    if(!listContext.getJsonNode().isArray())
-    {
-      parserContext.raise(new ParserError("The \"parameters\" node must be an array."));
-      return;
-    }
-    
-    for(ParserContext paramContext : listContext)
-    {
-      Parameter param = Parameter.create(this, paramContext);
-      
-      if(param != null)
-      {
-        add(param);
-        parameters_.add(param);
-      }
-    }
-    
+    super(parent, parserContext, "Operation", parserContext.getName());
+    pathItem_ = parent;
+    summary_ = parserContext.getText("summary");
+  }
+  
+  public String getSummary()
+  {
+    return summary_;
   }
 
-  public List<Parameter> getParameters()
+  @Override
+  public void validate()
   {
-    return parameters_;
+    super.validate();
+    
+    for(String paramName : pathItem_.getPathParamNames())
+    {
+      Parameter param = getPathParameters().get(paramName);
+      
+      if(param == null)
+      {
+        getContext().raise(new ParserError("Path parameter \"%s\" is not defined", paramName));
+      }
+    }
+  }
+
+  public PathItem getPathItem()
+  {
+    return pathItem_;
+  }
+
+
+
+  @Override
+  public String toString()
+  {
+    return getName();
   }
 }

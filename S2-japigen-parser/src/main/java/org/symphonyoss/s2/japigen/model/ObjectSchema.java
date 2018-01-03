@@ -44,9 +44,9 @@ public class ObjectSchema extends Schema
 {
   private Set<String>  requiredButUndefinedSet_ = new HashSet<>();
     
-  public ObjectSchema(ModelElement parent, ParserContext context)
+  public ObjectSchema(ModelElement parent, ParserContext context, String name)
   {
-    super(parent, context, "Object");
+    super(parent, context, "Object", name);
     
     ParserContext requiredFields = context.get("required");
     if(requiredFields != null)
@@ -84,17 +84,6 @@ public class ObjectSchema extends Schema
     {
       context.raise(new ParserError("Required field \"%s\" is not defined!", requiredField));
     }
-  }
-  
-  /**
-   * Return the fields of this object, for a normal object this is the same as
-   * getChildren() for an AllOf it is something else.
-   * 
-   * @return The fields of this object.
-   */
-  public List<ModelElement> getFields()
-  {
-    return getChildren();
   }
   
   @Override
@@ -158,7 +147,7 @@ public class ObjectSchema extends Schema
   }
 
   @Override
-  protected void getReferencedTypes(Set<Schema> result)
+  protected void getReferencedTypes(Set<AbstractSchema> result)
   {
     super.getReferencedTypes(result);
     

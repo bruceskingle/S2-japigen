@@ -23,7 +23,7 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import org.symphonyoss.s2.japigen.JAPIGEN;
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
@@ -31,17 +31,17 @@ public abstract class Type extends Schema
 {
   private EnumSchema enum_;
 
-  public Type(ModelElement parent, ParserContext context, String type)
+  public Type(ModelElement parent, ParserContext context, String type, String name)
   {
-    super(parent, context, type);
+    super(parent, context, type, name);
     
-    ParserContext enumNode = getContext().get(JAPIGEN.ENUM);
+    ParserContext enumNode = getContext().get(Japigen.ENUM);
     
     if(enumNode != null)
     {
       if(!isEnumAllowed())
       {
-        getContext().raise(new ParserError("%s is not suported on this type.", JAPIGEN.ENUM));
+        getContext().raise(new ParserError("%s is not suported on this type.", Japigen.ENUM));
       }
       else if(enumNode.getJsonNode().isArray())
       {
@@ -50,32 +50,32 @@ public abstract class Type extends Schema
       }
       else
       {
-        getContext().raise(new ParserError("%s must be an array", JAPIGEN.ENUM));
+        getContext().raise(new ParserError("%s must be an array", Japigen.ENUM));
       }
     }
   }
 
-  public static AbstractSchema create(ModelElement parent, ParserContext context, ParserContext node)
+  public static AbstractSchema create(ModelElement parent, ParserContext context, ParserContext node, String name)
   {
     switch(node.getJsonNode().asText())
     {
       case "object":
-        return new ObjectSchema(parent, context);
+        return new ObjectSchema(parent, context, name);
         
       case "array":
-        return new ArraySchema(parent, context);
+        return new ArraySchema(parent, context, name);
         
       case "integer":
-        return new IntegerType(parent, context);
+        return new IntegerType(parent, context, name);
         
       case "number":
-        return new DoubleType(parent, context);
+        return new DoubleType(parent, context, name);
         
       case "string":
-        return new StringType(parent, context);
+        return new StringType(parent, context, name);
         
       case "boolean":
-        return new BooleanType(parent, context);
+        return new BooleanType(parent, context, name);
         
       default:
         context.raise(new ParserError("Type \"%s\" is of unknown type \"%s\"", context.getName(), node.getJsonNode().asText()));

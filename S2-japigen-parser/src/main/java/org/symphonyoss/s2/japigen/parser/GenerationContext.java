@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.symphonyoss.s2.common.fault.TransactionFault;
-import org.symphonyoss.s2.japigen.JAPIGEN;
+import org.symphonyoss.s2.japigen.Japigen;
 
 import freemarker.template.Configuration;
 import freemarker.template.Version;
@@ -140,8 +140,8 @@ public class GenerationContext
           + "\"", e);
     }
     
-    addLanguages(dir, JAPIGEN.TEMPLATE);
-    addLanguages(dir, JAPIGEN.PROFORMA);
+    addLanguages(dir, Japigen.TEMPLATE);
+    addLanguages(dir, Japigen.PROFORMA);
     
     
   }

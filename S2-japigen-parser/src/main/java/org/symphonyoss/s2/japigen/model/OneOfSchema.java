@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.symphonyoss.s2.japigen.JAPIGEN;
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
@@ -36,11 +36,11 @@ public class OneOfSchema extends AbstractContainerSchema
 {
   private Discriminator discriminator_;
 
-  public OneOfSchema(ModelElement parent, ParserContext context, ParserContext node)
+  public OneOfSchema(ModelElement parent, ParserContext context, ParserContext node, String name)
   {
-    super(parent, context, node, "OneOf");
+    super(parent, context, node, "OneOf", name);
     
-    ParserContext d = context.get(JAPIGEN.DISCRIMINATOR);
+    ParserContext d = context.get(Japigen.DISCRIMINATOR);
     
     if(d == null)
     {
@@ -58,7 +58,7 @@ public class OneOfSchema extends AbstractContainerSchema
   }
 
   @Override
-  protected void getReferencedTypes(Set<Schema> result)
+  protected void getReferencedTypes(Set<AbstractSchema> result)
   {
     super.getReferencedTypes(result);
     

@@ -1,9 +1,9 @@
 <#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubPrologue.ftl">
 /**
 <#if isFacade??>
- * Facade for Object ${model}
+ * Facade for Path ${model}
 <#else>
- * Object ${model}
+ * Path ${model}
 </#if>
 <#if model.summary??>
  *
@@ -13,5 +13,8 @@
  *
  * ${model.description}
 </#if>
+ *
+ * Path					${model.path}
+ * Bind Path			${model.bindPath}
  */
 <#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubEpilogue.ftl">

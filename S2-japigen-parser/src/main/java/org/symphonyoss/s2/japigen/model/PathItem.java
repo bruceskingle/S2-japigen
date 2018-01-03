@@ -23,38 +23,57 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.symphonyoss.s2.japigen.JAPIGEN;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
-public class PathItem extends ModelElement
+public class PathItem extends ParameterContainer
 {
-  private static Logger log_ = LoggerFactory.getLogger(PathItem.class);
+  private static Logger         log_        = LoggerFactory.getLogger(PathItem.class);
 
-  private Set<String>  pathParams_ = new HashSet<>();
-  //private Map<ParameterI>
+  private final Set<String>     pathParamNames_;
+  private final String          bindPath_;
+  private final String          path_;
+  private final List<Operation> operations_ = new ArrayList<>();
+  private final Set<HttpMethod> unsupportedOperations_ = EnumSet.allOf(HttpMethod.class);
   
-  public PathItem(Paths parent, ParserContext parserContext)
+  public PathItem(Paths parent, ParserContext parserContext, String name, Set<String> pathParams, String bindPath, String path)
   {
-    super(parent, parserContext, "Path");
+    super(parent, parserContext, "Path", name);
     
+    pathParamNames_ = pathParams;
+    bindPath_ = bindPath;
+    path_ = path;
+    
+    for(HttpMethod method : HttpMethod.values())
+      addMethod(method, parserContext);
+  }   
+
+
+  public static PathItem create(Paths paths, ParserContext parserContext)
+  {
+    Set<String>  pathParams = new HashSet<>();
     StringBuffer lineBuf = new StringBuffer();
     StringBuffer paramBuf = new StringBuffer();
+    StringBuffer bindBuf = new StringBuffer();
+    StringBuffer nameBuf = new StringBuffer();
     boolean      inParam=false;
+    boolean      inWord=false;
+    boolean      inBindPath=true;
     
-    for(char c : getName().toCharArray())
+    for(char c : parserContext.getName().toCharArray())
     {
-      if(inParam)
-        paramBuf.append(c);
-      
       switch(c)
       {
         case '{':
+          inBindPath=false;
           if(inParam)
           {
             parserContext.raise(new ParserError("Unexpected { in path after \"%s\"", lineBuf));
@@ -70,7 +89,7 @@ public class PathItem extends ModelElement
           if(inParam)
           {
             inParam = false;
-            if(!pathParams_.add(paramBuf.toString()))
+            if(!pathParams.add(paramBuf.toString()))
             {
               parserContext.raise(new ParserError("Duplicate path parameter \"%s\"", paramBuf.toString()));
             }
@@ -80,42 +99,112 @@ public class PathItem extends ModelElement
             parserContext.raise(new ParserError("Unexpected } in path after \"%s\"", lineBuf));
           }
           break;
+        
+        case '/':
+          inWord = false;
+          if(inParam)
+          {
+            parserContext.raise(new ParserError("Character '%c' is not permitted in a parameter name.", c));
+          }
+          break;
+        
+        default:
+          if(inParam)
+          {
+            paramBuf.append(c);
+          }
+          else
+          {
+            if(inWord)
+            {
+              nameBuf.append(Character.toLowerCase(c));
+            }
+            else
+            {
+              nameBuf.append(Character.toUpperCase(c));
+              inWord = true;
+            }
+          }
       }
       
       lineBuf.append(c);
+      
+      if(inBindPath)
+        bindBuf.append(c);
+      
     }
     if(inParam)
     {
       parserContext.raise(new ParserError("Un-terminated parameter (missing }) in path after \"%s\"", lineBuf));
     }
     
-    addMethod(JAPIGEN.METHOD_GET, parserContext);
-    addMethod(JAPIGEN.METHOD_POST, parserContext);
-    addMethod(JAPIGEN.METHOD_PUT, parserContext);
-    addMethod(JAPIGEN.METHOD_DELETE, parserContext);
-    addMethod(JAPIGEN.METHOD_OPTIONS, parserContext);
-    addMethod(JAPIGEN.METHOD_HEAD, parserContext);
-    addMethod(JAPIGEN.METHOD_PATCH, parserContext);
-    addMethod(JAPIGEN.METHOD_TRACE, parserContext);
-    
-    ParserContext paramsContext = parserContext.get("parameters");
-    
-    for(ParserContext pc : paramsContext)
+    if(pathParams.isEmpty())
     {
-      Parameter param = Parameter.create(this, pc);
-      
-      if(param != null)
-      {
-        
-      }
+      log_.debug("No path params");
     }
+    else
+    {
+      for(String p : pathParams)
+        log_.debug("Path param \"{}\"", p);
+    }
+    
+    return new PathItem(paths, parserContext, nameBuf.toString(), pathParams, bindBuf.toString(), lineBuf.toString());
   }
 
-  private void addMethod(String methodName, ParserContext parserContext)
+  private void addMethod(HttpMethod method, ParserContext parserContext)
   {
-    ParserContext methodContext = parserContext.get(methodName);
+    ParserContext methodContext = parserContext.get(method.toString().toLowerCase());
     
     if(methodContext != null)
-      add(new Operation(this, methodContext));
+      addMethod(method, new Operation(this, methodContext));
+  }
+
+  private void addMethod(HttpMethod method, Operation operation)
+  {
+    add(operation);
+    operations_.add(operation);
+    
+    unsupportedOperations_.remove(method);
+  }
+
+
+  public Set<String> getPathParamNames()
+  {
+    return pathParamNames_;
+  }
+
+  public String getBindPath()
+  {
+    return bindPath_;
+  }
+
+  public String getPath()
+  {
+    return path_;
+  }
+
+  public List<Operation> getOperations()
+  {
+    return operations_;
+  }
+
+  public Set<HttpMethod> getUnsupportedOperations()
+  {
+    return unsupportedOperations_;
+  }
+  
+  @Override
+  public void getReferencedTypes(Set<AbstractSchema> result)
+  {
+    super.getReferencedTypes(result);
+    
+    for(Operation op : operations_)
+      op.getReferencedTypes(result);
+  }
+
+  @Override
+  public String toString()
+  {
+    return getName();
   }
 }

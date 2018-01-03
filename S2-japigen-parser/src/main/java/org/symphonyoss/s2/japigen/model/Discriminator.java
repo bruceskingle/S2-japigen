@@ -23,7 +23,7 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import org.symphonyoss.s2.japigen.JAPIGEN;
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 import org.symphonyoss.s2.japigen.parser.error.ParserWarning;
@@ -39,9 +39,9 @@ public class Discriminator extends ModelElement
     super(parent, context, "Discriminator", initName(context));
     
     if(getName() == UNNAMED)
-      context.raise(new ParserError("A %s requires a %s", JAPIGEN.DISCRIMINATOR, JAPIGEN.PROPERTY_NAME));
+      context.raise(new ParserError("A %s requires a %s", Japigen.DISCRIMINATOR, Japigen.PROPERTY_NAME));
     
-    ParserContext map = context.get(JAPIGEN.MAPPING);
+    ParserContext map = context.get(Japigen.MAPPING);
     
     if(map != null)
     {
@@ -51,7 +51,7 @@ public class Discriminator extends ModelElement
 
   private static String initName(ParserContext context)
   {
-    ParserContext ctx = context.get(JAPIGEN.PROPERTY_NAME);
+    ParserContext ctx = context.get(Japigen.PROPERTY_NAME);
     
     if(ctx == null)
       return UNNAMED;

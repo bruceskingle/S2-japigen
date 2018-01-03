@@ -26,7 +26,6 @@ package org.symphonyoss.s2.japigen.model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
-import org.symphonyoss.s2.japigen.parser.error.UnexpectedTypeError;
 
 public class Paths extends ModelElement
 {
@@ -40,10 +39,16 @@ public class Paths extends ModelElement
     {
       log_.debug("Found path \"" + path.getName() + "\" at " + path.getPath());
       
-      PathItem pathSchema = new PathItem(this, path);
+      PathItem pathSchema = PathItem.create(this, path);
       
       add(pathSchema.getName(), pathSchema);
     }
+  }
+
+  @Override
+  public String toString()
+  {
+    return "Paths";
   }
 
 }

@@ -25,6 +25,7 @@ package org.symphonyoss.s2.japigen.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,44 +38,49 @@ public abstract class ParameterContainer extends ModelElement
 
   private Map<ParameterLocation, Map<String, Parameter>> parameters_ = new HashMap<>();
   
-  public ParameterContainer(PathItem parent, ParserContext parserContext, String type)
+  public ParameterContainer(ModelElement parent, ParserContext parserContext, String type, String name)
   {
-    super(parent, parserContext, type);
+    super(parent, parserContext, type, name);
+    
+    for(ParameterLocation l : ParameterLocation.values())
+      parameters_.put(l, new HashMap<>());
     
     ParserContext listContext = parserContext.get("parameters");
     
-    if(listContext == null)
+    if(listContext != null)
     {
-      parserContext.raise(new ParserError("A \"parameters\" node is required."));
-      return;
-    }
-    
-    if(!listContext.getJsonNode().isArray())
-    {
-      parserContext.raise(new ParserError("The \"parameters\" node must be an array."));
-      return;
-    }
-    
-    for(ParserContext paramContext : listContext)
-    {
-      Parameter param = Parameter.create(this, paramContext);
-      
-      if(param != null)
+      if(!listContext.getJsonNode().isArray())
       {
-        add(param);
-        Map<String, Parameter> map = parameters_.get(param.getLocation());
+        parserContext.raise(new ParserError("The \"parameters\" node must be an array."));
+        return;
+      }
+      
+      for(ParserContext paramContext : listContext)
+      {
+        Parameter param = Parameter.create(this, paramContext);
         
-        if(map.containsKey(param.getName()))
+        if(param != null)
         {
-          parserContext.raise(new ParserError("Duplicate parameter \"%s\" in %s", param.getName(), param.getLocation()));
-        }
-        else
-        {
-          map.put(param.getName(), param);
+          add(param);
+          Map<String, Parameter> map = parameters_.get(param.getLocation());
+          
+          if((parent instanceof ParameterContainer && ((ParameterContainer)parent).hasParameter(param))
+              || map.containsKey(param.getName()))
+          {
+            parserContext.raise(new ParserError("Duplicate parameter \"%s\" in %s", param.getName(), param.getLocation()));
+          }
+          else
+          {
+            map.put(param.getName(), param);
+          }
         }
       }
     }
-    
+  }
+
+  private boolean hasParameter(Parameter param)
+  {
+    return parameters_.get(param.getLocation()).containsKey(param.getName());
   }
 
   public Map<ParameterLocation, Map<String, Parameter>> getParameters()
@@ -100,5 +106,15 @@ public abstract class ParameterContainer extends ModelElement
   public Map<String, Parameter>  getQueryParameters()
   {
     return parameters_.get(ParameterLocation.Query);
+  }
+  
+  @Override
+  public void getReferencedTypes(Set<AbstractSchema> result)
+  {
+    super.getReferencedTypes(result);
+    
+    for(Map<String, Parameter> map : parameters_.values())
+      for(Parameter param : map.values())
+        param.getReferencedTypes(result);
   }
 }

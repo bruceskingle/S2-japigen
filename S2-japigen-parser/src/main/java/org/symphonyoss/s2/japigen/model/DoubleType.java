@@ -31,9 +31,9 @@ public class DoubleType extends Type
   private final Double minimum_;
   private final Double maximum_;
   
-  public DoubleType(ModelElement parent, ParserContext context)
+  public DoubleType(ModelElement parent, ParserContext context, String name)
   {
-    super(parent, context, "Double");
+    super(parent, context, "Double", name);
     
     switch(getFormat())
     {

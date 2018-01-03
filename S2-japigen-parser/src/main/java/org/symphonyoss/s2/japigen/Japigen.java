@@ -23,7 +23,16 @@
 
 package org.symphonyoss.s2.japigen;
 
-public class JAPIGEN
+import java.io.File;
+
+import org.symphonyoss.s2.common.writer.IndentedWriter;
+import org.symphonyoss.s2.japigen.model.ModelElement;
+import org.symphonyoss.s2.japigen.parser.GenerationContext;
+import org.symphonyoss.s2.japigen.parser.JapigenException;
+import org.symphonyoss.s2.japigen.parser.ModelSetParserContext;
+import org.symphonyoss.s2.japigen.parser.log.Slf4jLogFactoryAdaptor;
+
+public class Japigen
 {
   /* General Constants */
   public static final String TEMPLATE            = "template";
@@ -56,12 +65,63 @@ public class JAPIGEN
   public static final String TEMPLATE_NAME       = "templateName";
   public static final String TEMPLATE_DEBUG      = "templateDebug";
   public static final String PATHS               = "paths";
-  public static final String METHOD_GET          = "get";
-  public static final String METHOD_POST         = "post";
-  public static final String METHOD_PUT          = "put";
-  public static final String METHOD_DELETE       = "delete";
-  public static final String METHOD_OPTIONS      = "options";
-  public static final String METHOD_HEAD         = "head";
-  public static final String METHOD_PATCH        = "patch";
-  public static final String METHOD_TRACE        = "trace";
+  
+  /**
+   * Launcher.
+   * 
+   * @param argv command line arguments.
+   * @throws JapigenException If anything goes wrong.
+   */
+  public static void main(String[] argv) throws JapigenException
+  {
+    if(argv.length==0)
+      System.err.println("usage: japigen filename [filename...]");
+    else
+      for(String fileName : argv)
+        japigen(fileName);
+  }
+  
+  /**
+   * Parse and code generate from the given file name which is expected to contain
+   * an OpenAPI 3 spec.
+   * 
+   * @param fileName A file name pointing to an OpenAPI 3 spec.
+   * @throws JapigenException If there is a parse or code generation error.
+   */
+  public static void japigen(String fileName) throws JapigenException
+  {    
+    ModelSetParserContext modelSetContext = new ModelSetParserContext(new Slf4jLogFactoryAdaptor());
+    
+    modelSetContext.addGenerationSource(new File(fileName));
+    
+    modelSetContext.process();
+    
+    IndentedWriter out = new IndentedWriter(System.out);
+    
+    modelSetContext.visitAllModels((model) ->
+    {
+      System.out.println("Model " + model);
+      
+      visit(out, model);
+    });
+    
+    out.flush();
+    
+    GenerationContext generationContext = new GenerationContext("target/generated-sources", "target/proforma-sources", "target/proforma-copy");
+    generationContext.addTemplateDirectory(new File("../S2-japigen-template-java/src/main/resources/japigen"));
+    
+//    generationContext.put("templateDebug", "true");
+    
+    modelSetContext.generate(generationContext);
+  }
+
+  private static void visit(IndentedWriter out, ModelElement model)
+  {
+    out.openBlock(model.toString());
+    
+    for(ModelElement child : model.getChildren())
+      visit(out, child);
+    
+    out.closeBlock();
+  }
 }

@@ -54,9 +54,9 @@ public class ReferenceSchema extends ReferenceOrSchema
   private String    fragment_;
   private URI       baseUri_;
   
-  public ReferenceSchema(ModelElement parent, ParserContext context, ParserContext node)
+  public ReferenceSchema(ModelElement parent, ParserContext context, ParserContext node, String name)
   {
-    super(parent, context, "Ref");
+    super(parent, context, "Ref", name);
     try
     {
       uri_ = new URI(node.getJsonNode().asText());
@@ -149,11 +149,12 @@ public class ReferenceSchema extends ReferenceOrSchema
   }
   
   @Override
-  public void getReferencedTypes(Set<Schema> result)
+  protected void getReferencedTypes(Set<AbstractSchema> result)
   {
     super.getReferencedTypes(result);
     
-    result.add(reference_);
+    result.add(this);
+    //result.add(reference_);
   }
   
   private boolean doNotDeref()

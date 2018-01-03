@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.symphonyoss.s2.japigen.JAPIGEN;
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
@@ -76,15 +76,16 @@ public class Model extends ModelElement
           add(openapi_);
           break;
           
-        case JAPIGEN.PATHS:
+        case Japigen.PATHS:
             paths_ = new Paths(this, subContext);
+            add(paths_);
           break;
           
         case "info":
           case "components":
           break;
           
-        case JAPIGEN.X_MODEL:
+        case Japigen.X_MODEL:
           JsonNode jsonNode = subContext.getJsonNode();
           
           if(jsonNode instanceof ObjectNode)
@@ -100,15 +101,15 @@ public class Model extends ModelElement
           }
           break;
           
-        case JAPIGEN.X_ID:
+        case Japigen.X_ID:
           try
           {
             japigenId_ = new URI(subContext.getJsonNode().asText());
-            modelMap_.put(JAPIGEN.X_ID, japigenId_.toString());
+            modelMap_.put(Japigen.X_ID, japigenId_.toString());
           }
           catch (URISyntaxException e)
           {
-            log_.error(JAPIGEN.X_ID + " is not a valid URI", e);
+            log_.error(Japigen.X_ID + " is not a valid URI", e);
           }
           
           break;
@@ -121,14 +122,14 @@ public class Model extends ModelElement
     
     if(japigenId_ == null)
     {
-      parserContext.raise(new RequiredItemMissingError(JAPIGEN.X_ID));
+      parserContext.raise(new RequiredItemMissingError(Japigen.X_ID));
     }
     
     Date now = new Date();
     
-    modelMap_.put(JAPIGEN.YEAR, yearFormat_.format(now));
-    modelMap_.put(JAPIGEN.YEAR_MONTH, yearMonthFormat_.format(now));
-    modelMap_.put(JAPIGEN.DATE, dateFormat_.format(now));
+    modelMap_.put(Japigen.YEAR, yearFormat_.format(now));
+    modelMap_.put(Japigen.YEAR_MONTH, yearMonthFormat_.format(now));
+    modelMap_.put(Japigen.DATE, dateFormat_.format(now));
     
     add(COMPONENTS, new Components(this, parserContext.get(COMPONENTS)));
   }

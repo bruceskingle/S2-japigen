@@ -29,9 +29,9 @@ import org.symphonyoss.s2.japigen.parser.error.UnknownFormatWarning;
 public class StringType extends Type
 {
 
-  public StringType(ModelElement parent, ParserContext context)
+  public StringType(ModelElement parent, ParserContext context, String name)
   {
-    super(parent, context, "String");
+    super(parent, context, "String", name);
     
     switch(getFormat())
     {

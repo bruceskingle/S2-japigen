@@ -23,17 +23,19 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.Set;
+
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
 public class Field extends AbstractSchema
 {
   private final boolean required_;
-  private final Type    type_;
+  private final AbstractSchema    type_;
   
-  public Field(ModelElement parent, ParserContext context, Type type, boolean required)
+  public Field(ModelElement parent, ParserContext context, AbstractSchema type, boolean required, String name)
   {
-    super(parent, context, "Field");
+    super(parent, context, "Field", name);
     required_ = required;
     type_ = type;
   }
@@ -43,7 +45,7 @@ public class Field extends AbstractSchema
     return required_;
   }
 
-  public Type getType()
+  public AbstractSchema getType()
   {
     return type_;
   }
@@ -87,10 +89,23 @@ public class Field extends AbstractSchema
   {
     AbstractSchema schema = AbstractSchema.createSchema(parent, context);
     
-    if(schema instanceof Type)
-      return new Field(parent, context, (Type)schema, required);
+    return new Field(parent, context, schema, required, context.getName());
+  }
+  
+  @Override
+  protected void getReferencedTypes(Set<AbstractSchema> result)
+  {
+    super.getReferencedTypes(result);
     
-    return schema;
+    if(type_ instanceof ReferenceSchema ||
+        type_ instanceof AbstractContainerSchema)
+    {
+      System.err.println("HERE");
+      result.add(this);
+    //type_.getReferencedTypes(result);
+    }
+//    if(type_ instanceof Schema)
+//      result.add((Schema)type_);
   }
 
   @Override

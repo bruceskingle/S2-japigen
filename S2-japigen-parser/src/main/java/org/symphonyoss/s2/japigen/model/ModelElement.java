@@ -37,7 +37,7 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.symphonyoss.s2.japigen.JAPIGEN;
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
@@ -69,8 +69,8 @@ public class ModelElement
   private Map<String, IPathNameConstructor> proformaPathBuilderMap_ = new HashMap<>();
   private Map<String, String>               attributes_             = new HashMap<>();
   
-  private String description_;
-
+  private final String summary_;
+  private final String description_;
   private String format_ = "";
 
   public ModelElement(ModelElement parent, ParserContext parserContext, String type)
@@ -83,6 +83,7 @@ public class ModelElement
     parent_ = parent;
     parserContext_ = parserContext;
     elementType_ = type;
+    summary_ = parserContext.getText("summary");
     description_ = parserContext.getText("description");
     format_ = parserContext.getText("format", "");
     
@@ -95,13 +96,13 @@ public class ModelElement
     
     IPathNameConstructor defaultPathNameConstructor = new PathNameConstructor();
     
-    templatePathBuilderMap_.put("java", new JavaPathNameConstructor(JAPIGEN.JAVA_GEN_PACKAGE));
+    templatePathBuilderMap_.put("java", new JavaPathNameConstructor(Japigen.JAVA_GEN_PACKAGE));
     templatePathBuilderMap_.put(null, defaultPathNameConstructor);
     
-    proformaPathBuilderMap_.put("java", new JavaPathNameConstructor(JAPIGEN.JAVA_FACADE_PACKAGE));
+    proformaPathBuilderMap_.put("java", new JavaPathNameConstructor(Japigen.JAVA_FACADE_PACKAGE));
     proformaPathBuilderMap_.put(null, defaultPathNameConstructor);
     
-    ParserContext japigen = parserContext.get(JAPIGEN.X_ATTRIBUTES);
+    ParserContext japigen = parserContext.get(Japigen.X_ATTRIBUTES);
     if(japigen != null)
     {
       JsonNode jsonNode = japigen.getJsonNode();
@@ -215,6 +216,11 @@ public class ModelElement
     return snakeCapitalizedName_;
   }
 
+  public String getSummary()
+  {
+    return summary_;
+  }
+
   public String getDescription()
   {
     return description_;
@@ -261,9 +267,9 @@ public class ModelElement
     return false;
   }
   
-  public Set<Schema> getReferencedTypes()
+  public Set<AbstractSchema> getReferencedTypes()
   {
-    Set<Schema> result = new HashSet<>();
+    Set<AbstractSchema> result = new HashSet<>();
     
     getReferencedTypes(result);
     
@@ -275,8 +281,10 @@ public class ModelElement
     return this;
   }
   
-  protected void getReferencedTypes(Set<Schema> result)
+  protected void getReferencedTypes(Set<AbstractSchema> result)
   {
+    if(getName().contains("undamental"))
+      System.err.println("XX");
   }
 
   public void validate()
@@ -313,6 +321,17 @@ public class ModelElement
     return children_;
   }
   
+  /**
+   * Return the fields of this object, for a normal object this is the same as
+   * getChildren() for an AllOf it is something else.
+   * 
+   * @return The fields of this object.
+   */
+  public List<ModelElement> getFields()
+  {
+    return getChildren();
+  }
+  
   public void generate(GenerationContext generationContext, Map<String, Object> dataModel) throws GenerationException
   {
     log_.debug("Generate prologue {}", toString());
@@ -320,19 +339,19 @@ public class ModelElement
     
     for(String language : generationContext.getLanguages())
     {
-      Set<String> templates = generationContext.getTemplatesFor(JAPIGEN.TEMPLATE, language, getElementType());
+      Set<String> templates = generationContext.getTemplatesFor(Japigen.TEMPLATE, language, getElementType());
       
       if(!templates.isEmpty())
       {
-        dataModel.remove(JAPIGEN.IS_FACADE);
+        dataModel.remove(Japigen.IS_FACADE);
         generate(generationContext, dataModel, templates, language, templatePathBuilderMap_, generationContext.getFreemarkerConfig(), generationContext.getTargetDir(), null);
       }
       
-      templates = generationContext.getTemplatesFor(JAPIGEN.PROFORMA, language, getElementType());
+      templates = generationContext.getTemplatesFor(Japigen.PROFORMA, language, getElementType());
       
       if(!templates.isEmpty())
       {
-        dataModel.put(JAPIGEN.IS_FACADE, "true");
+        dataModel.put(Japigen.IS_FACADE, "true");
         generate(generationContext, dataModel, templates, language, proformaPathBuilderMap_, generationContext.getFreemarkerConfig(), generationContext.getProformaDir(), generationContext.getCopyDir());
       }
     }
@@ -365,7 +384,7 @@ public class ModelElement
       
       File templateFile = new File(templateName);
       
-      dataModel.put(JAPIGEN.TEMPLATE_NAME, templateName);
+      dataModel.put(Japigen.TEMPLATE_NAME, templateName);
       
       String  className = pathBuilder.constructFile(dataModel, language, templateFile.getName(), this);
       

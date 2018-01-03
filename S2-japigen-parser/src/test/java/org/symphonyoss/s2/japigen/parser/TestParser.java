@@ -24,7 +24,7 @@
 package org.symphonyoss.s2.japigen.parser;
 
 import org.junit.Test;
-import org.symphonyoss.s2.japigen.JAPIGEN;
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.model.Model;
 import org.symphonyoss.s2.japigen.parser.error.UnknownFormatWarning;
 
@@ -68,7 +68,7 @@ public class TestParser extends AbstractParserTest
         "  }\n" + 
         "}");
     
-    assertHasOneErrorMissing(model, JAPIGEN.X_ID);
+    assertHasOneErrorMissing(model, Japigen.X_ID);
   }
 
   @Test

@@ -14,6 +14,95 @@
   },
   "paths": {
     "/hello/{greeting}": {
+	    "summary": "Greeting operations.",
+	    "description": "Various operations to do with greeting callers.",
+      "get": {
+        "summary": "Say Hello",
+        "operationId": "sayHello",
+        "tags": [
+          "hello"
+        ],
+        "parameters": [
+          {
+            "name": "greeting",
+            "in": "path",
+            "description": "A greeting from the client",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DefString"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many items to return at one time (max 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sessionToken",
+            "in": "cookie",
+            "description": "A cookie parameter",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "anotherSessionToken",
+            "in": "cookie",
+            "description": "Another cookie parameter",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Int64MinMax"
+            }
+          },
+          {
+            "name": "authToken",
+            "in": "header",
+            "description": "A header parameter",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An paged array of objects",
+            "headers": {
+              "x-next": {
+                "description": "A link to the next page of responses",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefString"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hello/world/{greeting}": {
       "get": {
         "summary": "Say Hello",
         "operationId": "sayHello",
@@ -72,7 +161,8 @@
           }
         }
       }
-    }},
+    }
+  },
   "components": {
     "schemas": {
       "DefInt": {
@@ -231,7 +321,7 @@
         "description": "An object with one field of every type.",
         "type": "object",
         "required": [
-          "secs"
+          "secs", "aDoubleMinMax"
         ],
         "properties": {
           "aBoolean": {

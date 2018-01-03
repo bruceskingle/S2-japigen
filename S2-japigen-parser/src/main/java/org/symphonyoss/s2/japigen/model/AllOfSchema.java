@@ -33,9 +33,9 @@ public class AllOfSchema extends AbstractContainerSchema
   private ParserContext discriminator_;
   private List<ModelElement>  fields_;
 
-  public AllOfSchema(ModelElement parent, ParserContext context, ParserContext node)
+  public AllOfSchema(ModelElement parent, ParserContext context, ParserContext node, String name)
   {
-    super(parent, context, node, "AllOf");
+    super(parent, context, node, "AllOf", name);
   }
 
   public ParserContext getDiscriminator()
@@ -50,20 +50,20 @@ public class AllOfSchema extends AbstractContainerSchema
     
     fields_ = new ArrayList<>();
     
-    System.err.println("gatherFields(" + this + ")");
+    System.err.println("1 gatherFields(" + this + ")");
     gatherFields(this, fields_, true);
-    System.err.println("gatherFields(" + this + ") DONE");
+    System.err.println("2 gatherFields(" + this + ") DONE");
     System.err.println();
   }
 
   private void gatherFields(Schema schema, List<ModelElement> fields, boolean gatherObjects)
   {
-    System.err.println("gatherFields(" + schema + ", " + gatherObjects + ")");
+    System.err.println("3 gatherFields(" + schema + ", " + gatherObjects + ")");
     for(ModelElement e : schema.getChildren())
     {
       if(gatherObjects && e instanceof ReferenceSchema && e.getReference() instanceof ObjectSchema)
       {
-        System.err.println("gatherFields object ref(" + schema + ", " + gatherObjects + ")");
+        System.err.println("4 gatherFields object ref(" + schema + ", " + gatherObjects + ")");
         gatherFields((ObjectSchema)e.getReference(), fields, false);
       }
       else if(gatherObjects && e instanceof ObjectSchema)
@@ -83,6 +83,7 @@ public class AllOfSchema extends AbstractContainerSchema
    * 
    * @return The fields of this object.
    */
+  @Override
   public List<ModelElement> getFields()
   {
     return fields_;

@@ -19,6 +19,7 @@
     jsonObject.addIfNotNull(JapigenRuntime.JSON_TYPE, TYPE_ID);
 <#list model.fields as field>
 <@setJavaType field/>
+<@printField/>
 <#if requiresChecks>
 <@checkLimits "    " field field.camelName/>
 </#if>
