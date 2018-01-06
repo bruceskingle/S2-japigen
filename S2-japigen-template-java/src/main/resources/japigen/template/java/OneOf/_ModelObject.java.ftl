@@ -110,18 +110,19 @@
   
   <#include "../Object/ObjectBody.ftl">
   
-  public static abstract class Factory extends ModelObjectFactory<${modelJavaClassName}, ${model.model.camelCapitalizedName}Factory>
+  public static abstract class Factory extends ModelObjectFactory<${modelJavaClassName}, I${model.model.camelCapitalizedName}>
   {
-    private ${model.model.camelCapitalizedName}Factory factory_;
+    private I${model.model.camelCapitalizedName} model_;
     
-    public Factory(${model.model.camelCapitalizedName}Factory modelFactory)
+    public Factory(I${model.model.camelCapitalizedName} model)
     {
-      factory_ = modelFactory;
+      model_ = model;
     }
     
-    public ${model.model.camelCapitalizedName}Factory getFactory()
+    @Override
+    public I${model.model.camelCapitalizedName} getModel()
     {
-      return factory_;
+      return model_;
     }
     
     public static abstract class Builder extends ModelObjectFactory.Builder

@@ -27,16 +27,16 @@ import java.io.IOException;
 
 import com.symphony.s2.japigen.runtime.AbstractServer;
 import com.symphony.s2.japigen.runtime.IModelRegistry;
-import com.symphony.s2.japigen.test.oneofeverything.facade.OneOfEverythingFactory;
+import com.symphony.s2.japigen.test.oneofeverything.facade.OneOfEverything;
 
 public class OneOfEverythingServer extends AbstractServer
 {
-  private OneOfEverythingFactory  modelFactory_ = new OneOfEverythingFactory();
+  private OneOfEverything  model_ = new OneOfEverything();
   
   @Override
   public void registerModels(IModelRegistry registry)
   {
-    registry.register(modelFactory_);
+    registry.register(model_);
   }
 
   public static void main(String[] argv) throws IOException

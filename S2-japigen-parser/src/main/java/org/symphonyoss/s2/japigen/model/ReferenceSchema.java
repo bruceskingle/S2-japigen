@@ -149,6 +149,18 @@ public class ReferenceSchema extends ReferenceOrSchema
   }
   
   @Override
+  public boolean getIsTypeDef()
+  {
+    return reference_ instanceof Type;
+  }
+  
+  @Override
+  public boolean getIsObjectType()
+  {
+    return reference_ instanceof AbstractContainerSchema || reference_ instanceof ObjectSchema;
+  }
+  
+  @Override
   protected void getReferencedTypes(Set<AbstractSchema> result)
   {
     super.getReferencedTypes(result);

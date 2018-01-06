@@ -23,10 +23,16 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class Operation extends ParameterContainer
 {
@@ -40,6 +46,36 @@ public class Operation extends ParameterContainer
     super(parent, parserContext, "Operation", parserContext.getName());
     pathItem_ = parent;
     summary_ = parserContext.getText("summary");
+    
+    ParserContext responsesContext = parserContext.get("responses");
+    
+    if(responsesContext == null)
+    {
+      parserContext.raise(new ParserError("\"responses\" is required"));
+    }
+    else
+    { 
+      for(ParserContext context : responsesContext)
+      {
+        try
+        {
+          int responseCode = Integer.parseInt(context.getName());
+          
+          if(responseCode < 200 || responseCode > 599)
+          {
+            parserContext.raise(new ParserError("Response code %d is not a valid code", responseCode));
+          }
+          else
+          {
+            Response response = new Response(this, responseCode, context);
+          }
+        }
+        catch(NumberFormatException e)
+        {
+          parserContext.raise(new ParserError("Response code \"%s\" is not a valid number", context.getName()));
+        }
+      }
+    }
   }
   
   public String getSummary()
@@ -54,7 +90,7 @@ public class Operation extends ParameterContainer
     
     for(String paramName : pathItem_.getPathParamNames())
     {
-      Parameter param = getPathParameters().get(paramName);
+      OpenApiParameter param = getPathParameters().get(paramName);
       
       if(param == null)
       {
@@ -68,11 +104,9 @@ public class Operation extends ParameterContainer
     return pathItem_;
   }
 
-
-
   @Override
   public String toString()
   {
-    return getName();
+    return "Operation: " + getName();
   }
 }

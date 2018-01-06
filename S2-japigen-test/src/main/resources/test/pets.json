@@ -416,7 +416,20 @@
             "$ref": "#/components/schemas/Int64MinMax"
           },
           {
-            "$ref": "#/components/schemas/ASimpleObject"
+            "type": "object",
+            "required": [
+              "aFloat"
+            ],
+            "properties": {
+              "aFloat": {
+                "description": "A float",
+                "type": "number",
+                "format": "double"
+              },
+              "aHash": {
+                "$ref": "#/components/schemas/Hash"
+              }
+            }
           }
         ]
       },
@@ -435,20 +448,147 @@
         }
       },
       
-      "FundamentalPayload": {
+      "PetResponse": {
         "oneOf": [
           {
-            "$ref": "#/components/schemas/Texture"
+            "$ref": "#/components/schemas/Cat"
           },
           {
-            "$ref": "#/components/schemas/Colour"
+            "$ref": "#/components/schemas/Dog"
+          },
+          {
+            "$ref": "#/components/schemas/Lizard"
           }
         ],
         "discriminator": {
-          "propertyName": "fundamentalPayloadType"
+          "propertyName": "petType",
+          "mapping": {
+            "cachorro": "Dog"
+          }
         }
       },
-
+      
+      "Pet": {
+        "type": "object",
+        "discriminator": {
+          "propertyName": "petType"
+        },
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "petType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "petType"
+        ]
+      },
+      "Cat": {
+        "description": "A representation of a cat. Note that `Cat` will be used as the discriminator value.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Pet"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "huntingSkill": {
+                "type": "string",
+                "description": "The measured skill for hunting",
+                "default": "lazy",
+                "enum": [
+                  "clueless",
+                  "lazy",
+                  "adventurous",
+                  "aggressive"
+                ]
+              }
+            },
+            "required": [
+              "huntingSkill"
+            ]
+          }
+        ]
+      },
+      "Dog": {
+        "description": "A representation of a dog. Note that `Dog` will be used as the discriminator value.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Pet"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "packSize": {
+                "type": "integer",
+                "format": "int32",
+                "description": "the size of the pack the dog is from",
+                "default": 0,
+                "minimum": 0
+              }
+            },
+            "required": [
+              "packSize"
+            ]
+          }
+        ]
+      },
+      "Lizard": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Pet"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "lovesRocks": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "NestedObject": {
+        "description": "An object with a field of type oneOf.",
+        "type": "object",
+        "required": [
+          "outerNestedObject"
+        ],
+        "properties": {
+          "yetAnotherBoolean": {
+            "description": "A boolean.",
+            "type": "boolean"
+          },
+          "outerNestedObject": {
+            "type": "object",
+            "required": [
+              "innerNestedObject"
+            ],
+            "properties": {
+              "outerName": {
+                "type": "string"
+              },
+              "outerValue": {
+                "type": "string"
+              },
+              "innerNestedObject": {
+                "type": "object",
+                "properties": {
+                  "innerName": {
+                    "type": "string"
+                  },
+                  "innerValue": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "FundamentalObject": {
         "description": "An object with a field of type oneOf.",
         "type": "object",
@@ -464,7 +604,17 @@
             "type": "string"
           },
           "fundamentalPayload": {
-            "$ref": "#/components/schemas/FundamentalPayload"
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Texture"
+              },
+              {
+                "$ref": "#/components/schemas/Colour"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "fundamentalPayloadType"
+            }
           }
         }
       },

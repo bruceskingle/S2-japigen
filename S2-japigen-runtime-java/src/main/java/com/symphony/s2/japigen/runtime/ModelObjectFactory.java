@@ -23,7 +23,7 @@
 
 package com.symphony.s2.japigen.runtime;
 
-public abstract class ModelObjectFactory<M extends IModelObject, F extends IModelFactory>
+public abstract class ModelObjectFactory<M extends IModelObject, F extends IModel>
 implements IModelObjectFactory<M,F>
 {
   

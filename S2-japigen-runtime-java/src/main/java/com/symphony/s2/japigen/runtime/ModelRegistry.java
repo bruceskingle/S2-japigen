@@ -54,10 +54,10 @@ public class ModelRegistry implements IModelRegistry
   private Map<String, IModelObjectFactory<?,?>>  factoryMap_ = new HashMap<>();
   private ObjectMapper  mapper_ = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
   private List<IUrlPathServlet> servlets_ = new LinkedList<>();
-  private List<IModelFactory>   models_ = new LinkedList<>();
+  private List<IModel>   models_ = new LinkedList<>();
   
   @Override
-  public IModelRegistry register(IModelFactory factory)
+  public IModelRegistry register(IModel factory)
   {
     models_.add(factory);
     factory.registerWith(this);
@@ -141,14 +141,14 @@ public class ModelRegistry implements IModelRegistry
   @Override
   public void start()
   {
-    for(IModelFactory model : models_)
+    for(IModel model : models_)
       model.start();
   }
 
   @Override
   public void stop()
   {
-    for(IModelFactory model : models_)
+    for(IModel model : models_)
       model.stop();
   }
 }

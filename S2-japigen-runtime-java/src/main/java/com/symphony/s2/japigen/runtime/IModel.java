@@ -23,7 +23,11 @@
 
 package com.symphony.s2.japigen.runtime;
 
-public abstract class ModelFactory implements IModelFactory
+public interface IModel
 {
+  void registerWith(IModelRegistry registry);
 
+  void start();
+
+  void stop();
 }

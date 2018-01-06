@@ -1,12 +1,12 @@
 /*
  *
  *
- * Copyright 2017 Symphony Communication Services, LLC.
+ * Copyright 2018 Symphony Communication Services, LLC.
  *
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The SSF licenses this file
+ * regarding copyright ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -26,36 +26,14 @@ package org.symphonyoss.s2.japigen.model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
-import org.symphonyoss.s2.japigen.parser.error.ParserWarning;
 
-public class Paths extends ModelElement
+public class Response extends ModelElement
 {
-  private static Logger log_ = LoggerFactory.getLogger(Paths.class);
+  private static Logger log_ = LoggerFactory.getLogger(Response.class);
 
-  public Paths(Model model, ParserContext parserContext)
+  public Response(Operation parent, int responseCode, ParserContext parserContext)
   {
-    super(model, parserContext, "Paths");
-    
-    if(!parserContext.isEmpty())
-    {
-      parserContext.raise(new ParserWarning("OpenAPI Paths are ignored"));
-    }
-    /*
-    for(ParserContext path : parserContext)
-    {
-      log_.debug("Found path \"" + path.getName() + "\" at " + path.getPath());
-      
-      PathItem pathSchema = PathItem.create(this, path);
-      
-      add(pathSchema.getName(), pathSchema);
-    }
-    */
-  }
-
-  @Override
-  public String toString()
-  {
-    return "Paths";
+    super(parent, parserContext, "Response");
   }
 
 }

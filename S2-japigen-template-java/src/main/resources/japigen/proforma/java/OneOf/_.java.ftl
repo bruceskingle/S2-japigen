@@ -11,7 +11,7 @@ import org.symphonyoss.s2.common.exception.BadFormatException;
 <@importFieldTypes model false/>
 
 import ${javaGenPackage}.${model.camelCapitalizedName}ModelObject;
-import ${javaGenPackage}.${model.model.camelCapitalizedName}ModelFactory;
+import ${javaGenPackage}.${model.model.camelCapitalizedName}Model;
 
 <@setJavaType model/>
 <#include "../../../template/java/Object/Object.ftl">
@@ -32,9 +32,9 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
   
   public static class Factory extends ${model.camelCapitalizedName}ModelObject.Factory
   {
-    public Factory(${model.model.camelCapitalizedName}Factory modelFactory)
+    public Factory(I${model.model.camelCapitalizedName} model)
     {
-      super(modelFactory);
+      super(model);
     }
     
     @Override

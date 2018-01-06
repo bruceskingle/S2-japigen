@@ -25,8 +25,6 @@ package org.symphonyoss.s2.japigen.model;
 
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
@@ -37,15 +35,18 @@ public class Parameter extends ModelElement
 {
   private static Logger           log_ = LoggerFactory.getLogger(Parameter.class);
 
-  private final ParameterLocation location_;
   private final boolean           required_;
   private final ReferenceOrSchema schema_;
 
-  private Parameter(ModelElement parent, ParserContext parserContext, String name, ParameterLocation location)
+  public Parameter(ModelElement parent, ParserContext parserContext, String name)
   {
-    super(parent, parserContext, "Parameter", name);
+    this(parent, parserContext, "ResponseHeader", name);
+  }
+  
+  protected Parameter(ModelElement parent, ParserContext parserContext, String type, String name)
+  {
+    super(parent, parserContext, type, name);
     
-    location_ = location;
     required_ = parserContext.get("required").getJsonNode().asBoolean();
     
     ParserContext schema = parserContext.get("schema");
@@ -61,13 +62,10 @@ public class Parameter extends ModelElement
       
       AbstractSchema objectSchema = Field.createSchema(this, schema, getName());
       
-      String n = objectSchema.getName();
-      
       if(objectSchema instanceof ReferenceOrSchema)
       {
         schema_ = (ReferenceOrSchema) objectSchema;
-        // don't think we need this: 
-        //add(schema.getName(), objectSchema);
+        add(schema_);
       }
       else
       {
@@ -77,49 +75,11 @@ public class Parameter extends ModelElement
     }
   }
   
-  public @Nullable static Parameter create(ModelElement methodSchema, ParserContext paramContext)
+  @Override
+  protected void getSchemas(Set<AbstractSchema> result)
   {
-    ParameterLocation parameterIn = null;
-  
-    String in = paramContext.getText("in");
-    
-    switch(in)
-    {
-      case "query":
-        parameterIn = ParameterLocation.Query;
-        break;
-        
-      case "header":
-        parameterIn = ParameterLocation.Header;
-        break;
-        
-      case "path":
-        parameterIn = ParameterLocation.Path;
-        break;
-        
-      case "cookie":
-        parameterIn = ParameterLocation.Cookie;
-        break;
-        
-      default:
-        paramContext.raise(new ParserError("Invalid value for in \"%s\"", in));
-        return null;
-    }
-    
-    String name = paramContext.getText("name");
-    
-    if(name == null)
-    {
-      paramContext.raise(new ParserError("Name is required"));
-      name = "UNNAMED";
-    }
-    
-    return new Parameter(methodSchema, paramContext, name, parameterIn);
-  }
-
-  public ParameterLocation getLocation()
-  {
-    return location_;
+    super.getSchemas(result);
+    result.add(schema_);
   }
 
   public boolean getIsRequired()
@@ -143,13 +103,13 @@ public class Parameter extends ModelElement
   public void getReferencedTypes(Set<AbstractSchema> result)
   {
     super.getReferencedTypes(result);
-    
-    schema_.getReferencedTypes(result);
+    result.add(schema_);
+//    schema_.getReferencedTypes(result);
   }
 
   @Override
   public String toString()
   {
-    return getName() + " [" + location_ + "]";
+    return "ResponseHeader(name=" + getName() + ")";
   }
 }

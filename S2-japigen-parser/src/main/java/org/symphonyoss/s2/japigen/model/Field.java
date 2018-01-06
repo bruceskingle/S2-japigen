@@ -69,6 +69,18 @@ public class Field extends AbstractSchema
   }
   
   @Override
+  public boolean getIsTypeDef()
+  {
+    return type_.getIsTypeDef();
+  }
+  
+  @Override
+  public boolean getIsObjectType()
+  {
+    return type_.getIsObjectType();
+  }
+  
+  @Override
   public boolean  getCanFailValidation()
   {
     return required_ || type_.getCanFailValidation();
@@ -100,12 +112,8 @@ public class Field extends AbstractSchema
     if(type_ instanceof ReferenceSchema ||
         type_ instanceof AbstractContainerSchema)
     {
-      System.err.println("HERE");
       result.add(this);
-    //type_.getReferencedTypes(result);
     }
-//    if(type_ instanceof Schema)
-//      result.add((Schema)type_);
   }
 
   @Override

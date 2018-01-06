@@ -50,6 +50,11 @@ public class OneOfSchema extends AbstractContainerSchema
     {
       discriminator_ = new Discriminator(this, d);
     }
+    
+    if(!(parent instanceof Schemas))
+    {
+      context.raise(new ParserError("Nested in-line object definitions are not supported, move this to Components/Schemas amd refer to is with $ref"));
+    }
   }
 
   public Discriminator getDiscriminator()

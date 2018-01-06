@@ -4,6 +4,7 @@
   <@setJavaType field/>
   private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
 </#list>
+
 <#-- Constructor from fields -->  
   protected ${modelJavaClassName}ModelObject(
     ${(modelJavaClassName + ".Factory")?right_pad(25)} _factory,
@@ -19,7 +20,6 @@
     jsonObject.addIfNotNull(JapigenRuntime.JSON_TYPE, TYPE_ID);
 <#list model.fields as field>
 <@setJavaType field/>
-<@printField/>
 <#if requiresChecks>
 <@checkLimits "    " field field.camelName/>
 </#if>
@@ -117,18 +117,19 @@
 
 <#include "ObjectBody.ftl">
   
-  public static abstract class Factory extends ModelObjectFactory<${modelJavaClassName}, ${model.model.camelCapitalizedName}Factory>
+  public static abstract class Factory extends ModelObjectFactory<${modelJavaClassName}, I${model.model.camelCapitalizedName}>
   {
-    private ${model.model.camelCapitalizedName}Factory factory_;
+    private I${model.model.camelCapitalizedName} model_;
     
-    public Factory(${model.model.camelCapitalizedName}Factory modelFactory)
+    public Factory(I${model.model.camelCapitalizedName} model)
     {
-      factory_ = modelFactory;
+      model_ = model;
     }
     
-    public ${model.model.camelCapitalizedName}Factory getFactory()
+    @Override
+    public I${model.model.camelCapitalizedName} getModel()
     {
-      return factory_;
+      return model_;
     }
     
     public static abstract class Builder extends ModelObjectFactory.Builder
@@ -156,32 +157,26 @@
       {
         return ${field.camelName}__;
       }
-      
+
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
       {
-      <@checkLimits "      " field field.camelName/>
+      <@checkLimits "        " field field.camelName/>
         ${field.camelName}__${javaBuilderTypeCopyPrefix}${field.camelName}${javaBuilderTypeCopyPostfix};
         return (${modelJavaClassName}.Factory.Builder)this;
       }
-      <#switch field.elementType>
-        <#case "Ref">
-          <#switch field.reference.elementType>
-            <#case "OneOf">
-            <#case "AllOf">
-            <#case "Object">
-              <#break>
-            
-            <#default>
-            
+      <#if field.isTypeDef>
+
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<#if isExternal || field.canFailValidation> throws BadFormatException</#if>
       {
+      <#if field.elementType=="Field" && field.required>
+        if(${field.camelName} == null)
+          throw new BadFormatException("${field.camelName} is required.");
+
+      </#if>
         ${field.camelName}__ = ${javaConstructTypePrefix}${field.camelName}${javaConstructTypePostfix};
         return (${modelJavaClassName}.Factory.Builder)this;
       }
-              <#break>
-          </#switch>
-          <#break>
-      </#switch>
+      </#if>
     </#list>
       
       public abstract ${modelJavaClassName} build()<@checkLimitsClassThrows model/>;

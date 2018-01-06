@@ -48,41 +48,48 @@ public class ObjectSchema extends Schema
   {
     super(parent, context, "Object", name);
     
-    ParserContext requiredFields = context.get("required");
-    if(requiredFields != null)
+    if(parent instanceof Schemas)
     {
-      for(ParserContext child : requiredFields)
+      ParserContext requiredFields = context.get("required");
+      if(requiredFields != null)
       {
-        String fieldName = child.getJsonNode().asText();
-        
-        if(requiredButUndefinedSet_.contains(fieldName))
-          child.raise(new ParserError("Duplication of required field \"%s\"", fieldName));
-        else
-          requiredButUndefinedSet_.add(fieldName);
+        for(ParserContext child : requiredFields)
+        {
+          String fieldName = child.getJsonNode().asText();
+          
+          if(requiredButUndefinedSet_.contains(fieldName))
+            child.raise(new ParserError("Duplication of required field \"%s\"", fieldName));
+          else
+            requiredButUndefinedSet_.add(fieldName);
+        }
       }
-    }
-
-    ParserContext properties = context.get("properties");
-    if(properties==null)
-    {
-      context.raise(new ParserError("Elements with \"type\": \"object\" require \"properties\":"));
+  
+      ParserContext properties = context.get("properties");
+      if(properties==null)
+      {
+        context.raise(new ParserError("Elements with \"type\": \"object\" require \"properties\":"));
+      }
+      else
+      {
+        for(ParserContext child : properties)
+        {
+          String fieldName = child.getName();
+          boolean required = requiredButUndefinedSet_.remove(fieldName);
+          AbstractSchema field = Field.create(this, child, required);
+          
+          if(field != null)
+            add(field);
+        }
+      }
+      
+      for(String requiredField : requiredButUndefinedSet_)
+      {
+        context.raise(new ParserError("Required field \"%s\" is not defined!", requiredField));
+      }
     }
     else
     {
-      for(ParserContext child : properties)
-      {
-        String fieldName = child.getName();
-        boolean required = requiredButUndefinedSet_.remove(fieldName);
-        AbstractSchema field = Field.create(this, child, required);
-        
-        if(field != null)
-          add(field);
-      }
-    }
-    
-    for(String requiredField : requiredButUndefinedSet_)
-    {
-      context.raise(new ParserError("Required field \"%s\" is not defined!", requiredField));
+      context.raise(new ParserError("Nested in-line object definitions are not supported, move this to Components/Schemas amd refer to is with $ref"));
     }
   }
   
@@ -135,6 +142,12 @@ public class ObjectSchema extends Schema
   }
   
   @Override
+  public boolean getIsObjectType()
+  {
+    return true;
+  }
+  
+  @Override
   public boolean  getCanFailValidation()
   {
     for(ModelElement child : getChildren())
@@ -153,6 +166,14 @@ public class ObjectSchema extends Schema
     
     for(ModelElement child : getChildren())
       child.getReferencedTypes(result);
+  }
+
+  @Override
+  protected void getSchemas(Set<AbstractSchema> result)
+  {
+    super.getSchemas(result);
+    
+    result.add(this);
   }
 
   @Override

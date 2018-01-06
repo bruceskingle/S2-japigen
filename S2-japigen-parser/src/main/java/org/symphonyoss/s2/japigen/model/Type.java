@@ -43,6 +43,10 @@ public abstract class Type extends Schema
       {
         getContext().raise(new ParserError("%s is not suported on this type.", Japigen.ENUM));
       }
+      else if(!(getParent() instanceof Schemas))
+      {
+        getContext().raise(new ParserError("%s is only supported for types defined directly in #/components/schemas", Japigen.ENUM));
+      }
       else if(enumNode.getJsonNode().isArray())
       {
         enum_ = new EnumSchema(this, enumNode);

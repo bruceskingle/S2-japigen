@@ -46,6 +46,12 @@ public abstract class AbstractContainerSchema extends Schema
         
     }
   }
+  
+  @Override
+  public boolean getIsObjectType()
+  {
+    return true;
+  }
 
   @Override
   protected void getReferencedTypes(Set<AbstractSchema> result)
@@ -54,6 +60,14 @@ public abstract class AbstractContainerSchema extends Schema
     
     for(ModelElement child : getFields())
       child.getReferencedTypes(result);
+  }
+
+  @Override
+  protected void getSchemas(Set<AbstractSchema> result)
+  {
+    super.getSchemas(result);
+    
+    result.add(this);
   }
   
   @Override

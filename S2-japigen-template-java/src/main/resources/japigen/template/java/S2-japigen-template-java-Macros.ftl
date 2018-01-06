@@ -225,9 +225,6 @@
  #
  #----------------------------------------------------------------------------------------------------->
 <#macro setJavaType model>
-// setJavaType
-// model.class = ${model.class}
-// model = ${model}
   <#assign javaField=model>
   <#assign javaClassName="">
   <#assign javaFullyQualifiedClassName="">
@@ -258,7 +255,6 @@
    #
    #-->
   <#assign javaElementClassName=getJavaElementType(model)/>
-  // TT javaElementClassName = ${javaElementClassName}
   <#-- 
    #
    # now set javaFieldClassName
@@ -435,17 +431,11 @@
 </#macro>
 
 <#macro setClassName model fieldClassName>
-// TT setClassName model = ${model} fieldClassName = ${fieldClassName} model.elementType = ${model.elementType}
   <#switch model.elementType>
     <#case "Ref">
       <@setClassName model.reference model.reference.camelCapitalizedName/>
       <@setClassName2 model.reference/>
 			<#break>
-      
-    <#case "XXXXXX">
-      <#assign javaFullyQualifiedClassName="${javaFacadePackage}.${javaClassName}">
-      <#assign requiresChecks=false>
-      <#break>
       
     <#case "Array">
     <#case "Integer">
@@ -462,7 +452,6 @@
       <#break>
     
     <#case "Field">
-    // TT its a field
       <@setClassName model.type fieldClassName/>
       <#break>
 
@@ -562,7 +551,7 @@ import ${javaFacadePackage}.${field.camelCapitalizedName};
  #----------------------------------------------------------------------------------------------------->
 <#macro declareFactories model object>
   <#if object.elementType!="AllOf">
-    <#list object.children as child>
+    <#list object.schemas as child>
       <#switch child.elementType>
         <#case "Object">
         <#case "AllOf">
@@ -585,19 +574,24 @@ import ${javaFacadePackage}.${field.camelCapitalizedName};
  # @param object    A field within the model element.
  #----------------------------------------------------------------------------------------------------->
 <#macro registerFactories model object>
+// T1
   <#if object.elementType!="AllOf">
+  // T2
     <#list object.children as child>
+    //T3 child.elementType = ${child.elementType}
       <#switch child.elementType>
         <#case "Object">
-        <#case "AllOf"> 
-          <#-- FALL THROUGH -->      
+        <#case "AllOf">
         <#case "OneOf">
     registry.register(${(child.camelCapitalizedName + ".TYPE_ID,")?right_pad(45)} ${child.camelName}Factory_);
+          <#-- FALL THROUGH -->      
+        <#default>
           <@registerFactories model child/>
           <#break>
       </#switch>
     </#list>
   </#if>
+  // T4
 </#macro>
 
 <#------------------------------------------------------------------------------------------------------
@@ -651,10 +645,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
   </#if>
   
-  // importFieldTypes
   <#list model.referencedTypes as field>
     <@setJavaType field/>
-    <@printField/>
     <#if javaFullyQualifiedClassName?has_content>
 import ${javaFullyQualifiedClassName};
     </#if>
@@ -811,19 +803,19 @@ ${indent}  _enumOf${field.camelName}.add("${value}");
  #----------------------------------------------------------------------------------------------------->
 <#macro checkLimits2 indent model name>
   <#if model.minimum??>
-  
 ${indent}if(${name} != null && ${name} < ${model.minimumAsString})
 ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is less than the minimum allowed of ${model.minimum}");
+
   </#if>
   <#if model.maximum??>
-
 ${indent}if(${name} != null && ${name} > ${model.maximumAsString})
 ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is more than the maximum allowed of ${model.maximum}");
+
   </#if>
   <#if model.enum??>
-
 ${indent}if(!_enumOf${name}.contains(${name}))
 ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is not one of the permitted enum constants.");
+
   </#if>
 </#macro>
 
@@ -835,7 +827,6 @@ ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is not
  # @param name      The name of the value being checked which is output in the message of thrown exceptions
  #----------------------------------------------------------------------------------------------------->
 <#macro checkLimits indent model name>
-// checkLimits name = ${name} elementType = ${model.elementType}
   <#switch model.elementType>
     <#case "Integer">
     <#case "Double">
@@ -844,10 +835,10 @@ ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is not
       <#break>
       
     <#case "Field">
-      <#if model.required>
-      
+      <#if model.required>     
 ${indent}if(${name} == null)
 ${indent}  throw new BadFormatException("${name} is required.");
+
       </#if>
       <@checkLimits2 indent model.type name/>
       <#break>
@@ -895,10 +886,8 @@ ${indent}  throw new BadFormatException("${name} is required.");
  #----------------------------------------------------------------------------------------------------->
 <#macro generateCreateFieldFromJsonDomNode indent field var>
   <@setJavaType field/>
-  <@printField/>
-  // TRACE1 isGenerated = ${isGenerated?c}
-  <#if field.type.elementType=="Field">
-    <#if field.elementType=="Ref">
+  <#if field.elementType=="Field">
+    <#if field.type.elementType=="Ref">
 	    <#assign elementType=field.type.reference.elementType>
 	  <#else>
 	    <#assign elementType=field.type.elementType>
@@ -910,24 +899,14 @@ ${indent}  throw new BadFormatException("${name} is required.");
 	    <#assign elementType=field.elementType>
 	  </#if>
 	</#if>
-${indent}if(node == null)
-${indent}{
-<#if isNotNullable>
-${indent}  throw new BadFormatException("${field.camelName} is required.");
-<#else>
-${indent}  ${var} = null;
-</#if>
-${indent}}
-// TRACE2 isGenerated = ${isGenerated?c}
   <#if isGenerated>
-  //TRACE 2a elementType = ${elementType}
     <#switch elementType>
       <#case "Object">
       <#case "AllOf">
       <#case "OneOf">
-${indent}else if(node instanceof ImmutableJsonObject)
+${indent}if(node instanceof ImmutableJsonObject)
 ${indent}{
-${indent}  ${var} = _factory.getFactory().get${javaClassName}Factory().newInstance((ImmutableJsonObject)node);
+${indent}  ${var} = _factory.getModel().get${javaClassName}Factory().newInstance((ImmutableJsonObject)node);
 ${indent}}
 ${indent}else
 ${indent}{
@@ -937,7 +916,7 @@ ${indent}}
       
       <#default>
         <#if isArrayType>
-${indent}else if(node instanceof JsonArray)
+${indent}if(node instanceof JsonArray)
 ${indent}{
 ${indent}  ${var} = ${javaConstructTypePrefix}((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class)${javaConstructTypePostfix};
 ${indent}  <@checkItemLimits field field.camelName var/>
@@ -947,8 +926,7 @@ ${indent}{
 ${indent}  throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
 ${indent}}
         <#else>
-        //TRACE 3
-${indent}else if(node instanceof I${javaElementClassName}Provider)
+${indent}if(node instanceof I${javaElementClassName}Provider)
 ${indent}{
 ${indent}  ${javaElementClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
 
@@ -970,7 +948,7 @@ ${indent}}
     </#switch>
   <#else>
     <#if isArrayType>
-${indent}else if(node instanceof JsonArray)
+${indent}if(node instanceof JsonArray)
 ${indent}{
 ${indent}  ${var} = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
 ${indent}  <@checkItemLimits field field.camelName var/>
@@ -980,7 +958,7 @@ ${indent}{
 ${indent}  throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
 ${indent}}
     <#else>  
-${indent}else if(node instanceof I${javaElementClassName}Provider)
+${indent}if(node instanceof I${javaElementClassName}Provider)
 ${indent}{
 ${indent}  ${javaFieldClassName} ${field.camelName} = ${javaConstructTypePrefix}((I${javaElementClassName}Provider)node).as${javaElementClassName}()${javaConstructTypePostfix};
       <#if requiresChecks>

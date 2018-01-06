@@ -117,7 +117,7 @@ public class PathItem extends ParameterContainer
           {
             if(inWord)
             {
-              nameBuf.append(Character.toLowerCase(c));
+              nameBuf.append(c);
             }
             else
             {

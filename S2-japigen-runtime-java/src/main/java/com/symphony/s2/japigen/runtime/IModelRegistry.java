@@ -33,7 +33,7 @@ import org.symphonyoss.s2.common.http.IUrlPathServlet;
 
 public interface IModelRegistry
 {
-  IModelRegistry register(IModelFactory factory);
+  IModelRegistry register(IModel factory);
 
   IModelRegistry register(String name, IModelObjectFactory<?,?> factory);
 

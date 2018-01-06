@@ -51,14 +51,14 @@ import com.symphony.s2.japigen.runtime.ModelRegistry;
 import com.symphony.s2.japigen.test.oneofeverything.facade.ASimpleObject;
 import com.symphony.s2.japigen.test.oneofeverything.facade.DoubleMinMax;
 import com.symphony.s2.japigen.test.oneofeverything.facade.ObjectWithOneOfEverything;
-import com.symphony.s2.japigen.test.oneofeverything.facade.OneOfEverythingFactory;
+import com.symphony.s2.japigen.test.oneofeverything.facade.OneOfEverything;
 
 public class TestOneOfEverything extends AbstractModelObjectTest
 {
-  private final OneOfEverythingFactory            oneOfEverythingFactory_ = new OneOfEverythingFactory();
+  private final OneOfEverything                   oneOfEverything_ = new OneOfEverything();
   private final IModelRegistry                    modelRegistry_          = new ModelRegistry()
-                                                                            .register(oneOfEverythingFactory_);
-  private final ObjectWithOneOfEverything.Factory objectFactory_          = oneOfEverythingFactory_
+                                                                            .register(oneOfEverything_);
+  private final ObjectWithOneOfEverything.Factory objectFactory_          = oneOfEverything_
                                                                             .getObjectWithOneOfEverythingFactory();
   
   @Test
@@ -211,7 +211,7 @@ public class TestOneOfEverything extends AbstractModelObjectTest
   
   private ASimpleObject createTestObject3() throws BadFormatException
   {
-    return oneOfEverythingFactory_.getASimpleObjectFactory().newBuilder()
+    return oneOfEverything_.getASimpleObjectFactory().newBuilder()
         .withName("Simple3")
         .withValue("Value Three\nhas\nthree lines.")
         .build();
@@ -219,7 +219,7 @@ public class TestOneOfEverything extends AbstractModelObjectTest
 
   private ASimpleObject createTestObject2() throws BadFormatException
   {
-    return oneOfEverythingFactory_.getASimpleObjectFactory().newBuilder()
+    return oneOfEverything_.getASimpleObjectFactory().newBuilder()
         .withName("Simple2")
         .withValue("Value Two")
         .build();

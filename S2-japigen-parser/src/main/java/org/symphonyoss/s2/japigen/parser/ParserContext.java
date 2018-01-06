@@ -87,6 +87,11 @@ public class ParserContext extends BaseParserContext implements Iterable<ParserC
   {
     return anonymousInner_;
   }
+  
+  public boolean isEmpty()
+  {
+   return jsonNode_.size() == 0;
+  }
 
   @Override
   public Iterator<ParserContext> iterator()

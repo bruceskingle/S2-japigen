@@ -36,7 +36,7 @@ public abstract class ParameterContainer extends ModelElement
 {
   private static Logger log_ = LoggerFactory.getLogger(ParameterContainer.class);
 
-  private Map<ParameterLocation, Map<String, Parameter>> parameters_ = new HashMap<>();
+  private Map<ParameterLocation, Map<String, OpenApiParameter>> parameters_ = new HashMap<>();
   
   public ParameterContainer(ModelElement parent, ParserContext parserContext, String type, String name)
   {
@@ -57,12 +57,12 @@ public abstract class ParameterContainer extends ModelElement
       
       for(ParserContext paramContext : listContext)
       {
-        Parameter param = Parameter.create(this, paramContext);
+        OpenApiParameter param = OpenApiParameter.create(this, paramContext);
         
         if(param != null)
         {
           add(param);
-          Map<String, Parameter> map = parameters_.get(param.getLocation());
+          Map<String, OpenApiParameter> map = parameters_.get(param.getLocation());
           
           if((parent instanceof ParameterContainer && ((ParameterContainer)parent).hasParameter(param))
               || map.containsKey(param.getName()))
@@ -78,32 +78,32 @@ public abstract class ParameterContainer extends ModelElement
     }
   }
 
-  private boolean hasParameter(Parameter param)
+  private boolean hasParameter(OpenApiParameter param)
   {
     return parameters_.get(param.getLocation()).containsKey(param.getName());
   }
 
-  public Map<ParameterLocation, Map<String, Parameter>> getParameters()
+  public Map<ParameterLocation, Map<String, OpenApiParameter>> getParameters()
   {
     return parameters_;
   }
   
-  public Map<String, Parameter>  getPathParameters()
+  public Map<String, OpenApiParameter>  getPathParameters()
   {
     return parameters_.get(ParameterLocation.Path);
   }
   
-  public Map<String, Parameter>  getCookieParameters()
+  public Map<String, OpenApiParameter>  getCookieParameters()
   {
     return parameters_.get(ParameterLocation.Cookie);
   }
   
-  public Map<String, Parameter>  getHeaderParameters()
+  public Map<String, OpenApiParameter>  getHeaderParameters()
   {
     return parameters_.get(ParameterLocation.Header);
   }
   
-  public Map<String, Parameter>  getQueryParameters()
+  public Map<String, OpenApiParameter>  getQueryParameters()
   {
     return parameters_.get(ParameterLocation.Query);
   }
@@ -113,8 +113,8 @@ public abstract class ParameterContainer extends ModelElement
   {
     super.getReferencedTypes(result);
     
-    for(Map<String, Parameter> map : parameters_.values())
-      for(Parameter param : map.values())
+    for(Map<String, OpenApiParameter> map : parameters_.values())
+      for(OpenApiParameter param : map.values())
         param.getReferencedTypes(result);
   }
 }

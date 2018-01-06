@@ -267,6 +267,21 @@ public class ModelElement
     return false;
   }
   
+  public boolean getIsTypeDef()
+  {
+    return false;
+  }
+  
+  public boolean getIsObjectType()
+  {
+    return false;
+  }
+  
+  public ModelElement getReference()
+  {
+    return this;
+  }
+  
   public Set<AbstractSchema> getReferencedTypes()
   {
     Set<AbstractSchema> result = new HashSet<>();
@@ -276,15 +291,25 @@ public class ModelElement
     return result;
   }
   
-  public ModelElement getReference()
-  {
-    return this;
-  }
-  
   protected void getReferencedTypes(Set<AbstractSchema> result)
   {
-    if(getName().contains("undamental"))
-      System.err.println("XX");
+    for(ModelElement child : getChildren())
+      child.getReferencedTypes(result);
+  }
+  
+  public Set<AbstractSchema> getSchemas()
+  {
+    Set<AbstractSchema> result = new HashSet<>();
+    
+    getSchemas(result);
+    
+    return result;
+  }
+  
+  protected void getSchemas(Set<AbstractSchema> result)
+  {
+    for(ModelElement child : getChildren())
+      child.getSchemas(result);
   }
 
   public void validate()
