@@ -23,98 +23,234 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
-public abstract class ParameterContainer extends ModelElement
-{
-  private static Logger log_ = LoggerFactory.getLogger(ParameterContainer.class);
+import com.symphony.s2.japigen.runtime.http.ParameterLocation;
 
-  private Map<ParameterLocation, Map<String, OpenApiParameter>> parameters_ = new HashMap<>();
-  
+public class ParameterContainer extends ModelElement //implements Iterable<Parameter>
+{
+  private static Logger                           log_           = LoggerFactory.getLogger(ParameterContainer.class);
+
+  private boolean                                 resolved_;
+  private boolean                                 resolving_;
+  private Map<String, Parameter>                  parameters_    = new HashMap<>();
+  private Map<ParameterLocation, Map<String, Parameter>> locationMap_   = new HashMap<>();
+
+  private List<Reference<ParameterContainer>>     referenceList_ = new ArrayList<>();
+
   public ParameterContainer(ModelElement parent, ParserContext parserContext, String type, String name)
   {
-    super(parent, parserContext, type, name);
+    this(parent, parserContext, type, name, parserContext.get(Japigen.PARAMETERS),
+        parserContext.get(Japigen.PARAMETER_SETS));
+  }
+  
+  public ParameterContainer(ModelElement parent, ParserContext objectContext, String type, String name,
+      ParserContext parametersContext, ParserContext parameterSetsContext)
+  {
+    super(parent, objectContext, type, name);
     
-    for(ParameterLocation l : ParameterLocation.values())
-      parameters_.put(l, new HashMap<>());
+    for(ParameterLocation loc : ParameterLocation.values())
+      locationMap_.put(loc, new HashMap<>());
     
-    ParserContext listContext = parserContext.get("parameters");
-    
-    if(listContext != null)
+    if(parametersContext != null)
     {
-      if(!listContext.getJsonNode().isArray())
+      if(parametersContext.isObject())
       {
-        parserContext.raise(new ParserError("The \"parameters\" node must be an array."));
-        return;
-      }
-      
-      for(ParserContext paramContext : listContext)
-      {
-        OpenApiParameter param = OpenApiParameter.create(this, paramContext);
-        
-        if(param != null)
+        for(ParserContext paramContext : parametersContext)
         {
-          add(param);
-          Map<String, OpenApiParameter> map = parameters_.get(param.getLocation());
+          Parameter param = Parameter.create(this, paramContext);
           
-          if((parent instanceof ParameterContainer && ((ParameterContainer)parent).hasParameter(param))
-              || map.containsKey(param.getName()))
-          {
-            parserContext.raise(new ParserError("Duplicate parameter \"%s\" in %s", param.getName(), param.getLocation()));
-          }
-          else
-          {
-            map.put(param.getName(), param);
-          }
+          add(param);
+          addParameter(param);
         }
+      }
+      else
+      {
+        getContext().raise(new ParserError("The \"%s\" node must be an object.", parametersContext.getName()));
+      }
+    }
+    
+    if(parameterSetsContext != null)
+    {
+      if(parameterSetsContext.isArray())
+      {
+        for(ParserContext refContext : parameterSetsContext)
+        {
+          Reference<ParameterContainer> ref = new Reference<ParameterContainer>(this, refContext, ParameterContainer.class);
+          add(ref);
+          referenceList_.add(ref);
+        }
+      }
+      else
+      {
+        getContext().raise(new ParserError("The \"%s\" node must be an array.", parameterSetsContext.getName()));
       }
     }
   }
 
-  private boolean hasParameter(OpenApiParameter param)
+  @Override
+  public void validate()
   {
-    return parameters_.get(param.getLocation()).containsKey(param.getName());
+    super.validate();
+    
+    resolve(this);
+  }
+  
+  private void resolve(ParameterContainer referer)
+  {
+    if(resolved_)
+      return;
+    
+    if(resolving_)
+    {
+      getContext().raise(new ParserError("Circular depdendency detected via %s", referer.getContext().getPath()));
+      return;
+    }
+    
+    resolving_ = true;
+    
+    if(getParent() instanceof ParameterContainer)
+    {
+      ParameterContainer parent = (ParameterContainer)getParent();
+      
+      parent.resolve(this);
+      
+      for(Parameter p : parent.parameters_.values())
+      {
+        addParameter(p);
+      }
+    }
+    
+
+    
+    for(Reference<ParameterContainer> ref : referenceList_)
+    {
+      ParameterContainer container = ref.getReferent();
+      
+      if(container == null)
+      {
+        getContext().raise(new ParserError("Cannot find reference \"%s\"", ref.getUri()));
+      }
+      else
+      {
+        container.resolve(this);
+        
+        for(Parameter param : container.parameters_.values())
+          addParameter(param);
+      }
+    }
+    
+    resolved_ = true;
   }
 
-  public Map<ParameterLocation, Map<String, OpenApiParameter>> getParameters()
+  private void addParameter(Parameter param)
+  {
+    Parameter existing = parameters_.get(param.getName());
+    
+    if(existing != null)
+    {
+      getContext().raise(new ParserError("Duplicate parameter \"%s\" declared at %s", param.getName(), existing.getContext().getPath()));
+    }
+    else
+    {
+      parameters_.put(param.getName(), param);
+      locationMap_.get(param.getLocation()).put(param.getName(), param);
+    }
+  }
+  
+  public Parameter getParameter(String name)
+  {
+    return parameters_.get(name);
+  }
+  
+  public Parameter getParameter(ParameterLocation location, String name)
+  {
+    return locationMap_.get(location).get(name);
+  }
+  
+//  public Parameter  getParameter(String name)
+//  {
+//    Parameter param = parameters_.get(name);
+//    
+//    if(param == null && getParent() instanceof ParameterContainer)
+//      param = ((ParameterContainer)getParent()).getParameter(name);
+//    
+//    if(param == null)
+//    {
+//      for(Reference<ParameterContainer> ref : referenceList_)
+//      {
+//        ParameterContainer container = ref.getReferent();
+//        
+//        if(container != null)
+//        {
+//          param = container.getParameter(name);
+//          
+//          if(param != null)
+//            break;
+//        }
+//      }
+//    }
+//    
+//    return param;
+//  }
+//
+//  public List<Parameter>  getParameters(ParameterLocation location)
+//  {
+//    return getParameters(location, new ArrayList<>());
+//  }
+//
+//  private List<Parameter> getParameters(ParameterLocation location, List<Parameter> result)
+//  {
+//    result.addAll(locationMap_.get(location));
+//    
+//    if(getParent() instanceof ParameterContainer)
+//      result = ((ParameterContainer)getParent()).getParameters(location, result);
+//    
+//    for(Reference<ParameterContainer> ref : referenceList_)
+//    {
+//      ParameterContainer container = ref.getReferent();
+//      
+//      if(container != null)
+//      {
+//        result = container.getParameters(location, result);
+//      }
+//    }
+//    
+//    return result;
+//  }
+
+  public Map<String, Parameter> getParameters()
   {
     return parameters_;
   }
-  
-  public Map<String, OpenApiParameter>  getPathParameters()
+
+  public Map<ParameterLocation, Map<String, Parameter>> getLocationMap()
   {
-    return parameters_.get(ParameterLocation.Path);
+    return locationMap_;
   }
-  
-  public Map<String, OpenApiParameter>  getCookieParameters()
-  {
-    return parameters_.get(ParameterLocation.Cookie);
-  }
-  
-  public Map<String, OpenApiParameter>  getHeaderParameters()
-  {
-    return parameters_.get(ParameterLocation.Header);
-  }
-  
-  public Map<String, OpenApiParameter>  getQueryParameters()
-  {
-    return parameters_.get(ParameterLocation.Query);
-  }
-  
+
   @Override
   public void getReferencedTypes(Set<AbstractSchema> result)
   {
     super.getReferencedTypes(result);
     
-    for(Map<String, OpenApiParameter> map : parameters_.values())
-      for(OpenApiParameter param : map.values())
-        param.getReferencedTypes(result);
+    for(Parameter param : parameters_.values())
+      param.getReferencedTypes(result);
   }
+
+//  @Override
+//  public Iterator<Parameter> iterator()
+//  {
+//    return parameters_.values().iterator();
+//  }
 }

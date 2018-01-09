@@ -13,7 +13,6 @@
 		"javaFacadePackage": "com.symphony.s2.japigen.test.unit.facade"
 	},
 	"paths": {
-		
 	},
 	"x-japigen-methods": {
 		"/invoices": {
@@ -25,23 +24,24 @@
 				"tags": [
 					"invoices"
 				],
-				"parameters": [
-					{
-						"name": "customerId",
+				"parameters": {
+					"customerId": {
 						"description": "The ID of the customer of returned invoices",
+						"in": "query",
 						"required": false,
 						"schema": {
 							"$ref": "#/components/schemas/CustomerId"
 						}
-					},
+					}
+        },
+        "parameterSets": [
 					{
 						"$ref": "#/components/x-japigen-parameter-sets/pagination"
 					}
 				],
 				"response": {
-					"multiple": true,
 					"schema": {
-						"$ref": "#/components/schemas/Document"
+						"$ref": "#/components/schemas/DocumentList"
 					}
 				}
 			},
@@ -52,14 +52,12 @@
 				"summary": "Create an invoice",
 				"payload": {
 					"required": true,
-					"multiple": false,
 					"schema": {
 						"$ref": "#/components/schemas/DocumentContent"
 					}
 				},
 				"response": {
 					"required": true,
-					"multiple": false,
 					"schema": {
 						"$ref": "#/components/schemas/DocumentId"
 					}
@@ -69,23 +67,22 @@
 		"/invoices/{invoiceId}": {
 			"summary": "Invoice operations.",
 			"description": "Various operations at the invoice level.",
-			"get": {
+			"parameters": {
+          "invoiceId": {
+            "description": "The ID of the required invoice",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DocumentId"
+            }
+          }
+        },
+      "get": {
 				"tags": [
 					"invoices"
 				],
 				"summary": "Fetch an invoice",
-				"parameters": [
-					{
-						"name": "invoiceId",
-						"description": "The ID of the required invoice",
-						"required": true,
-						"schema": {
-							"$ref": "#/components/schemas/DocumentId"
-						}
-					}
-				],
 				"response": {
-					"multiple": false,
 					"schema": {
 						"$ref": "#/components/schemas/Document"
 					}
@@ -95,30 +92,29 @@
 		"/invoices/{invoiceId}/items/{itemId}": {
 			"summary": "Invoice line item operations.",
 			"description": "Various operations at the invoice line item level.",
-			"get": {
+			"parameters": {
+          "invoiceId": {
+            "description": "The ID of the required invoice",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DocumentId"
+            }
+          },
+          "itemId": {
+            "description": "The ID of the required item",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ItemId"
+            }
+          }
+        },
+      "get": {
 				"tags": [
 					"invoices"
 				],
-				"parameters": [
-					{
-						"name": "invoiceId",
-						"description": "The ID of the required invoice",
-						"required": true,
-						"schema": {
-							"$ref": "#/components/schemas/DocumentId"
-						}
-					},
-					{
-						"name": "itemId",
-						"description": "The ID of the required item",
-						"required": true,
-						"schema": {
-							"$ref": "#/components/schemas/ItemId"
-						}
-					}
-				],
 				"response": {
-					"multiple": false,
 					"schema": {
 						"$ref": "#/components/schemas/Item"
 					}
@@ -132,23 +128,22 @@
 				"tags": [
 					"invoices"
 				],
-				"parameters": [
-					{
-						"name": "invoiceId",
+				"parameters": {
+					"invoiceId": {
 						"description": "The ID of the required invoice",
+						"in": "path",
 						"required": true,
 						"schema": {
 							"$ref": "#/components/schemas/DocumentId"
 						}
-					},
-					{
-						"$ref": "#/components/x-japigen-parameter-sets/pagination"
 					}
+				},
+				"parameterSets": [
+					"#/components/x-japigen-parameter-sets/pagination"
 				],
 				"response": {
-					"multiple": true,
 					"schema": {
-						"$ref": "#/components/schemas/Item"
+						"$ref": "#/components/schemas/ItemList"
 					}
 				}
 			}
@@ -170,21 +165,27 @@
 				"type": "integer",
 				"format": "int64"
 			},
-      "ItemId": {
-        "description": "An item id on an invoice, statement etc.",
-        "type": "integer",
-        "format": "int32",
-        "minimum": 0,
-        "maximum": 100
-      },
-      "DocumentType": {
-        "type": "string",
-        "description": "The type of this document",
-        "enum": [
-          "Invoice",
-          "Statement"
-        ]
-      },
+			"ItemId": {
+				"description": "An item id on an invoice, statement etc.",
+				"type": "integer",
+				"format": "int32",
+				"minimum": 0,
+				"maximum": 100
+			},
+			"DocumentType": {
+				"type": "string",
+				"description": "The type of this document",
+				"enum": [
+					"Invoice",
+					"Statement"
+				]
+			},
+			"DocumentList": {
+				"type": "array",
+				"items": {
+					"$ref": "#/components/schemas/Document"
+				}
+			},
 			"Document": {
 				"type": "object",
 				"properties": {
@@ -214,17 +215,23 @@
 						"type": "string"
 					},
 					"goods": {
-						"type": "number",
+						"type": "integer",
 						"format": "int64"
 					},
 					"tax": {
-						"type": "number",
+						"type": "integer",
 						"format": "int64"
 					},
 					"total": {
-						"type": "number",
+						"type": "integer",
 						"format": "int64"
 					}
+				}
+			},
+			"ItemList": {
+				"type": "array",
+				"items": {
+					"$ref": "#/components/schemas/Item"
 				}
 			},
 			"Item": {
@@ -244,19 +251,19 @@
 						"type": "string"
 					},
 					"quantity": {
-						"type": "number",
+						"type": "integer",
 						"format": "int32"
 					},
 					"goods": {
-						"type": "number",
+						"type": "integer",
 						"format": "int64"
 					},
 					"tax": {
-						"type": "number",
+						"type": "integer",
 						"format": "int64"
 					},
 					"total": {
-						"type": "number",
+						"type": "integer",
 						"format": "int64"
 					}
 				}
@@ -266,6 +273,7 @@
 			"pagination": {
 				"skip": {
 					"description": "number of items to skip",
+					"in": "query",
 					"required": false,
 					"schema": {
 						"type": "integer",
@@ -274,6 +282,7 @@
 				},
 				"limit": {
 					"description": "max records to return",
+					"in": "query",
 					"required": false,
 					"schema": {
 						"type": "integer",

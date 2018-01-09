@@ -512,4 +512,10 @@ public class ModelElement
   {
     return false;
   }
+
+  @Override
+  public String toString()
+  {
+    return elementType_ + " name=" + getName();
+  }
 }

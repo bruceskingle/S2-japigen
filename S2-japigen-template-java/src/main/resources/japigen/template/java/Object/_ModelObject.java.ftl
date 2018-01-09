@@ -23,6 +23,7 @@
 <#if requiresChecks>
 <@checkLimits "    " field field.camelName/>
 </#if>
+<@printField/>
 
     ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
     if(${field.camelName}_ != null)

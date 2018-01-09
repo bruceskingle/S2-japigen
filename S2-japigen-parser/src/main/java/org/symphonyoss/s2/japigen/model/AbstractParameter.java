@@ -1,12 +1,12 @@
 /*
  *
  *
- * Copyright 2018 Symphony Communication Services, LLC.
+ * Copyright 2017 Symphony Communication Services, LLC.
  *
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership.  The SSF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -23,6 +23,8 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.Japigen;
@@ -30,32 +32,31 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 import org.symphonyoss.s2.japigen.parser.error.UnexpectedTypeError;
 
-public class Response extends ModelElement
+public abstract class AbstractParameter extends ModelElement
 {
-  private static Logger log_ = LoggerFactory.getLogger(Response.class);
-  
-  private ReferenceOrSchema schema_;
-  private boolean required_;
-  private boolean multiple_;
+  private static Logger           log_ = LoggerFactory.getLogger(AbstractParameter.class);
 
-  public Response(Operation parent, ParserContext parserContext)
+  private final boolean           required_;
+  private final ReferenceOrSchema schema_;
+
+  protected AbstractParameter(ModelElement parent, ParserContext parserContext, String type, String name)
   {
-    super(parent, parserContext, "Response");
+    super(parent, parserContext, type, name);
     
-    required_ = parserContext.getBooleanNode("required", true);
-    multiple_ = parserContext.getBooleanNode("multiple", true);
+    required_ = parserContext.get("required").getJsonNode().asBoolean();
     
-    ParserContext schemaContext = parserContext.get(Japigen.SCHEMA);
+    ParserContext schema = parserContext.get(Japigen.SCHEMA);
     
-    if(schemaContext == null)
+    if(schema == null)
     {
       parserContext.raise(new ParserError("%s is required", Japigen.SCHEMA));
+      schema_ = null;
     }
     else
     {
-      log_.debug("Found schema \"" + schemaContext.getName() + "\" at " + schemaContext.getPath());
+      log_.debug("Found schema \"" + schema.getName() + "\" at " + schema.getPath());
       
-      AbstractSchema objectSchema = Field.createSchema(this, schemaContext, getName());
+      AbstractSchema objectSchema = Field.createSchema(this, schema, getName());
       
       if(objectSchema instanceof ReferenceOrSchema)
       {
@@ -65,14 +66,9 @@ public class Response extends ModelElement
       else
       {
         schema_ = null;
-        schemaContext.raise(new UnexpectedTypeError(ReferenceOrSchema.class, objectSchema));
+        schema.raise(new UnexpectedTypeError(ReferenceOrSchema.class, objectSchema));
       }
     }
-  }
-
-  public ReferenceOrSchema getSchema()
-  {
-    return schema_;
   }
 
   public boolean getIsRequired()
@@ -80,9 +76,22 @@ public class Response extends ModelElement
     return required_;
   }
 
-  public boolean getIsMultiple()
+  public ReferenceOrSchema getSchema()
   {
-    return multiple_;
+    return schema_;
+  }
+  
+  @Override
+  public void getReferencedTypes(Set<AbstractSchema> result)
+  {
+    super.getReferencedTypes(result);
+    result.add(schema_);
+//    schema_.getReferencedTypes(result);
   }
 
+  @Override
+  public String toString()
+  {
+    return super.toString() + ", required=" + required_;
+  }
 }

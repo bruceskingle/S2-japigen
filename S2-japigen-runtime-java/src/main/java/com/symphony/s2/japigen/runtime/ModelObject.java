@@ -24,9 +24,16 @@
 package com.symphony.s2.japigen.runtime;
 
 import org.symphonyoss.s2.common.dom.DomSerializer;
+import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 
 public abstract class ModelObject implements IModelObject
 {
   protected static final DomSerializer SERIALIZER = DomSerializer.newBuilder().withCanonicalMode(true).build();
+
+  @Override
+  public IJsonDomNode getJsonDomNode()
+  {
+    return getJsonObject();
+  }
 
 }

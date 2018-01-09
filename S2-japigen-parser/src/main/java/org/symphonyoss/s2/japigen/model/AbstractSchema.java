@@ -25,6 +25,7 @@ package org.symphonyoss.s2.japigen.model;
 
 import java.util.List;
 
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.model.ValueMap.Entry;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.OnlyOneAllowedError;
@@ -71,7 +72,7 @@ public abstract class AbstractSchema extends ModelElement
     
     builder.build("allOf", (m, c, n) -> new AllOfSchema(m, c, n, name));
     builder.build("oneOf", (m, c, n) -> new OneOfSchema(m, c, n, name));
-    builder.build("$ref", (m, c, n) -> new ReferenceSchema(m, c, n, name));
+    builder.build(Japigen.DOLLAR_REF, (m, c, n) -> new ReferenceSchema(m, c, n, name));
     builder.build("type", (m, c, n) -> Type.create(m, c, n, name));
     
     if(builder.getResult() == null)

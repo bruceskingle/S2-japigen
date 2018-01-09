@@ -92,6 +92,21 @@ public class ParserContext extends BaseParserContext implements Iterable<ParserC
   {
    return jsonNode_.size() == 0;
   }
+  
+  public int size()
+  {
+    return jsonNode_.size();
+  }
+
+  public final boolean isArray()
+  {
+    return jsonNode_.isArray();
+  }
+
+  public final boolean isObject()
+  {
+    return jsonNode_.isObject();
+  }
 
   @Override
   public Iterator<ParserContext> iterator()
@@ -155,6 +170,36 @@ public class ParserContext extends BaseParserContext implements Iterable<ParserC
     }
     
     return "";
+  }
+
+  public Boolean getBooleanNode(String fieldName)
+  {
+    JsonNode node = jsonNode_.get(fieldName);
+    
+    if(node != null)
+    {
+      if(!node.isNumber())
+        raise(new UnexpectedTypeError(fieldName, Boolean.class, node));
+      
+      return node.asBoolean();
+    }
+    
+    return null;
+  }
+  
+  public Boolean getBooleanNode(String fieldName, Boolean defaultValue)
+  {
+    JsonNode node = jsonNode_.get(fieldName);
+    
+    if(node != null)
+    {
+      if(!node.isBoolean())
+        raise(new UnexpectedTypeError(fieldName, Boolean.class, node));
+      
+      return node.asBoolean(defaultValue);
+    }
+    
+    return defaultValue;
   }
 
   public Long getLongNode(String fieldName)

@@ -1,12 +1,12 @@
 /*
  *
  *
- * Copyright 2017 Symphony Communication Services, LLC.
+ * Copyright 2018 Symphony Communication Services, LLC.
  *
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The SSF licenses this file
+ * regarding copyright ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -27,28 +27,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public class Paths extends ModelElement
+public class ParameterSets extends ModelElement
 {
-  private static Logger log_ = LoggerFactory.getLogger(Paths.class);
+  private static Logger log_ = LoggerFactory.getLogger(ParameterSets.class);
 
-  public Paths(Model model, ParserContext parserContext)
+  public ParameterSets(Components parent, ParserContext parserContext)
   {
-    super(model, parserContext, "Paths");
+    super(parent, parserContext, "ParameterSets");
     
-    for(ParserContext path : parserContext)
+    for(ParserContext parameterSet : parserContext)
     {
-      log_.debug("Found path \"" + path.getName() + "\" at " + path.getPath());
+      log_.debug("Found parameterSet \"" + parameterSet.getName() + "\" at " + parameterSet.getPath());
       
-      PathItem pathSchema = PathItem.create(this, path);
-      
-      add(pathSchema.getName(), pathSchema);
+      add(parameterSet.getName(), new ParameterContainer(this, parameterSet, "ParameterSet", parameterSet.getName(),
+          parameterSet, null));
     }
   }
-
-  @Override
-  public String toString()
-  {
-    return "Paths";
-  }
-
 }

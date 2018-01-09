@@ -273,10 +273,27 @@
    #
    #-->
    <@decorate model/>
+   <@setDescription model/>
+</#macro>
+
+<#macro setDescription model>
+  <#switch model.elementType>
+    <#case "Ref">
+      <@setDescription model.reference/>
+      <#break>
+
+    <#case "Field">
+      <@setDescription model.type/>
+      <#break>
+    
+    <#default>
+      <#assign description=model.description!"">
+      <#assign summary=model.summary!"No summary given.">
+  </#switch>
 </#macro>
 
 <#macro setFieldClassName model>
-<#switch model.elementType>
+  <#switch model.elementType>
     <#case "Ref">
       <@setFieldClassName model.reference/>
       <#break>
@@ -377,8 +394,14 @@
 <#macro decorateIfArray model>
   <#if model.elementType=="Array">
     <#assign isArrayType=true>
-    <#assign addJsonNode="addCollectionOf${javaElementClassName}">
-    <#if !isGenerated>
+    // TRACE javaElementClassName = ${javaElementClassName}
+    // model.items.elementType = ${model.items.elementType!NULL}
+    <#if model.items.elementType == "Ref">
+      <#assign addJsonNode="addCollectionOfDomNode">
+    <#else>
+      <#assign addJsonNode="addCollectionOf${javaElementClassName}">
+    </#if>
+    <#if ! isGenerated>
       <#assign javaTypeCopyPostfix=")">
       <#assign javaBuilderTypeCopyPostfix=")">
       <#switch model.cardinality>
@@ -511,7 +534,7 @@
     <#case "OneOf">
     <#case "AllOf">
     <#case "Object">
-      <#return "IModelObject">
+      <#return "${model.camelCapitalizedName}">
       <#break>
       
     <#default>
@@ -574,11 +597,8 @@ import ${javaFacadePackage}.${field.camelCapitalizedName};
  # @param object    A field within the model element.
  #----------------------------------------------------------------------------------------------------->
 <#macro registerFactories model object>
-// T1
   <#if object.elementType!="AllOf">
-  // T2
     <#list object.children as child>
-    //T3 child.elementType = ${child.elementType}
       <#switch child.elementType>
         <#case "Object">
         <#case "AllOf">
@@ -591,7 +611,6 @@ import ${javaFacadePackage}.${field.camelCapitalizedName};
       </#switch>
     </#list>
   </#if>
-  // T4
 </#macro>
 
 <#------------------------------------------------------------------------------------------------------
@@ -950,7 +969,13 @@ ${indent}}
     <#if isArrayType>
 ${indent}if(node instanceof JsonArray)
 ${indent}{
+// TODO: This is not right for arrays of generated type, not sure how to fix it right now...
+
 ${indent}  ${var} = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
+
+
+
+
 ${indent}  <@checkItemLimits field field.camelName var/>
 ${indent}}
 ${indent}else
@@ -972,4 +997,50 @@ ${indent}    throw new BadFormatException("${field.camelName} must be an instanc
 ${indent}}
     </#if>
   </#if>
+</#macro>
+
+<#------------------------------------------------------------------------------------------------------
+ # 
+ # Set various variables for generation of the given operation.
+ #
+ # Also outputs a javadoc comment.
+ #
+ # NB this macro calls <@setJavaType operation.response.schema/>
+ # @param operation   An operation object 
+ #----------------------------------------------------------------------------------------------------->
+<#macro setJavaMethod operation>
+<@setDescription operation/>
+  /**
+   * ${operation.name} ${operation.pathItem.path}
+   * ${summary}
+   * ${description}
+  <#list operation.parameters as name, parameter>
+    <@setJavaType parameter.schema/>
+   * ${parameter.camelName?right_pad(25)} ${summary}
+  </#list>
+  <#if operation.response??>
+    <@setJavaType operation.response.schema/>
+    <#assign methodReturnPlaceholder="return null;">
+    <#if operation.response.schema.description??>
+   * @return ${operation.response.schema.description}
+    <#else>
+   * @return A ${javaClassName}
+    </#if>
+    <#if operation.response.isRequired>
+      <#assign methodReturnType="@Nonnull ${javaClassName}">
+      <#assign methodThrows="throws PermissionDeniedException, ServerErrorException">
+    <#else>
+   * or <code>null</code>
+      <#assign methodReturnType="@Nullable ${javaClassName}">
+      <#assign methodThrows="throws PermissionDeniedException, NoSuchRecordException, ServerErrorException">
+   * @throws NoSuchRecordException            If there is no data to return
+    </#if>
+  <#else>
+    <#assign methodReturnType="void">
+    <#assign methodReturnPlaceholder="">
+    <#assign methodThrows="throws PermissionDeniedException, ServerErrorException">
+  </#if>
+   * @throws PermissionDeniedException        If the caller lacks necessary entitlements for the action
+   * @throws ServerErrorException             If an unexpected error occurred
+   */
 </#macro>

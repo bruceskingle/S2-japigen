@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.symphony.s2.japigen.runtime.ModelServlet;
+import com.symphony.s2.japigen.runtime.http.ParameterLocation;
+import com.symphony.s2.japigen.runtime.http.RequestContext;
+
 /*
 import com.google.protobuf.ByteString;
 
@@ -35,14 +38,21 @@ import org.symphonyoss.s2.common.exception.BadFormatException;
 
 <@importFieldTypes model true/>
 
-import ${javaFacadePackage}.${model.model.camelCapitalizedName}Factory;
-import ${javaFacadePackage}.${modelJavaClassName}Servlet;
+import ${javaFacadePackage}.I${model.model.camelCapitalizedName};
 
-<#include "Path.ftl">
+
 @Immutable
-public abstract class ${modelJavaClassName}ModelServlet extends ModelServlet// implements I${modelJavaClassName}ModelServlet
+public abstract class ${modelJavaClassName}ModelServlet extends ModelServlet
 {
-<@printModel/>
+  private static final long serialVersionUID = 1L;
+<#--   
+  private final I${modelJavaClassName}Handler handler_;
+  
+  public ${modelJavaClassName}ModelServlet(I${modelJavaClassName}Handler handler)
+  {
+    handler_ = handler;
+  }
+  
   @Override
   public String getUrlPath()
   {
@@ -53,27 +63,32 @@ public abstract class ${modelJavaClassName}ModelServlet extends ModelServlet// i
  	@Override
  	protected final void do${operation.camelCapitalizedName}(HttpServletRequest req, HttpServletResponse resp) throws ServletException
 	{
-	<#list operation.cookieParameters as name, parameter>
+	   ${"RequestContext"?right_pad(25)} context = new RequestContext(req, resp);
+
+	<#list operation.parameters as name, parameter>
 	// parameter.class = ${parameter.class}
 	// parameter.name = ${parameter.name}
-	// parameter.schema.class = ${parameter.schema.class}
+  // parameter.location = ${parameter.location}
+  // parameter.schema.class = ${parameter.schema.class}
 		<@setJavaType parameter.schema/>
 		<@printField/>
-		
-		${javaFieldClassName?right_pad(25)} _${parameter.camelName}Value = getCookieAs${javaFieldClassName}("name", ${parameter.isRequired?c});
+		${javaFieldClassName?right_pad(25)} _${parameter.camelName}Value = context.getParameterAs${javaFieldClassName}("${parameter.name}", ParameterLocation.${parameter.location}, ${parameter.isRequired?c});
 		${javaClassName?right_pad(25)} ${parameter.camelName} = _${parameter.camelName}Value == null ? null :
-			${javaConstructTypePrefix}_${parameter.camelName}Value${javaConstructTypePostfix};
+		${" "?right_pad(25)}	     ${javaConstructTypePrefix}_${parameter.camelName}Value${javaConstructTypePostfix};
 
 		<#if requiresChecks>
 		<@checkLimits "    " parameter parameter.camelName/>
 		</#if>
 	</#list>
-	handle${operation.camelCapitalizedName}(
-	<#list operation.cookieParameters as name, parameter>
-		,
+	   if(context.preConditionsAreMet())
+	   {
+	     handle${operation.camelCapitalizedName}(
+	<#list operation.parameters as name, parameter>
+		    ${parameter.camelName}<#sep>,
 	</#list>
-		"${operation.camelCapitalizedName}"
-		);
+	
+		  );
+		}
 	}
  </#list>
  <#list model.unsupportedOperations as operation>
@@ -84,5 +99,6 @@ public abstract class ${modelJavaClassName}ModelServlet extends ModelServlet// i
 		unsupportedOperation(req, resp, "${operation}");
 	}
  </#list>
+ -->
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

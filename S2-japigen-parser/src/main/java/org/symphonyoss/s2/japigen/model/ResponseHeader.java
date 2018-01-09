@@ -1,12 +1,12 @@
 /*
  *
  *
- * Copyright 2017 Symphony Communication Services, LLC.
+ * Copyright 2018 Symphony Communication Services, LLC.
  *
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The SSF licenses this file
+ * regarding copyright ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -23,32 +23,28 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.Nullable;
+
 import org.symphonyoss.s2.japigen.parser.ParserContext;
+import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
-public class Paths extends ModelElement
+public class ResponseHeader extends AbstractParameter
 {
-  private static Logger log_ = LoggerFactory.getLogger(Paths.class);
-
-  public Paths(Model model, ParserContext parserContext)
+  private ResponseHeader(ModelElement parent, ParserContext parserContext, String name)
   {
-    super(model, parserContext, "Paths");
+    super(parent, parserContext, "ResponseHeader", name);
+  }
+  
+  public @Nullable static ResponseHeader create(ModelElement methodSchema, ParserContext paramContext)
+  {
+    String name = paramContext.getText("name");
     
-    for(ParserContext path : parserContext)
+    if(name == null)
     {
-      log_.debug("Found path \"" + path.getName() + "\" at " + path.getPath());
-      
-      PathItem pathSchema = PathItem.create(this, path);
-      
-      add(pathSchema.getName(), pathSchema);
+      paramContext.raise(new ParserError("Name is required"));
+      name = "UnNamed";
     }
+    
+    return new ResponseHeader(methodSchema, paramContext, name);
   }
-
-  @Override
-  public String toString()
-  {
-    return "Paths";
-  }
-
 }

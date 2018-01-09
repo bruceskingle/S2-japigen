@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
@@ -113,17 +114,15 @@ public class PathItem extends ParameterContainer
           {
             paramBuf.append(c);
           }
+          
+          if(inWord)
+          {
+            nameBuf.append(c);
+          }
           else
           {
-            if(inWord)
-            {
-              nameBuf.append(c);
-            }
-            else
-            {
-              nameBuf.append(Character.toUpperCase(c));
-              inWord = true;
-            }
+            nameBuf.append(Character.toUpperCase(c));
+            inWord = true;
           }
       }
       
@@ -200,11 +199,5 @@ public class PathItem extends ParameterContainer
     
     for(Operation op : operations_)
       op.getReferencedTypes(result);
-  }
-
-  @Override
-  public String toString()
-  {
-    return getName();
   }
 }

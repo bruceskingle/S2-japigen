@@ -12,12 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.symphonyoss.s2.common.http.IUrlPathServlet;
-
-public abstract class ModelServlet extends HttpServlet implements IUrlPathServlet
+public abstract class ModelServlet extends HttpServlet implements IModelServlet
 {
   private static final long serialVersionUID = 1L;
-
 
   
   /**

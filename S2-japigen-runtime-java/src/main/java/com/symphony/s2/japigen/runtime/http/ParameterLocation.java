@@ -21,14 +21,9 @@
  * under the License.
  */
 
-package com.symphony.s2.japigen.runtime;
+package com.symphony.s2.japigen.runtime.http;
 
-import org.symphonyoss.s2.common.dom.json.IJsonDomNodeProvider;
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
-
-public interface IModelObject extends IJsonDomNodeProvider
+public enum ParameterLocation
 {
-  ImmutableJsonObject getJsonObject();
-
-  String serialize();
+  Query, Header, Path, Cookie;
 }

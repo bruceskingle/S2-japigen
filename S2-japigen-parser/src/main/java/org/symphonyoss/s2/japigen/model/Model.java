@@ -41,6 +41,7 @@ import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.CodeGenerationAbortedInfo;
+import org.symphonyoss.s2.japigen.parser.error.ParserWarning;
 import org.symphonyoss.s2.japigen.parser.error.RequiredItemMissingError;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -76,9 +77,14 @@ public class Model extends ModelElement
           add(openapi_);
           break;
           
+        case Japigen.METHODS:
+          paths_ = new Paths(this, subContext);
+          add(paths_);
+          break;
+        
         case Japigen.PATHS:
-            paths_ = new Paths(this, subContext);
-            add(paths_);
+          if(!subContext.isEmpty())
+            subContext.raise(new ParserWarning("OpenAPI Paths are ignored"));
           break;
           
         case "info":

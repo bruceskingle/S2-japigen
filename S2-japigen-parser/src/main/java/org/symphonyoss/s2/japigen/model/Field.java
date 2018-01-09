@@ -85,7 +85,7 @@ public class Field extends AbstractSchema
   {
     return required_ || type_.getCanFailValidation();
   }
-
+  
   @Override
   public void validate()
   {
@@ -113,6 +113,10 @@ public class Field extends AbstractSchema
         type_ instanceof AbstractContainerSchema)
     {
       result.add(this);
+    }
+    else if(type_ instanceof ArraySchema)
+    {
+      result.add(((ArraySchema) type_).getItems());
     }
   }
 

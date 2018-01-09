@@ -23,93 +23,82 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import java.util.Set;
+import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
-import org.symphonyoss.s2.japigen.parser.error.UnexpectedTypeError;
 
-public class Parameter extends ModelElement
+import com.symphony.s2.japigen.runtime.http.ParameterLocation;
+
+public class Parameter extends AbstractParameter
 {
   private static Logger           log_ = LoggerFactory.getLogger(Parameter.class);
 
-  private final boolean           required_;
-  private final ReferenceOrSchema schema_;
-
-  public Parameter(ModelElement parent, ParserContext parserContext, String name)
+  private final String            scopedName_;
+  private final ParameterLocation location_;
+  
+  private Parameter(ModelElement parent, ParserContext parserContext, String name, 
+      String scopedName, ParameterLocation location)
   {
-    this(parent, parserContext, "ResponseHeader", name);
+    super(parent, parserContext, "Parameter", name);
+    
+    scopedName_ = scopedName;
+    location_ = location;
   }
   
-  protected Parameter(ModelElement parent, ParserContext parserContext, String type, String name)
+  public @Nullable static Parameter create(ModelElement methodSchema, ParserContext paramContext)
   {
-    super(parent, parserContext, type, name);
+    ParameterLocation parameterIn = null;
+  
+    String in = paramContext.getText("in");
     
-    required_ = parserContext.get("required").getJsonNode().asBoolean();
-    
-    ParserContext schema = parserContext.get("schema");
-    
-    if(schema == null)
+    switch(in)
     {
-      parserContext.raise(new ParserError("Schema is required"));
-      schema_ = null;
+      case "query":
+        parameterIn = ParameterLocation.Query;
+        break;
+        
+      case "header":
+        parameterIn = ParameterLocation.Header;
+        break;
+        
+      case "path":
+        parameterIn = ParameterLocation.Path;
+        break;
+        
+      case "cookie":
+        parameterIn = ParameterLocation.Cookie;
+        break;
+        
+      default:
+        paramContext.raise(new ParserError("Invalid value for in \"%s\"", in));
+        return null;
     }
-    else
+    
+    String name = paramContext.getName();
+    
+    if(name == null)
     {
-      log_.debug("Found schema \"" + schema.getName() + "\" at " + schema.getPath());
-      
-      AbstractSchema objectSchema = Field.createSchema(this, schema, getName());
-      
-      if(objectSchema instanceof ReferenceOrSchema)
-      {
-        schema_ = (ReferenceOrSchema) objectSchema;
-        add(schema_);
-      }
-      else
-      {
-        schema_ = null;
-        schema.raise(new UnexpectedTypeError(ReferenceOrSchema.class, objectSchema));
-      }
+      paramContext.raise(new ParserError("Name is required"));
+      name = "UnNamed";
     }
-  }
-  
-  @Override
-  protected void getSchemas(Set<AbstractSchema> result)
-  {
-    super.getSchemas(result);
-    result.add(schema_);
+    
+    return new Parameter(methodSchema, paramContext, name,
+        methodSchema.getCamelCapitalizedName() +
+        methodSchema.getParent().getCamelCapitalizedName() + 
+        name.substring(0, 1).toUpperCase() + name.substring(1) + parameterIn + "Parameter", parameterIn);
   }
 
-  public boolean getIsRequired()
+  public ParameterLocation getLocation()
   {
-    return required_;
-  }
-
-  public ReferenceOrSchema getSchema()
-  {
-    return schema_;
-  }
-
-  @Override
-  public void validate()
-  {
-    super.validate();
-    schema_.validate();
-  }
-  
-  @Override
-  public void getReferencedTypes(Set<AbstractSchema> result)
-  {
-    super.getReferencedTypes(result);
-    result.add(schema_);
-//    schema_.getReferencedTypes(result);
+    return location_;
   }
 
   @Override
   public String toString()
   {
-    return "ResponseHeader(name=" + getName() + ")";
+    return super.toString() + ", localtion=" + location_;
   }
 }

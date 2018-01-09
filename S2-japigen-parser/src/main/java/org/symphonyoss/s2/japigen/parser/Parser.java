@@ -58,16 +58,16 @@ public class Parser
       
       ProcessingReport report = schema_.validate(rootNode);
       
-      if(report.isSuccess())
-      {
-        log_.info("Schema validation passed.");
-      }
-      else
-      {
-        rootParserContext.error("Schema validation FAILED:");
-        log_.error(report.toString());
-        throw new SchemaValidationException(report.toString());
-      }
+//      if(report.isSuccess())
+//      {
+//        log_.info("Schema validation passed.");
+//      }
+//      else
+//      {
+//        rootParserContext.error("Schema validation FAILED:");
+//        log_.error(report.toString());
+//        throw new SchemaValidationException(report.toString());
+//      }
       
       Model model = new Model(new ParserContext(rootParserContext, rootNode));
       
