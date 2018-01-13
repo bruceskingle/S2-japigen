@@ -21,11 +21,33 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.model;
+package com.symphony.s2.japigen.runtime;
 
-public enum HttpMethod
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+public class HandlerMapper
 {
-  Get, Post, Put, Delete, Options, Head, 
-  // Patch, for some reason ot suported by HttpServlet.
-  Trace;
+  private Map<String, HandlerMapper>  mappers_ = new HashMap<>();
+  private List<IModelHandler>         handlers_ = new LinkedList<>();
+  
+  public HandlerMapper()
+  {
+  }
+
+  public @Nullable HandlerMapper get(String name)
+  {
+    return mappers_.get(name);
+  }
+
+  public boolean add(IModelHandler handler)
+  {
+    return handlers_.add(handler);
+  }
+
+  
 }

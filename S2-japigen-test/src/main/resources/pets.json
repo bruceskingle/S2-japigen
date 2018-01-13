@@ -12,7 +12,7 @@
     "javaGenPackage":  "com.symphony.s2.japigen.test.oneofeverything",
     "javaFacadePackage":  "com.symphony.s2.japigen.test.oneofeverything.facade"
   },
-  "paths": {
+  "x-broken-paths": {
     "/hello/{greeting}": {
 	    "summary": "Greeting operations.",
 	    "description": "Various operations to do with greeting callers.",

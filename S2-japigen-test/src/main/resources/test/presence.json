@@ -7,30 +7,9 @@
 			"name": "Apache2"
 		}
 	},
-	"servers": [
-		{
-			"url": "https://{tenantname}-api.symphony.com:{port}/{basePath}",
-			"description": "The production API server",
-			"variables": {
-				"username": {
-					"default": "demo",
-					"description": "this value is assigned by the service provider, in this example `gigantic-server.com`"
-				},
-				"port": {
-					"enum": [
-						"8443",
-						"443"
-					],
-					"default": "443"
-				},
-				"basePath": {
-					"default": "/presence/v2"
-				}
-			}
-		}
-	],
 	"x-japigen-id": "https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/presence.json",
-	"x-japigen-model": {
+  "x-japigen-base-path": "/presence/v2",
+  "x-japigen-model": {
 		"javaGenPackage": "com.symphony.s2.japigen.test.unit",
 		"javaFacadePackage": "com.symphony.s2.japigen.test.unit.facade"
 	},
@@ -76,6 +55,26 @@
           "required": true,
           "schema": {
             "$ref": "#/components/schemas/UserPresenceInfo"
+          }
+        }
+      }
+    },
+    "/users/{userId}/test": {
+      "summary": "Manipulate a single user's presence.",
+      "parameters": {
+        "userId": {
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UserId"
+          }
+        }
+      },
+      "get": {
+        "summary": "Fetch a single user's presence.",
+        "response": {
+          "schema": {
+            "$ref": "#/components/schemas/UserPresence"
           }
         }
       }

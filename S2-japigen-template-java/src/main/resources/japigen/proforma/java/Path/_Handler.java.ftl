@@ -4,9 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import com.symphony.s2.japigen.runtime.exception.NoSuchRecordException;
-import com.symphony.s2.japigen.runtime.exception.PermissionDeniedException;
-import com.symphony.s2.japigen.runtime.exception.ServerErrorException;
+import com.symphony.s2.japigen.runtime.exception.JapiException;
 
 <@importFieldTypes model true/>
 
@@ -20,7 +18,7 @@ public class ${modelJavaClassName}Handler extends ${modelJavaClassName}ModelHand
  	<@setJavaMethod operation/>
   @Override
   public ${methodReturnType} handle${operation.camelCapitalizedName}(
-  <#list operation.parameters as name, parameter>
+  <#list operation.parameters as parameter>
     <@setJavaType parameter.schema/>
     <#if parameter.isRequired>
     @Nonnull  ${javaClassName?right_pad(25)} ${parameter.camelName}<#sep>,
@@ -30,7 +28,7 @@ public class ${modelJavaClassName}Handler extends ${modelJavaClassName}ModelHand
   </#list>
 
   )
-  ${methodThrows}
+  throws JapiException
   	{
   	   // TODO Auto-generated method stub
     ${methodReturnPlaceholder}

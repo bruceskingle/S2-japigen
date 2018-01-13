@@ -35,9 +35,7 @@
 					}
         },
         "parameterSets": [
-					{
-						"$ref": "#/components/x-japigen-parameter-sets/pagination"
-					}
+					"#/components/x-japigen-parameter-sets/pagination"
 				],
 				"response": {
 					"schema": {

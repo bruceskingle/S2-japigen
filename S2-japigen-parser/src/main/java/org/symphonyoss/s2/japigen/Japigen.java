@@ -72,6 +72,7 @@ public class Japigen
   public static final String SCHEMAS             = "schemas";
   public static final String PARAMETERS          = "parameters";
   public static final String SCHEMA              = "schema";
+  public static final String X_BASE_PATH         = "x-japigen-base-path";
   /**
    * Launcher.
    * 

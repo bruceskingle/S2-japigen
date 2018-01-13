@@ -55,6 +55,7 @@ public class ModelRegistry implements IModelRegistry
   private ObjectMapper  mapper_ = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
   private List<IUrlPathServlet> servlets_ = new LinkedList<>();
   private List<IModel>   models_ = new LinkedList<>();
+  private List<IModelHandler>   handlers_ = new LinkedList<>();
   
   @Override
   public IModelRegistry register(IModel factory)
@@ -71,6 +72,12 @@ public class ModelRegistry implements IModelRegistry
     return this;
   }
   
+  @Override
+  public void register(IModelHandler handler)
+  {
+    handlers_.add(handler);
+  }
+
   @Override
   public IModelObject newInstance(ImmutableJsonObject jsonObject) throws BadFormatException
   {

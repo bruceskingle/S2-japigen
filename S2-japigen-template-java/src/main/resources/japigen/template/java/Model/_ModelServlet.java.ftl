@@ -1,3 +1,4 @@
+<#if model.paths??>
 <#include "../S2-japigen-template-java-Prologue.ftl">
 <@setPrologueJavaType model/>
 import javax.annotation.concurrent.Immutable;
@@ -38,8 +39,10 @@ import org.symphonyoss.s2.common.exception.BadFormatException;
 
 <@importFieldTypes model true/>
 
+<#list model.paths.children as path>
+import ${javaFacadePackage}.${path.camelCapitalizedName}Handler;
+</#list>
 import ${javaFacadePackage}.I${model.model.camelCapitalizedName};
-
 
 @Immutable
 public abstract class ${modelJavaClassName}ModelServlet extends ModelServlet
@@ -51,21 +54,36 @@ public abstract class ${modelJavaClassName}ModelServlet extends ModelServlet
   public ${modelJavaClassName}ModelServlet(I${modelJavaClassName}Handler handler)
   {
     handler_ = handler;
-  }
-  
+  } 
+ -->
+ 
   @Override
   public String getUrlPath()
   {
-    return "${model.bindPath}";
+    return "${model.basePath}";
   }
- <#list model.operations as operation>
- 
+
+  public ${modelJavaClassName}ModelServlet()
+  {
+<#list model.paths.children as path>
+  // path ${path.path}
+  // bindPath ${path.bindPath}
+    register("${path.bindPath}", new ${path.camelCapitalizedName}Handler());
+ <#list path.operations as operation>
+      
+  // operation ${operation}
+  </#list>
+
+</#list>
+  }
+
+<#-- 
  	@Override
  	protected final void do${operation.camelCapitalizedName}(HttpServletRequest req, HttpServletResponse resp) throws ServletException
 	{
 	   ${"RequestContext"?right_pad(25)} context = new RequestContext(req, resp);
 
-	<#list operation.parameters as name, parameter>
+	<#list operation.parameters as parameter>
 	// parameter.class = ${parameter.class}
 	// parameter.name = ${parameter.name}
   // parameter.location = ${parameter.location}
@@ -83,7 +101,7 @@ public abstract class ${modelJavaClassName}ModelServlet extends ModelServlet
 	   if(context.preConditionsAreMet())
 	   {
 	     handle${operation.camelCapitalizedName}(
-	<#list operation.parameters as name, parameter>
+	<#list operation.parameters as parameter>
 		    ${parameter.camelName}<#sep>,
 	</#list>
 	
@@ -91,14 +109,15 @@ public abstract class ${modelJavaClassName}ModelServlet extends ModelServlet
 		}
 	}
  </#list>
- <#list model.unsupportedOperations as operation>
+
+ <#list path.unsupportedOperations as operation>
  
  	@Override
  	protected final void do${operation}(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
 		unsupportedOperation(req, resp, "${operation}");
 	}
- </#list>
- -->
+ </#list -->
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">
+</#if>

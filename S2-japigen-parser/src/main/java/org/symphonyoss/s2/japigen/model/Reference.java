@@ -27,10 +27,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
-import org.symphonyoss.s2.japigen.parser.ParsingException;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
-public class Reference<T> extends ModelElement
+public class Reference<T extends ModelElement> extends ModelElement
 {
   private final Class<T> type_;
 
@@ -42,13 +41,20 @@ public class Reference<T> extends ModelElement
   
   public Reference(ModelElement parent, ParserContext context, Class<T> type)
   {
-    super(parent, context, "Reference");
+    super(parent, context, "Ref");
     
     type_ = type;
     
     try
     {
-      uri_ = new URI(context.getJsonNode().asText());
+      String text = context.getJsonNode().asText();
+      
+      if(text == null || text.length()==0)
+      {
+        context.raise(new ParserError("Empty URI"));
+      }
+      
+      uri_ = new URI(text);
       
       path_ = uri_.getPath();
       fragment_ = uri_.getFragment();
@@ -80,7 +86,7 @@ public class Reference<T> extends ModelElement
   public void validate()
   {
     super.validate();
-    if(path_ != null)
+    if(path_ != null && fragment_!=null)
     {
       ModelElement referent;
       
@@ -108,6 +114,12 @@ public class Reference<T> extends ModelElement
   }
 
   public T getReferent()
+  {
+    return referent_;
+  }
+  
+  @Override
+  public ModelElement getReference()
   {
     return referent_;
   }

@@ -48,4 +48,6 @@ public interface IModelRegistry
   void start();
   
   void stop();
+
+  void register(IModelHandler handler);
 }

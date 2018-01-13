@@ -21,17 +21,11 @@
  * under the License.
  */
 
-package com.symphony.s2.japigen.runtime;
+package com.symphony.s2.japigen.runtime.http;
 
-import java.io.IOException;
-
-import com.symphony.s2.japigen.runtime.http.RequestContext;
-
-public interface IModelHandler
+public enum HttpMethod
 {
-  String  getPath();
-
-  int getPartsLength();
-
-  boolean handle(RequestContext context) throws IOException;
+  Get, Post, Put, Delete, Options, Head, 
+  // Patch, not supported by HttpServlet.
+  Trace;
 }

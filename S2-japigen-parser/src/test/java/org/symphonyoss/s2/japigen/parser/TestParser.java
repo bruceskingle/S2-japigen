@@ -36,20 +36,21 @@ public class TestParser extends AbstractParserTest
     test(false, "");
   }
   
-  @Test(expected=SchemaValidationException.class)
-  public void testIncomplete() throws ParsingException
-  {
-    test(false, "{\n" + 
-        "  \"openapi\": \"3.0.0\",\n" + 
-        "  \"info\": {\n" + 
-        "    \"version\": \"0.0.1\",\n" + 
-        "    \"title\": \"Japigen Template Type Check\",\n" + 
-        "    \"license\": {\n" + 
-        "      \"name\": \"Apache2\"\n" + 
-        "    }\n" + 
-        "  }\n" + 
-        "}");
-  }
+  // This test checks that openapi3 schemavalidation is working but we turned it off...
+//  @Test(expected=SchemaValidationException.class)
+//  public void testIncomplete() throws ParsingException
+//  {
+//    test(false, "{\n" + 
+//        "  \"openapi\": \"3.0.0\",\n" + 
+//        "  \"info\": {\n" + 
+//        "    \"version\": \"0.0.1\",\n" + 
+//        "    \"title\": \"Japigen Template Type Check\",\n" + 
+//        "    \"license\": {\n" + 
+//        "      \"name\": \"Apache2\"\n" + 
+//        "    }\n" + 
+//        "  }\n" + 
+//        "}");
+//  }
   
   @Test
   public void testInvalid() throws ParsingException

@@ -37,13 +37,20 @@ public class TestParser
   public static void main(String[] argv) throws JapigenException
   {
     if(argv.length==0)
-      testParser("src/main/Resources/test/oneOfEverything.json");
+    {
+      testParser("src/main/Resources/test/minimal.json",
+          "src/main/Resources/test/nestedObject.json",
+          "src/main/Resources/test/oneOfEverything.json",
+          "src/main/Resources/test/presence.json",
+          "src/main/Resources/test/simpleRpc.json",
+          "src/main/Resources/test/typeCheck.json");
+    }
     else
       for(String fileName : argv)
         testParser(fileName);
   }
   
-  public static void testParser(String fileName) throws JapigenException
+  public static void testParser(String ...fileNames) throws JapigenException
   {
 //    System.err.format("Integer.MIN_VALUE %d%n", Integer.MIN_VALUE);
 //    System.err.format("Integer.MAX_VALUE %d%n", Integer.MAX_VALUE);
@@ -65,7 +72,8 @@ public class TestParser
 //    modelSetContext.setModelFactoryClassFile(new File("../S2-japigen-template-java/target/classes"));
 //    modelSetContext.setModelFactoryClass("org.symphonyoss.s2.japigen.java.JavaModelFactory");
     
-    modelSetContext.addGenerationSource(new File(fileName));
+    for(String fileName : fileNames)
+      modelSetContext.addGenerationSource(new File(fileName));
     
     modelSetContext.process();
     

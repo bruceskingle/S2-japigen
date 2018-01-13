@@ -61,6 +61,8 @@ public class Model extends ModelElement
   private URI                 japigenId_;
 
   private Paths paths_;
+
+  private String basePath_ = "";
   
   public Model(ParserContext parserContext)
   {
@@ -103,6 +105,7 @@ public class Model extends ModelElement
               Entry<String, JsonNode> entry = it.next();
               
               modelMap_.put(entry.getKey(), entry.getValue().asText());
+              log_.info("BRUCE: " + entry.getKey() + "=" +  entry.getValue().asText());
             }
           }
           break;
@@ -118,6 +121,10 @@ public class Model extends ModelElement
             log_.error(Japigen.X_ID + " is not a valid URI", e);
           }
           
+          break;
+        
+        case Japigen.X_BASE_PATH:
+          basePath_ = subContext.getJsonNode().asText();
           break;
           
         default:
@@ -161,6 +168,16 @@ public class Model extends ModelElement
     return japigenId_;
   }
 
+  public String getBasePath()
+  {
+    return basePath_;
+  }
+
+  public Paths getPaths()
+  {
+    return paths_;
+  }
+
   public void generate(GenerationContext generationContext) throws GenerationException
   {
     if(getContext().getRootParserContext().hasErrors())
@@ -174,13 +191,14 @@ public class Model extends ModelElement
       dataModel.putAll(generationContext.getDataModel());
       dataModel.putAll(modelMap_);
       
+
+      log_.info("GENERATE");
+      for(Entry<String, Object> entry : dataModel.entrySet())
+        log_.info(entry.getKey() + "=" + entry.getValue());
+      
       generate(generationContext, dataModel);
+      
     }
-  }
-  
-  @Nonnull Long test()
-  {
-    return null;
   }
 
   @Override

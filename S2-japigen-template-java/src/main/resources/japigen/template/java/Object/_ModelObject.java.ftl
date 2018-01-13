@@ -158,6 +158,8 @@
       {
         return ${field.camelName}__;
       }
+// T1
+<@printField/>
 
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
       {

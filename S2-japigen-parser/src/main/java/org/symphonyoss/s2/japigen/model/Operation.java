@@ -23,6 +23,9 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
@@ -37,6 +40,7 @@ public class Operation extends ParameterContainer
   private final PathItem pathItem_;
 
   private Response response_;
+  private List<Parameter> pathParameters_ = new ArrayList<>();
 
   public Operation(PathItem parent, ParserContext parserContext)
   {
@@ -70,12 +74,21 @@ public class Operation extends ParameterContainer
       {
         getContext().raise(new ParserError("Path parameter \"%s\" is not defined", paramName));
       }
+      else
+      {
+        pathParameters_.add(param);
+      }
     }
   }
 
   public PathItem getPathItem()
   {
     return pathItem_;
+  }
+
+  public List<Parameter> getPathParameters()
+  {
+    return pathParameters_;
   }
 
   @Override

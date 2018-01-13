@@ -293,12 +293,15 @@
 </#macro>
 
 <#macro setFieldClassName model>
+// TT1 model = ${model} model.elementType=${model.elementType}
   <#switch model.elementType>
     <#case "Ref">
+// TT2
       <@setFieldClassName model.reference/>
       <#break>
 
     <#case "Field">
+// TT3 model.type.elementType = ${model.type.elementType}
       <#if model.type.elementType=="Array">
         <@setFieldClassName model.type/>
       <#else>
@@ -313,10 +316,12 @@
     <#case "Object">
     <#case "AllOf">
     <#case "OneOf">
+// TT4
       <#assign javaFieldClassName=getJavaElementType(model)>
       <#break>
       
     <#case "Array">
+// TT5
       <#switch model.cardinality>
         <#case "SET">
           <#assign javaFieldClassName="Set<${getJavaElementType(model)}>">
@@ -780,6 +785,15 @@ ${indent}  _enumOf${field.camelName}.add("${value}");
  # separately.
  #----------------------------------------------------------------------------------------------------->
 
+<#function checkLimitsClass model>
+  <#list model.fields as field>
+    <#if isCheckLimits(field)>
+      <#return true>
+    </#if>
+  </#list>
+  <#return false>
+</#function>
+
 <#macro checkLimitsClassThrows model><#list model.fields as field><#if isCheckLimits(field)> throws BadFormatException<#return></#if></#list></#macro>
 
 <#macro checkLimitsThrows model><#if isCheckLimits(model)> throws BadFormatException</#if></#macro>
@@ -797,19 +811,17 @@ ${indent}  _enumOf${field.camelName}.add("${value}");
       <#break>
       
     <#case "Array">
-      <#if model.minimum?? ||  model.maximum??>
+      <#if model.minItems?? ||  model.maxItems??>
         <#return true>
       </#if>
       
     <#default>
-      <#if model.minItems?? ||  model.maxItems??>
+      <#if model.minimum?? ||  model.maximum??>
         <#return true>
       </#if>
   </#switch>
   <#return false>
 </#function>
-
-
 
 <#------------------------------------------------------------------------------------------------------
  # Generate min/max checks for the given type if necessary
@@ -1014,7 +1026,7 @@ ${indent}}
    * ${operation.name} ${operation.pathItem.path}
    * ${summary}
    * ${description}
-  <#list operation.parameters as name, parameter>
+  <#list operation.parameters as parameter>
     <@setJavaType parameter.schema/>
    * ${parameter.camelName?right_pad(25)} ${summary}
   </#list>

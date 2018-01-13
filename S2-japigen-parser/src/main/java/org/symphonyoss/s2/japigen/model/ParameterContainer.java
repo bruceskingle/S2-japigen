@@ -39,14 +39,16 @@ import com.symphony.s2.japigen.runtime.http.ParameterLocation;
 
 public class ParameterContainer extends ModelElement //implements Iterable<Parameter>
 {
-  private static Logger                           log_           = LoggerFactory.getLogger(ParameterContainer.class);
+  private static Logger                                  log_           = LoggerFactory
+      .getLogger(ParameterContainer.class);
 
-  private boolean                                 resolved_;
-  private boolean                                 resolving_;
-  private Map<String, Parameter>                  parameters_    = new HashMap<>();
-  private Map<ParameterLocation, Map<String, Parameter>> locationMap_   = new HashMap<>();
-
-  private List<Reference<ParameterContainer>>     referenceList_ = new ArrayList<>();
+  private boolean                                        resolved_;
+  private boolean                                        resolving_;
+  private List<Parameter>                                parameters_        = new ArrayList<>();
+  private List<Parameter>                                nonPathParameters_ = new ArrayList<>();
+  private Map<String, Parameter>                         parameterMap_      = new HashMap<>();
+  private Map<ParameterLocation, Map<String, Parameter>> locationMap_       = new HashMap<>();
+  private List<Reference<ParameterContainer>>            referenceList_     = new ArrayList<>();
 
   public ParameterContainer(ModelElement parent, ParserContext parserContext, String type, String name)
   {
@@ -86,9 +88,16 @@ public class ParameterContainer extends ModelElement //implements Iterable<Param
       {
         for(ParserContext refContext : parameterSetsContext)
         {
-          Reference<ParameterContainer> ref = new Reference<ParameterContainer>(this, refContext, ParameterContainer.class);
-          add(ref);
-          referenceList_.add(ref);
+          if(refContext.isTextual())
+          {
+            Reference<ParameterContainer> ref = new Reference<ParameterContainer>(this, refContext, ParameterContainer.class);
+            add(ref);
+            referenceList_.add(ref);
+          }
+          else
+          {
+            refContext.raise(new ParserError("Expected a string value"));
+          }
         }
       }
       else
@@ -125,7 +134,7 @@ public class ParameterContainer extends ModelElement //implements Iterable<Param
       
       parent.resolve(this);
       
-      for(Parameter p : parent.parameters_.values())
+      for(Parameter p : parent.parameterMap_.values())
       {
         addParameter(p);
       }
@@ -145,7 +154,7 @@ public class ParameterContainer extends ModelElement //implements Iterable<Param
       {
         container.resolve(this);
         
-        for(Parameter param : container.parameters_.values())
+        for(Parameter param : container.parameterMap_.values())
           addParameter(param);
       }
     }
@@ -155,7 +164,7 @@ public class ParameterContainer extends ModelElement //implements Iterable<Param
 
   private void addParameter(Parameter param)
   {
-    Parameter existing = parameters_.get(param.getName());
+    Parameter existing = parameterMap_.get(param.getName());
     
     if(existing != null)
     {
@@ -163,14 +172,20 @@ public class ParameterContainer extends ModelElement //implements Iterable<Param
     }
     else
     {
-      parameters_.put(param.getName(), param);
+      parameters_.add(param);
+      parameterMap_.put(param.getName(), param);
       locationMap_.get(param.getLocation()).put(param.getName(), param);
+      
+      if(param.getLocation() != ParameterLocation.Path)
+      {
+        nonPathParameters_.add(param);
+      }
     }
   }
   
   public Parameter getParameter(String name)
   {
-    return parameters_.get(name);
+    return parameterMap_.get(name);
   }
   
   public Parameter getParameter(ParameterLocation location, String name)
@@ -229,9 +244,19 @@ public class ParameterContainer extends ModelElement //implements Iterable<Param
 //    return result;
 //  }
 
-  public Map<String, Parameter> getParameters()
+  public Map<String, Parameter> getParameterMap()
+  {
+    return parameterMap_;
+  }
+
+  public List<Parameter> getParameters()
   {
     return parameters_;
+  }
+
+  public List<Parameter> getNonPathParameters()
+  {
+    return nonPathParameters_;
   }
 
   public Map<ParameterLocation, Map<String, Parameter>> getLocationMap()
@@ -244,7 +269,7 @@ public class ParameterContainer extends ModelElement //implements Iterable<Param
   {
     super.getReferencedTypes(result);
     
-    for(Parameter param : parameters_.values())
+    for(Parameter param : parameterMap_.values())
       param.getReferencedTypes(result);
   }
 

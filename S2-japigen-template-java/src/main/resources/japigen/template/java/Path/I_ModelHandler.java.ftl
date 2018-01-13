@@ -3,9 +3,7 @@
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.symphony.s2.japigen.runtime.exception.NoSuchRecordException;
-import com.symphony.s2.japigen.runtime.exception.PermissionDeniedException;
-import com.symphony.s2.japigen.runtime.exception.ServerErrorException;
+import com.symphony.s2.japigen.runtime.exception.JapiException;
 import com.symphony.s2.japigen.runtime.IModelHandler;
 
 <@importFieldTypes model true/>
@@ -16,7 +14,7 @@ public interface I${modelJavaClassName}ModelHandler extends IModelHandler
 <#list model.operations as operation>
   <@setJavaMethod operation/>
   ${methodReturnType} handle${operation.camelCapitalizedName}(
-	<#list operation.parameters as name, parameter>
+	<#list operation.parameters as parameter>
 	  <@setJavaType parameter.schema/>
 	  <#if parameter.isRequired>
     @Nonnull  ${javaClassName?right_pad(25)} ${parameter.camelName}<#sep>,
@@ -25,7 +23,7 @@ public interface I${modelJavaClassName}ModelHandler extends IModelHandler
     </#if>
 	</#list>
 	
-    ) ${methodThrows};
+    ) throws JapiException;
     
 </#list>
 }

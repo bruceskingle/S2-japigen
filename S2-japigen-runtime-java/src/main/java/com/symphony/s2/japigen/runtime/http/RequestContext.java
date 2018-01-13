@@ -29,15 +29,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.s2.common.dom.DomWriter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.protobuf.ByteString;
+import com.symphony.s2.japigen.runtime.IModelObject;
 
 public class RequestContext
 {
@@ -45,52 +50,94 @@ public class RequestContext
 
   private static Logger log_ = LoggerFactory.getLogger(RequestContext.class);
   
-  private HttpServletRequest  request_;
-  private HttpServletResponse response_;
+  private final HttpMethod          method_;
+  private final HttpServletRequest  request_;
+  private final HttpServletResponse response_;
   private Map<String, Cookie> cookieMap_;
   private Map<String, String> pathMap_;
-  private List<String>        errors_ = new LinkedList<>();
+  private List<String>        errors_           = new LinkedList<>();
 
-  public RequestContext(HttpServletRequest request, HttpServletResponse response)
+  public RequestContext(HttpMethod method, HttpServletRequest request, HttpServletResponse response)
   {
+    method_ = method;
     request_ = request;
     response_ = response;
   }
 
-  public Long  getParameterAsLong(String name, ParameterLocation location, boolean required)
+  public HttpMethod getMethod()
   {
-    String s = getParameterAsString(name, location, required);
-    
-    if(s == null)
-      return null;
-    
-    try
-    {
-      return Long.parseLong(s);
-    }
-    catch(NumberFormatException e)
-    {
-      errors_.add(String.format("Long %s parameter \"%s\" is not a valid long value (\"%s\")", location, name, s));
-      return null;
-    }
+    return method_;
+  }
+
+  public HttpServletRequest getRequest()
+  {
+    return request_;
+  }
+
+  public HttpServletResponse getResponse()
+  {
+    return response_;
+  }
+
+  public @Nullable Long  getParameterAsLong(String name, ParameterLocation location, boolean required)
+  {
+    return asLong(name, getParameterAsString(name, location, required));
   }
 
   public Integer  getParameterAsInteger(String name, ParameterLocation location, boolean required)
   {
-    String s = getParameterAsString(name, location, required);
-    
-    if(s == null)
+    return asInteger(name, getParameterAsString(name, location, required));
+  }
+
+  public ByteString getParameterAsByteString(String name, ParameterLocation location, boolean required)
+  {
+    return asByteString(name, getParameterAsString(name, location, required));
+  }
+
+  public @Nullable Long asLong(String parameterName, String value)
+  {
+    if(value == null)
       return null;
     
     try
     {
-      return Integer.parseInt(s);
+      return Long.parseLong(value);
     }
     catch(NumberFormatException e)
     {
-      errors_.add(String.format("Integer %s parameter \"%s\" is not a valid int value (\"%s\")", location, name, s));
+      error("Parameter %s requires a Long value but we found \"%s\"", value);
       return null;
     }
+  }
+  
+  public @Nullable Integer asInteger(String parameterName, String value)
+  {
+    if(value == null)
+      return null;
+    
+    try
+    {
+      return Integer.parseInt(value);
+    }
+    catch(NumberFormatException e)
+    {
+      error("Parameter %s requires an Integer value but we found \"%s\"", value);
+      return null;
+    }
+  }
+
+  public @Nullable ByteString asByteString(String parameterName, String value)
+  {
+    if(value == null)
+      return null;
+    
+    if(!Base64.isBase64(value))
+    {
+      error("Parameter %s requires a Base64 value but we found \"%s\"", value);
+      return null;
+    }
+    
+    return ByteString.copyFrom(Base64.decodeBase64(value));
   }
 
   public String  getParameterAsString(String name, ParameterLocation location, boolean required)
@@ -153,6 +200,26 @@ public class RequestContext
     if(errors_.isEmpty())
       return true;
     
+    sendErrorResponse(HttpServletResponse.SC_BAD_REQUEST);
+    
+
+    return false;
+  }
+
+  public void sendOKResponse()
+  {
+    response_.setStatus(HttpServletResponse.SC_OK);
+  }
+
+  public void sendOKResponse(IModelObject response) throws IOException
+  {
+    response_.setStatus(HttpServletResponse.SC_OK);
+    
+    response.getJsonObject().writeTo(new DomWriter(response_.getWriter()), "\n");
+  }
+
+  public void sendErrorResponse(int statusCode)
+  {
     ObjectMapper mapper = new ObjectMapper();
     
     ArrayNode arrayNode = mapper.createArrayNode();
@@ -165,7 +232,7 @@ public class RequestContext
     try
     {
       response_.setContentType(JSON_CONTENT_TYPE);
-      response_.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      response_.setStatus(statusCode);
       response_.getWriter().println(arrayNode.toString());
       
     }
@@ -173,7 +240,10 @@ public class RequestContext
     {
       log_.error("Failed to send error response", e);
     }
-
-    return false;
+  }
+  
+  public void error(String format, Object ...args)
+  {
+    errors_.add(String.format(format, args));
   }
 }

@@ -15,5 +15,6 @@
 </#if>
  *
  * Path					${model.path}
+ * Bind Path			${model.bindPath}
  */
 <#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubEpilogue.ftl">

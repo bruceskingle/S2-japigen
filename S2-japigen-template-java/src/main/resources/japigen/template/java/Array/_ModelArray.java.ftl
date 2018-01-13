@@ -15,6 +15,7 @@ import com.symphony.s2.japigen.runtime.Model${modelJavaCardinality};
 @Immutable
 public class ${modelJavaClassName}ModelArray extends Model${modelJavaCardinality}<${modelJavaElementClassName}>
 {
+<@printModel/>
   public ${modelJavaClassName}ModelArray(${modelJavaFieldClassName} elements)<#if model.canFailValidation> throws BadFormatException</#if>
   {
     super(elements);

@@ -7,8 +7,11 @@
       "name": "Apache2"
     }
   },
-  "x-japigen-id": "https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/typeCheck.json",
-  "paths": {},
+  "x-japigen-id": "https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/minimal.json",
+  "x-japigen-model": {
+    "javaGenPackage":  "com.symphony.s2.japigen.test.typeCheck",
+    "javaFacadePackage":  "com.symphony.s2.japigen.test.typeCheck.facade"
+  },  "paths": {},
   "components": {
   }
 }
