@@ -105,7 +105,6 @@ public class Model extends ModelElement
               Entry<String, JsonNode> entry = it.next();
               
               modelMap_.put(entry.getKey(), entry.getValue().asText());
-              log_.info("BRUCE: " + entry.getKey() + "=" +  entry.getValue().asText());
             }
           }
           break;
@@ -143,6 +142,7 @@ public class Model extends ModelElement
     modelMap_.put(Japigen.YEAR, yearFormat_.format(now));
     modelMap_.put(Japigen.YEAR_MONTH, yearMonthFormat_.format(now));
     modelMap_.put(Japigen.DATE, dateFormat_.format(now));
+    modelMap_.put(Japigen.INPUT_SOURCE, parserContext.getRootParserContext().getInputSource());
     
     add(COMPONENTS, new Components(this, parserContext.get(COMPONENTS)));
   }

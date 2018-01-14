@@ -88,6 +88,24 @@ public abstract class Type extends Schema
     return null;
   }
   
+  @Override
+  public Schema getElementSchema()
+  {
+    return this;
+  }
+
+  @Override
+  public boolean getIsArraySchema()
+  {
+    return false;
+  }
+
+  @Override
+  public boolean getIsObjectSchema()
+  {
+    return false;
+  }
+
   public boolean isEnumAllowed()
   {
     // Overridden in StringType

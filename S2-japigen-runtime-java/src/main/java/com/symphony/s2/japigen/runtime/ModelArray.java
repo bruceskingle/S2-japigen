@@ -23,22 +23,25 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import javax.annotation.concurrent.Immutable;
 
-public class ModelObject extends ModelEntity implements IModelObject
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
+
+@Immutable
+public class ModelArray extends ModelEntity implements IModelArray
 {
-  private final ImmutableJsonObject        jsonObject_;
+  private final ImmutableJsonArray        jsonArray_;
     
-  public ModelObject(ImmutableJsonObject jsonObject)
+  public ModelArray(ImmutableJsonArray jsonArray)
   {
-    super(jsonObject);
+    super(jsonArray);
     
-    jsonObject_ = jsonObject;
+    jsonArray_ = jsonArray;
   }
 
   @Override
-  public ImmutableJsonObject getJsonObject()
+  public ImmutableJsonArray getJsonArray()
   {
-    return jsonObject_;
+    return jsonArray_;
   }
 }

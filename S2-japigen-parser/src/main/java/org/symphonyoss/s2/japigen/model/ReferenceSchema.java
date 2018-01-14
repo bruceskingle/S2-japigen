@@ -71,11 +71,35 @@ public class ReferenceSchema extends ReferenceOrSchema
   }
 
   @Override
-  public void validate()
+  public void resolve()
   {
-    super.validate();
+    super.resolve();
     
     type_ = reference_.getReferent();
+  }
+
+  @Override
+  public Schema getBaseSchema()
+  {
+    return type_.getBaseSchema();
+  }
+
+  @Override
+  public Schema getElementSchema()
+  {
+    return type_.getElementSchema();
+  }
+
+  @Override
+  public boolean getIsArraySchema()
+  {
+    return type_.getIsArraySchema();
+  }
+
+  @Override
+  public boolean getIsObjectSchema()
+  {
+    return type_.getIsObjectSchema();
   }
 
   public boolean  isResolved()

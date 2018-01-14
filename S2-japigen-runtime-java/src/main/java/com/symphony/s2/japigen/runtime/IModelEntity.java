@@ -1,12 +1,12 @@
 /*
  *
  *
- * Copyright 2017 Symphony Communication Services, LLC.
+ * Copyright 2018 Symphony Communication Services, LLC.
  *
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The SSF licenses this file
+ * regarding copyright ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -23,22 +23,13 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
+import org.symphonyoss.s2.common.dom.json.IJsonDomNodeProvider;
 
-public class ModelObject extends ModelEntity implements IModelObject
+public interface IModelEntity extends IJsonDomNodeProvider
 {
-  private final ImmutableJsonObject        jsonObject_;
-    
-  public ModelObject(ImmutableJsonObject jsonObject)
-  {
-    super(jsonObject);
-    
-    jsonObject_ = jsonObject;
-  }
-
   @Override
-  public ImmutableJsonObject getJsonObject()
-  {
-    return jsonObject_;
-  }
+  IImmutableJsonDomNode  getJsonDomNode();
+
+  String serialize();
 }

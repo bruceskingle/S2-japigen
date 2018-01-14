@@ -57,7 +57,7 @@
 				"response": {
 					"required": true,
 					"schema": {
-						"$ref": "#/components/schemas/DocumentId"
+						"$ref": "#/components/schemas/Document"
 					}
 				}
 			}

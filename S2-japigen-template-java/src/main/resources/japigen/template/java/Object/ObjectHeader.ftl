@@ -18,6 +18,7 @@ import org.symphonyoss.s2.common.dom.IDoubleProvider;
 import org.symphonyoss.s2.common.dom.IByteStringProvider;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 import org.symphonyoss.s2.common.dom.json.JsonArray;
 import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
@@ -38,5 +39,3 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
 
 <@generateEnums "  " model/>
   private final ${(modelJavaClassName + ".Factory")?right_pad(25)} _factory_;
-  private final ${"ImmutableJsonObject"?right_pad(25)}  jsonObject_;
-  private final ${"String"?right_pad(25)}  asString_;

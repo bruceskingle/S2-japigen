@@ -255,6 +255,10 @@
    #
    #-->
   <#assign javaElementClassName=getJavaElementType(model)/>
+  // REFACTOR1 old javaElementClassName = ${javaElementClassName}
+  <#assign newJavaElementClassName=getJavaClassName(model.elementSchema)/>
+  // REFACTOR1 new javaElementClassName = ${javaElementClassName}
+  
   <#-- 
    #
    # now set javaFieldClassName
@@ -275,6 +279,66 @@
    <@decorate model/>
    <@setDescription model/>
 </#macro>
+
+<#------------------------------------------------------------------------------------------------------
+ # return the Java class name for the given Schema
+ #
+ # @param Schema model     A Schema for which the java class name is required.
+ #----------------------------------------------------------------------------------------------------->
+<#function getJavaClassName model>
+  <#switch model.elementType>
+    <#case "Integer">
+      <#switch model.format>
+        <#case "int32">
+          <#return "Integer">
+          
+         <#default>
+          <#return "Long">
+      </#switch>
+      
+    <#case "Double">
+      <#switch model.format>
+        <#case "float">
+          <#return "Float">
+        
+        <#default>
+          <#return "Double">
+      </#switch>
+    
+    <#case "String">
+      <#switch model.format>
+        <#case "byte">
+          <#return "ByteString">
+        
+        <#default>
+          <#return "String">
+      </#switch>
+    
+    <#case "Boolean">
+      <#return "Boolean">
+    
+    <#case "Array">
+      <#switch model.cardinality>
+        <#case "SET">
+          <#return "Set<${getJavaClassName(model.elementSchema)}>">
+          <#break>
+          
+        <#default>
+          <#return "List<${getJavaClassName(model.elementSchema)}>">
+      </#switch>
+      <#return getJavaElementType(model.items)/>
+      <#break>
+    
+    <#case "OneOf">
+    <#case "AllOf">
+    <#case "Object">
+      <#return "${model.camelCapitalizedName}">
+      <#break>
+      
+    <#default>
+      <#return "## EXPECTED SCHEMA BUT FOUND ${model.elementType} in function getJavaClassName ##"/>
+  </#switch>
+</#function>
 
 <#macro setDescription model>
   <#switch model.elementType>
@@ -949,7 +1013,7 @@ ${indent}}
         <#if isArrayType>
 ${indent}if(node instanceof JsonArray)
 ${indent}{
-${indent}  ${var} = ${javaConstructTypePrefix}((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class)${javaConstructTypePostfix};
+${indent}  ${var} = ${javaConstructTypePrefix}(ImmutableJsonArray)node, ((ImmutableJsonArray)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class)${javaConstructTypePostfix};
 ${indent}  <@checkItemLimits field field.camelName var/>
 ${indent}}
 ${indent}else

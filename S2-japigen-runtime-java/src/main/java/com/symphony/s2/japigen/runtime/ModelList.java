@@ -25,14 +25,17 @@ package com.symphony.s2.japigen.runtime;
 
 import java.util.List;
 
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
+
 import com.google.common.collect.ImmutableList;
 
-public class ModelList<T>
+public class ModelList<T> extends ModelArray
 {
   private final ImmutableList<T> elements_;
   
-  public ModelList(List<T> elements)
+  public ModelList(ImmutableJsonArray jsonObject, List<T> elements)
   {
+    super(jsonObject);
     elements_ = ImmutableList.copyOf(elements);
   }
 

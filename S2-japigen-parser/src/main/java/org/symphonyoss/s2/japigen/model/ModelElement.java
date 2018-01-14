@@ -312,6 +312,14 @@ public class ModelElement
       child.getSchemas(result);
   }
 
+  public void resolve()
+  {
+    log_.debug("Resolve " + toString());
+    
+    for(ModelElement child : children_)
+      child.resolve();
+  }
+  
   public void validate()
   {
     log_.debug("Validate " + toString());

@@ -23,22 +23,11 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
+import org.symphonyoss.s2.common.exception.BadFormatException;
 
-public class ModelObject extends ModelEntity implements IModelObject
+public interface IModelArrayFactory<M extends IModelArray, F extends IModel>
 {
-  private final ImmutableJsonObject        jsonObject_;
-    
-  public ModelObject(ImmutableJsonObject jsonObject)
-  {
-    super(jsonObject);
-    
-    jsonObject_ = jsonObject;
-  }
-
-  @Override
-  public ImmutableJsonObject getJsonObject()
-  {
-    return jsonObject_;
-  }
+  F  getModel();
+  M  newInstance(ImmutableJsonArray jsonArray) throws BadFormatException;
 }

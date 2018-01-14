@@ -1,4 +1,5 @@
 {
+  // This is a comment.
   "openapi": "3.0.0",
   "info": {
     "version": "0.0.1",
@@ -15,7 +16,12 @@
   "paths": {
     "/hello/{greeting}": {
 	    "summary": "Greeting operations.",
-	    "description": "Various operations to do with greeting callers.",
+	    /*
+	     * this is another comment.
+	    */
+	    "description": "Various operations to do with greeting callers.\
+	    This is a very long comment\
+      Split over several lines.",
       "get": {
         "summary": "Say Hello",
         "operationId": "sayHello",
@@ -317,10 +323,8 @@
       },
       
       "ObjectWithOneOfEverything": {
-        "description": [
-          "An object with one field of every type.",
-          ""
-        ],
+        "description": "An object with one field of every type.\
+        This is a long comment",
         "type": "object",
         "required": [
           "secs", "aDoubleMinMax"

@@ -23,12 +23,9 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import org.symphonyoss.s2.common.dom.json.IJsonDomNodeProvider;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 
-public interface IModelObject extends IJsonDomNodeProvider
+public interface IModelObject extends IModelEntity
 {
   ImmutableJsonObject getJsonObject();
-
-  String serialize();
 }

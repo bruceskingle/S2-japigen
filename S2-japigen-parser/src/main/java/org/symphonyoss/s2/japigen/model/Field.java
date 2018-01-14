@@ -38,6 +38,31 @@ public class Field extends AbstractSchema
     super(parent, context, "Field", name);
     required_ = required;
     type_ = type;
+    add(type_);
+  }
+
+  @Override
+  public Schema getBaseSchema()
+  {
+    return type_.getBaseSchema();
+  }
+
+  @Override
+  public Schema getElementSchema()
+  {
+    return type_.getElementSchema();
+  }
+
+  @Override
+  public boolean getIsArraySchema()
+  {
+    return type_.getIsArraySchema();
+  }
+
+  @Override
+  public boolean getIsObjectSchema()
+  {
+    return type_.getIsObjectSchema();
   }
 
   public boolean isRequired()
@@ -93,8 +118,6 @@ public class Field extends AbstractSchema
     
     if(type_ == null)
       getContext().raise(new ParserError("Field type must be specified"));
-    else
-      type_.validate();
   }
 
   public static AbstractSchema create(ModelElement parent, ParserContext context, boolean required)

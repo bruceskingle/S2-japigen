@@ -48,26 +48,27 @@ public abstract class AbstractContainerSchema extends Schema
   }
   
   @Override
-  public boolean getIsObjectType()
+  public Schema getElementSchema()
+  {
+    return this;
+  }
+
+  @Override
+  public boolean getIsArraySchema()
+  {
+    return false;
+  }
+
+  @Override
+  public boolean getIsObjectSchema()
   {
     return true;
   }
 
   @Override
-  protected void getReferencedTypes(Set<AbstractSchema> result)
+  public boolean getIsObjectType()
   {
-    super.getReferencedTypes(result);
-    
-    for(ModelElement child : getFields())
-      child.getReferencedTypes(result);
-  }
-
-  @Override
-  protected void getSchemas(Set<AbstractSchema> result)
-  {
-    super.getSchemas(result);
-    
-    result.add(this);
+    return true;
   }
   
   @Override

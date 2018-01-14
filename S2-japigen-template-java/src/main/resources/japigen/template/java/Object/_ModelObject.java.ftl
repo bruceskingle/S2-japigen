@@ -8,16 +8,16 @@
 <#-- Constructor from fields -->  
   protected ${modelJavaClassName}ModelObject(
     ${(modelJavaClassName + ".Factory")?right_pad(25)} _factory,
+    ${"ImmutableJsonObject"?right_pad(25)} _jsonObject,
 <#list model.fields as field><@setJavaType field/>
     ${javaClassName?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
 
   )<@checkLimitsClassThrows model/>
   {
-    _factory_ = _factory;
-    MutableJsonObject jsonObject = new MutableJsonObject();
+    super(_jsonObject);
     
-    jsonObject.addIfNotNull(JapigenRuntime.JSON_TYPE, TYPE_ID);
+    _factory_ = _factory;
 <#list model.fields as field>
 <@setJavaType field/>
 <#if requiresChecks>
@@ -26,33 +26,29 @@
 <@printField/>
 
     ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
-    if(${field.camelName}_ != null)
-    {
-      jsonObject.${addJsonNode}("${field.camelName}", ${javaGetValuePrefix}${field.camelName}_${javaGetValuePostfix});
-    }
 </#list>
-
-    jsonObject_ = jsonObject.immutify();
-    asString_ = SERIALIZER.serialize(jsonObject_);
   }
   
 <#-- Constructor from Json   -->  
-  protected ${modelJavaClassName}ModelObject(${modelJavaClassName}.Factory _factory, ImmutableJsonObject jsonObject) throws BadFormatException
+  protected ${modelJavaClassName}ModelObject(${modelJavaClassName}.Factory _factory, ImmutableJsonObject _jsonObject) throws BadFormatException
   {
+    super(_jsonObject);
+    
+    if(_jsonObject == null)
+      throw new BadFormatException("_jsonObject is required");
+  
     _factory_ = _factory;
-    jsonObject_ = jsonObject;
-    asString_ = SERIALIZER.serialize(jsonObject_);
 
-    IImmutableJsonDomNode typeNode = jsonObject_.get(JapigenRuntime.JSON_TYPE);
+    IImmutableJsonDomNode typeNode = _jsonObject.get(JapigenRuntime.JSON_TYPE);
     if(!(typeNode instanceof IStringProvider && TYPE_ID.equals(((IStringProvider)typeNode).asString())))
     {
       throw new BadFormatException("_type attribute must be \"" + TYPE_ID + "\"");
     }
     
 <#list model.fields as field>
-    if(jsonObject_.containsKey("${field.camelName}"))
+    if(_jsonObject.containsKey("${field.camelName}"))
     {
-      IJsonDomNode  node = jsonObject_.get("${field.camelName}");
+      IJsonDomNode  node = _jsonObject.get("${field.camelName}");
   <@generateCreateFieldFromJsonDomNode "      " field "${field.camelName}_"/>
     }
     else
@@ -158,8 +154,6 @@
       {
         return ${field.camelName}__;
       }
-// T1
-<@printField/>
 
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
       {
@@ -181,7 +175,26 @@
       }
       </#if>
     </#list>
-      
+    
+      @Override 
+      public ImmutableJsonObject getJsonObject()
+      {
+        MutableJsonObject jsonObject = new MutableJsonObject();
+        
+        jsonObject.addIfNotNull(JapigenRuntime.JSON_TYPE, TYPE_ID);
+    <#list model.fields as field>
+    <@setJavaType field/>
+    <@printField/>
+    
+        if(${field.camelName}__ != null)
+        {
+          jsonObject.${addJsonNode}("${field.camelName}", ${javaGetValuePrefix}${field.camelName}__${javaGetValuePostfix});
+        }
+    </#list>
+    
+        return jsonObject.immutify();
+      }
+          
       public abstract ${modelJavaClassName} build()<@checkLimitsClassThrows model/>;
     }
   }

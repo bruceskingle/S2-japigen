@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.japigen.model.Model;
 
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -53,7 +54,10 @@ public class Parser
     try
     {
       rootParserContext.prologue();
-      ObjectMapper mapper = new ObjectMapper();
+      ObjectMapper mapper = new ObjectMapper()
+          .configure(Feature.ALLOW_COMMENTS, true)
+          .configure(Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+          .configure(Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true);
       JsonNode rootNode = mapper.readTree(rootParserContext.getReader());
       
       ProcessingReport report = schema_.validate(rootNode);

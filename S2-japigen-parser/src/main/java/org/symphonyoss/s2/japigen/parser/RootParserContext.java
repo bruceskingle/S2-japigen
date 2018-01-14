@@ -89,18 +89,32 @@ public class RootParserContext extends BaseParserContext
       if(i != -1)
         path = path.substring(i+1);
       
-      if(path.length() > 5)
-      {
-        int l = path.length()-5;
-        
-        if(".json".equalsIgnoreCase(path.substring(l)))
-          path = path.substring(0, l);
-      }
       
-      inputSourceName_ = path;
+      
+      inputSourceName_ = trim(path);
     }
   }
   
+  private String trim(String path)
+  {
+    if(path.length() > 5)
+    {
+      int l = path.length()-5;
+      
+      if(".json".equalsIgnoreCase(path.substring(l)))
+        return path.substring(0, l);
+    }
+    
+    if(path.length() > 3)
+    {
+      int l = path.length()-3;
+      
+      if(".js".equalsIgnoreCase(path.substring(l)))
+        return path.substring(0, l);
+    }
+    return path;
+  }
+
   public RootParserContext(File inputFile, Reader inputStream)
   {
     reader_ = inputStream;

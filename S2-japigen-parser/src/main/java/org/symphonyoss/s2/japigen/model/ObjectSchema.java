@@ -94,6 +94,24 @@ public class ObjectSchema extends Schema
   }
   
   @Override
+  public Schema getElementSchema()
+  {
+    return this;
+  }
+
+  @Override
+  public boolean getIsArraySchema()
+  {
+    return false;
+  }
+
+  @Override
+  public boolean getIsObjectSchema()
+  {
+    return true;
+  }
+
+  @Override
   public boolean getHasSet()
   {
     for(ModelElement child : getChildren())

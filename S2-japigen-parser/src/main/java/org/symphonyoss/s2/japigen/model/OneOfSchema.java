@@ -23,7 +23,6 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,6 +56,38 @@ public class OneOfSchema extends AbstractContainerSchema
     }
   }
 
+  @Override
+  public void validate()
+  {
+    super.validate();
+    
+    for(ModelElement child : getChildren())
+    {
+      if(child instanceof ObjectSchema)
+      {
+        getContext().raise(new ParserError("OneOf children must be declared as $ref not as in-line objects. This is a japigen restriction."));
+      }
+      else if(child instanceof ReferenceSchema)
+      {
+        Schema type = ((ReferenceSchema)child).getType();
+        
+        if(!(type instanceof ObjectSchema))
+        {
+          getContext().raise(new ParserError("OneOf children must be declared as $ref to an object, not a %s", type.getClass().getName()));
+        }
+      }
+    }
+    
+//    if(getParent() instanceof Schemas)
+//    {
+//      getContext().raise(new ParserInfo("OneOf parent is Schemas for %s", getName()));
+//    }
+//    else
+//    {
+//      getContext().raise(new ParserError("OneOf is only allowed in a top level schema (parent is %s for %s)", getParent().getClass(), getName()));
+//    }
+  }
+
   public Discriminator getDiscriminator()
   {
     return discriminator_;
@@ -73,39 +104,4 @@ public class OneOfSchema extends AbstractContainerSchema
   @Override
   protected void generateChildren(GenerationContext generationContext, Map<String, Object> dataModel)
   {}
-  
-  /**
-   * Return the fields of this object, for a normal object this is the same as
-   * getChildren() for an AllOf it is something else.
-   * 
-   * @return The fields of this object.
-   */
-  public List<ModelElement> getFields()
-  {
-    return getChildren();
-  }
-
-
-  @Override
-  public void validate()
-  {
-    super.validate();
-    
-    for(ModelElement child : getChildren())
-    {
-      if(child instanceof ObjectSchema)
-      {
-        getContext().raise(new ParserError("OneOf children must be declared as $ref not as in-line objects. This is a japigen restriction."));
-      }
-    }
-    
-//    if(getParent() instanceof Schemas)
-//    {
-//      getContext().raise(new ParserInfo("OneOf parent is Schemas for %s", getName()));
-//    }
-//    else
-//    {
-//      getContext().raise(new ParserError("OneOf is only allowed in a top level schema (parent is %s for %s)", getParent().getClass(), getName()));
-//    }
-  }
 }

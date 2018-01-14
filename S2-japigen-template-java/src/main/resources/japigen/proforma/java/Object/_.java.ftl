@@ -21,6 +21,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
 <#-- Constrictor from fields -->  
   private ${model.camelCapitalizedName}(
     ${(modelJavaClassName + ".Factory")?right_pad(25)} _factory,
+    ${"ImmutableJsonObject"?right_pad(25)} _jsonObject,
 <#list model.fields as field><@setJavaType field/>
     ${javaClassName?right_pad(25)} ${field.camelName}<#sep>,
 </#list>
@@ -29,6 +30,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
   {
     super(
       _factory,
+      _jsonObject,
 <#list model.fields as field>
 <@setJavaType field/>
       ${field.camelName}<#sep>, 
@@ -135,6 +137,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
          
         return new ${model.camelCapitalizedName}(
           factory_,
+          getJsonObject(),
     <#list model.fields as field>
       <@setJavaType field/>
           get${field.camelCapitalizedName}()<#sep>, 

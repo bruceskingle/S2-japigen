@@ -141,6 +141,7 @@ public class ModelSetParserContext
 
   public void validate(Model model)
   {
+    model.resolve();
     model.validate();
     
     generateQueue_.add(model);

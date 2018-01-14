@@ -36,7 +36,7 @@ import org.symphonyoss.s2.japigen.parser.error.ParserError;
  * @author Bruce Skingle
  *
  */
-public class ArraySchema extends Type
+public class ArraySchema extends Schema
 {
   private final AbstractSchema items_;
   private final String cardinality_;
@@ -56,6 +56,7 @@ public class ArraySchema extends Type
     else
     {
       items_ = AbstractSchema.createSchema(this, items);
+      add(items_);
     }
     
     minItems_ = context.getLongNode("minItems");
@@ -82,6 +83,24 @@ public class ArraySchema extends Type
       getContext().raise(new ParserError("Array items must be specified"));
     else
       items_.validate();
+  }
+
+  @Override
+  public Schema getElementSchema()
+  {
+    return items_.getBaseSchema();
+  }
+
+  @Override
+  public boolean getIsArraySchema()
+  {
+    return true;
+  }
+
+  @Override
+  public boolean getIsObjectSchema()
+  {
+    return items_.getIsObjectSchema();
   }
 
   public AbstractSchema getItems()

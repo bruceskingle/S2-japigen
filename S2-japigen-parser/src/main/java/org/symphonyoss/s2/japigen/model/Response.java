@@ -70,6 +70,17 @@ public class Response extends ModelElement
     }
   }
 
+  @Override
+  public void validate()
+  {
+    super.validate();
+    
+    if(schema_ != null && !schema_.getIsObjectSchema())
+    {
+        getContext().raise(new ParserError("Responses must be objects"));
+    }
+  }
+
   public ReferenceOrSchema getSchema()
   {
     return schema_;

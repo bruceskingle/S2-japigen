@@ -25,6 +25,7 @@ package org.symphonyoss.s2.japigen.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
@@ -70,6 +71,23 @@ public class AllOfSchema extends AbstractContainerSchema
         fields.add(e);
       }
     }
+  }
+
+  @Override
+  protected void getReferencedTypes(Set<AbstractSchema> result)
+  {
+    super.getReferencedTypes(result);
+    
+    for(ModelElement child : getFields())
+      child.getReferencedTypes(result);
+  }
+
+  @Override
+  protected void getSchemas(Set<AbstractSchema> result)
+  {
+    super.getSchemas(result);
+    
+    result.add(this);
   }
 
   /**

@@ -23,11 +23,15 @@
 
 package com.symphony.s2.japigen.runtime;
 
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.exception.BadFormatException;
+
 public abstract class ModelObjectFactory<M extends IModelObject, F extends IModel>
 implements IModelObjectFactory<M,F>
 {
   
   public abstract static class Builder
   {
+    public abstract ImmutableJsonObject getJsonObject() throws BadFormatException;
   }
 }

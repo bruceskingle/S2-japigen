@@ -78,12 +78,26 @@ public abstract class ${modelJavaClassName}ModelHandler extends ModelHandler imp
     // We have already checked that there are the correct number of parameters
       
     ${javaFieldClassName?right_pad(25)} ${parameter.camelName}Value = context.as${javaFieldClassName}("${parameter.name}", it.next());
-    ${javaClassName?right_pad(25)} ${parameter.camelName} = ${parameter.camelName}Value == null ? null :
-    ${" "?right_pad(25)}       ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
+    ${javaClassName?right_pad(25)} ${parameter.camelName} = null;
 
     <#if requiresChecks>
     <@checkLimits "    " parameter parameter.camelName/>
     </#if>
+    
+    <#if checkLimitsClass(parameter.schema)>
+    try
+    {
+      ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
+    }
+    catch(BadFormatException e)
+    {
+      context.error("Parameter \"${parameter.camelName}\" has invalid value \"%s\" (%s)", ${parameter.camelName}Value, e.getMessage());
+    }
+    <#else>
+    ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
+    </#if>
+    
+    
   </#list>
   
   <#list operation.nonPathParameters as parameter>

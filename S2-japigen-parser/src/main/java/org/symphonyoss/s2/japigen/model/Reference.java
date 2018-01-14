@@ -83,9 +83,9 @@ public class Reference<T extends ModelElement> extends ModelElement
   }
   
   @Override
-  public void validate()
+  public void resolve()
   {
-    super.validate();
+    super.resolve();
     if(path_ != null && fragment_!=null)
     {
       ModelElement referent;

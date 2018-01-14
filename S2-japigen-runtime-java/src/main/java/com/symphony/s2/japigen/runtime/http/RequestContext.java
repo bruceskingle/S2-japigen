@@ -42,6 +42,7 @@ import org.symphonyoss.s2.common.dom.DomWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.protobuf.ByteString;
+import com.symphony.s2.japigen.runtime.IModelEntity;
 import com.symphony.s2.japigen.runtime.IModelObject;
 
 public class RequestContext
@@ -211,11 +212,11 @@ public class RequestContext
     response_.setStatus(HttpServletResponse.SC_OK);
   }
 
-  public void sendOKResponse(IModelObject response) throws IOException
+  public void sendOKResponse(IModelEntity response) throws IOException
   {
     response_.setStatus(HttpServletResponse.SC_OK);
     
-    response.getJsonObject().writeTo(new DomWriter(response_.getWriter()), "\n");
+    response_.getWriter().println(response.serialize());
   }
 
   public void sendErrorResponse(int statusCode)

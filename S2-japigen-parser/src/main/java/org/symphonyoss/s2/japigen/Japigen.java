@@ -60,6 +60,7 @@ public class Japigen
   public static final String YEAR                = "year";
   public static final String YEAR_MONTH          = "yearMonth";
   public static final String DATE                = "date";
+  public static final String INPUT_SOURCE        = "inputSource";
 
   public static final String IS_FACADE           = "isFacade";
   public static final String TEMPLATE_NAME       = "templateName";

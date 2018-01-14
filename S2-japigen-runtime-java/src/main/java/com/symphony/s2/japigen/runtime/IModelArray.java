@@ -23,22 +23,9 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
 
-public class ModelObject extends ModelEntity implements IModelObject
+public interface IModelArray extends IModelEntity
 {
-  private final ImmutableJsonObject        jsonObject_;
-    
-  public ModelObject(ImmutableJsonObject jsonObject)
-  {
-    super(jsonObject);
-    
-    jsonObject_ = jsonObject;
-  }
-
-  @Override
-  public ImmutableJsonObject getJsonObject()
-  {
-    return jsonObject_;
-  }
+  ImmutableJsonArray getJsonArray();
 }
