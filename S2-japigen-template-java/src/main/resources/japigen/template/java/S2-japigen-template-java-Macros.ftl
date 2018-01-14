@@ -155,83 +155,14 @@
    # Set javaElementClassName which is the basic Java type which stores simple values.
    #
    #-->
-   // T0 model.elementType = ${model.elementType}
-  <#switch model.elementType>
-    <#case "Integer">
-    <#case "Double">
-    <#case "String">
-    <#case "Boolean">
-      <#assign modelJavaElementClassName=getJavaElementType(model)/>      
-      <#break>
-      
-    <#case "Array">
-    // T0a model.items = ${model.items}
-      <#assign modelJavaElementClassName=getJavaElementType(model.items)/>
-      <#break>
-    
-    <#case "Ref">
-      // INVALID SCHEMA ELEMENT OF TYPE Ref for model ${model}
-      <#break>
-    
-    <#default>
-      <#assign modelJavaElementClassName=model.camelCapitalizedName/>
-      
-  </#switch>
-  <#assign oldModelJavaElementClassName=modelJavaElementClassName/>
   <#assign modelJavaElementClassName=getJavaClassName(model.elementSchema)/>
-  <#if oldModelJavaElementClassName != modelJavaElementClassName>
-  
-  
-  ERROR REFACTOR1 javaElementClassName = ${oldModelJavaElementClassName} -> ${modelJavaElementClassName}
-  
-  
-  </#if>
   <#-- 
    #
    # now set modelJavaFieldClassName and decorator attributes
    #
    #-->
-  <#switch model.elementType>
-    <#case "Integer">
-    <#case "Double">
-    <#case "String">
-    <#case "Boolean">
-      <#assign modelJavaFieldClassName=modelJavaElementClassName>
-      <#break>
-    
-    <#case "Array">
-      <#switch model.cardinality>
-        <#case "SET">
-          <#assign modelJavaFieldClassName="Set<${modelJavaElementClassName}>">
-          <#assign modelJavaCardinality="Set">
-          <#break>
-          
-        <#default>
-          <#assign modelJavaFieldClassName="List<${modelJavaElementClassName}>">
-          <#assign modelJavaCardinality="List">
-      </#switch>
-      <#break>
-    
-    <#default>
-      <#assign modelJavaFieldClassName=modelJavaElementClassName>
-      <#break>
-  </#switch>
-  
-  <#assign oldModelJavaFieldClassName=modelJavaFieldClassName/>
   <#assign modelJavaFieldClassName=getJavaClassName(model.baseSchema)/>
-  <#if oldModelJavaFieldClassName != modelJavaFieldClassName>
-  
-  
-  ERROR REFACTOR1 modelJavaFieldClassName = ${oldModelJavaFieldClassName} -> ${modelJavaFieldClassName}
-  
-  
-  </#if>
-  // REFACTOR model=${model} model.baseSchema=${model.baseSchema} model.elementSchema=${model.elementSchema}
-  
-  <#assign oldModelJavaCardinality=modelJavaCardinality/>
-  
   <#if model.isArraySchema>
-  //ARRAY cardinality = ${model.baseSchema.cardinality}
     <#switch model.baseSchema.cardinality>
       <#case "SET">
         <#assign modelJavaCardinality="Set">
@@ -242,15 +173,6 @@
     </#switch>
   <#else>
     <#assign modelJavaCardinality="">
-  </#if>
-  
-  
-  <#if oldModelJavaCardinality != modelJavaCardinality>
-  
-  
-  ERROR REFACTOR1 modelJavaCardinality = ${oldModelJavaCardinality} -> ${modelJavaCardinality}
-  
-  
   </#if>
 </#macro>
 
@@ -289,15 +211,7 @@
    # first set javaElementClassName which is the basic Java type which stores simple values.
    #
    #-->
-  <#assign oldJavaElementClassName=getJavaElementType(model)/>
   <#assign javaElementClassName=getJavaClassName(model.elementSchema)/>
-  <#if oldJavaElementClassName != javaElementClassName>
-  
-  
-  ERROR REFACTOR1 javaElementClassName = ${oldJavaElementClassName} -> ${javaElementClassName}
-  
-  
-  </#if>
   <#-- 
    #
    # now set javaFieldClassName
@@ -538,61 +452,7 @@
   </#switch>
 </#macro>
 
-<#------------------------------------------------------------------------------------------------------
- # return javaElementClassName based on the underlying Java type
- #----------------------------------------------------------------------------------------------------->
-<#function getJavaElementType model>
-  <#switch model.elementType>
-    <#case "Integer">
-      <#switch model.format>
-        <#case "int32">
-          <#return "Integer">
-          
-         <#default>
-          <#return "Long">
-      </#switch>
-      <#break>
-      
-    <#case "Double">
-      <#switch model.format>
-        <#case "float">
-          <#return "Float">
-        
-        <#default>
-          <#return "Double">
-      </#switch>
-      <#break>
-    
-    <#case "String">
-      <#switch model.format>
-        <#case "byte">
-          <#return "ByteString">
-        
-        <#default>
-          <#return "String">
-      </#switch>
-      <#break>
-    
-    <#case "Boolean">
-      <#return "Boolean">
-    
-    <#case "Field">
-      <#return getJavaElementType(model.type)/>
-      <#break>
-    
-    <#case "Array">
-      <#return getJavaElementType(model.items)/>
-      <#break>
-    
-    <#case "Ref">
-      <#return getJavaElementType(model.reference)/>
-      <#break>
-    
-    <#default>
-      <#return "${model.camelCapitalizedName}">
-      <#break>
-  </#switch>
-</#function>
+
 
 
 <#------------------------------------------------------------------------------------------------------
