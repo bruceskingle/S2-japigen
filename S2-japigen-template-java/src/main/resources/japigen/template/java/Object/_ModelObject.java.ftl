@@ -6,26 +6,19 @@
 </#list>
 
 <#-- Constructor from fields -->  
-  protected ${modelJavaClassName}ModelObject(
-    ${(modelJavaClassName + ".Factory")?right_pad(25)} _factory,
-    ${"ImmutableJsonObject"?right_pad(25)} _jsonObject,
-<#list model.fields as field><@setJavaType field/>
-    ${javaClassName?right_pad(25)} ${field.camelName}<#sep>,
-</#list>
-
-  )<@checkLimitsClassThrows model/>
+  protected ${modelJavaClassName}ModelObject(${modelJavaClassName}.Factory _factory, I${model.camelCapitalizedName} _other)<@checkLimitsClassThrows model/>
   {
-    super(_jsonObject);
+    super(_other.getJsonObject());
     
     _factory_ = _factory;
 <#list model.fields as field>
-<@setJavaType field/>
-<#if requiresChecks>
-<@checkLimits "    " field field.camelName/>
-</#if>
-<@printField/>
+    <@setJavaType field/>
 
-    ${field.camelName}_ = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
+    ${field.camelName}_ = ${javaTypeCopyPrefix}_other.get${field.camelCapitalizedName}()${javaTypeCopyPostfix};
+<#if requiresChecks>
+<@checkLimits "    " field field.camelName + "_"/>
+</#if>
+
 </#list>
   }
   
@@ -129,7 +122,7 @@
       return model_;
     }
     
-    public static abstract class Builder extends ModelObjectFactory.Builder
+    public static abstract class Builder extends ModelObjectFactory.Builder implements I${modelJavaClassName}
     {
     <#list model.fields as field>
       <@setJavaType field/>
@@ -184,7 +177,6 @@
         jsonObject.addIfNotNull(JapigenRuntime.JSON_TYPE, TYPE_ID);
     <#list model.fields as field>
     <@setJavaType field/>
-    <@printField/>
     
         if(${field.camelName}__ != null)
         {

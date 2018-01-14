@@ -152,10 +152,10 @@
   </#if>
   <#-- 
    #
-   # Set javaElementClassName which is the basic Java type which stores simple values
-   # and javaImplementationClassName which is the name of a class to be generated.
+   # Set javaElementClassName which is the basic Java type which stores simple values.
    #
    #-->
+   // T0 model.elementType = ${model.elementType}
   <#switch model.elementType>
     <#case "Integer">
     <#case "Double">
@@ -165,6 +165,7 @@
       <#break>
       
     <#case "Array">
+    // T0a model.items = ${model.items}
       <#assign modelJavaElementClassName=getJavaElementType(model.items)/>
       <#break>
     
@@ -172,17 +173,19 @@
       // INVALID SCHEMA ELEMENT OF TYPE Ref for model ${model}
       <#break>
     
-    <#case "Object">
-    <#case "AllOf">
-    <#case "OneOf">
-    <#case "Path">
-      <#assign modelJavaElementClassName=model.camelCapitalizedName/>
-      <#break>
-      
     <#default>
-      <#-- this is the only place we need to check for an unknown element type -->
-      // UNKNOWN ELEMENT TYPE ${model.elementType} for model ${model}
+      <#assign modelJavaElementClassName=model.camelCapitalizedName/>
+      
   </#switch>
+  <#assign oldModelJavaElementClassName=modelJavaElementClassName/>
+  <#assign modelJavaElementClassName=getJavaClassName(model.elementSchema)/>
+  <#if oldModelJavaElementClassName != modelJavaElementClassName>
+  
+  
+  ERROR REFACTOR1 javaElementClassName = ${oldModelJavaElementClassName} -> ${modelJavaElementClassName}
+  
+  
+  </#if>
   <#-- 
    #
    # now set modelJavaFieldClassName and decorator attributes
@@ -209,13 +212,46 @@
       </#switch>
       <#break>
     
-    <#case "Ref">
-    <#case "Object">
-    <#case "AllOf">
-    <#case "OneOf">
+    <#default>
       <#assign modelJavaFieldClassName=modelJavaElementClassName>
       <#break>
   </#switch>
+  
+  <#assign oldModelJavaFieldClassName=modelJavaFieldClassName/>
+  <#assign modelJavaFieldClassName=getJavaClassName(model.baseSchema)/>
+  <#if oldModelJavaFieldClassName != modelJavaFieldClassName>
+  
+  
+  ERROR REFACTOR1 modelJavaFieldClassName = ${oldModelJavaFieldClassName} -> ${modelJavaFieldClassName}
+  
+  
+  </#if>
+  // REFACTOR model=${model} model.baseSchema=${model.baseSchema} model.elementSchema=${model.elementSchema}
+  
+  <#assign oldModelJavaCardinality=modelJavaCardinality/>
+  
+  <#if model.isArraySchema>
+  //ARRAY cardinality = ${model.baseSchema.cardinality}
+    <#switch model.baseSchema.cardinality>
+      <#case "SET">
+        <#assign modelJavaCardinality="Set">
+        <#break>
+        
+      <#default>
+        <#assign modelJavaCardinality="List">
+    </#switch>
+  <#else>
+    <#assign modelJavaCardinality="">
+  </#if>
+  
+  
+  <#if oldModelJavaCardinality != modelJavaCardinality>
+  
+  
+  ERROR REFACTOR1 modelJavaCardinality = ${oldModelJavaCardinality} -> ${modelJavaCardinality}
+  
+  
+  </#if>
 </#macro>
 
 <#------------------------------------------------------------------------------------------------------
@@ -250,21 +286,24 @@
   <#assign javaCardinality="">
   <#-- 
    #
-   # first set javaElementClassName which is the basic Java type which stores simple values
-   # and javaImplementationClassName which is the name of a class to be generated.
+   # first set javaElementClassName which is the basic Java type which stores simple values.
    #
    #-->
-  <#assign javaElementClassName=getJavaElementType(model)/>
-  // REFACTOR1 old javaElementClassName = ${javaElementClassName}
-  <#assign newJavaElementClassName=getJavaClassName(model.elementSchema)/>
-  // REFACTOR1 new javaElementClassName = ${javaElementClassName}
+  <#assign oldJavaElementClassName=getJavaElementType(model)/>
+  <#assign javaElementClassName=getJavaClassName(model.elementSchema)/>
+  <#if oldJavaElementClassName != javaElementClassName>
   
+  
+  ERROR REFACTOR1 javaElementClassName = ${oldJavaElementClassName} -> ${javaElementClassName}
+  
+  
+  </#if>
   <#-- 
    #
    # now set javaFieldClassName
    #
    #-->
-  <@setFieldClassName model/>
+  <#assign javaFieldClassName=getJavaClassName(model.baseSchema)/>
   <#-- 
    #
    # now set the javaClassName
@@ -321,22 +360,13 @@
       <#switch model.cardinality>
         <#case "SET">
           <#return "Set<${getJavaClassName(model.elementSchema)}>">
-          <#break>
           
         <#default>
           <#return "List<${getJavaClassName(model.elementSchema)}>">
       </#switch>
-      <#return getJavaElementType(model.items)/>
-      <#break>
     
-    <#case "OneOf">
-    <#case "AllOf">
-    <#case "Object">
-      <#return "${model.camelCapitalizedName}">
-      <#break>
-      
     <#default>
-      <#return "## EXPECTED SCHEMA BUT FOUND ${model.elementType} in function getJavaClassName ##"/>
+      <#return "${model.camelCapitalizedName}">
   </#switch>
 </#function>
 
@@ -353,48 +383,6 @@
     <#default>
       <#assign description=model.description!"">
       <#assign summary=model.summary!"No summary given.">
-  </#switch>
-</#macro>
-
-<#macro setFieldClassName model>
-// TT1 model = ${model} model.elementType=${model.elementType}
-  <#switch model.elementType>
-    <#case "Ref">
-// TT2
-      <@setFieldClassName model.reference/>
-      <#break>
-
-    <#case "Field">
-// TT3 model.type.elementType = ${model.type.elementType}
-      <#if model.type.elementType=="Array">
-        <@setFieldClassName model.type/>
-      <#else>
-        <#assign javaFieldClassName=getJavaElementType(model)>
-      </#if>
-      <#break>
-    
-    <#case "Integer">
-    <#case "Double">
-    <#case "String">
-    <#case "Boolean">
-    <#case "Object">
-    <#case "AllOf">
-    <#case "OneOf">
-// TT4
-      <#assign javaFieldClassName=getJavaElementType(model)>
-      <#break>
-      
-    <#case "Array">
-// TT5
-      <#switch model.cardinality>
-        <#case "SET">
-          <#assign javaFieldClassName="Set<${getJavaElementType(model)}>">
-          <#break>
-          
-        <#default>
-          <#assign javaFieldClassName="List<${getJavaElementType(model)}>">
-      </#switch>
-      <#break>
   </#switch>
 </#macro>
 
@@ -600,15 +588,9 @@
       <#return getJavaElementType(model.reference)/>
       <#break>
     
-    <#case "OneOf">
-    <#case "AllOf">
-    <#case "Object">
+    <#default>
       <#return "${model.camelCapitalizedName}">
       <#break>
-      
-    <#default>
-      <#-- this is the only place we need to check for an unknown element type -->
-      <#return "UNKNOWN ELEMENT TYPE ${model.elementType} for model ${model}"/>
   </#switch>
 </#function>
 

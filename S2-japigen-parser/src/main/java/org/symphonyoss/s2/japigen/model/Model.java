@@ -152,7 +152,7 @@ public class Model extends ModelElement
   {
     return this;
   }
-
+  
   public Version getOpenapi()
   {
     return openapi_;

@@ -28,12 +28,13 @@ import org.symphonyoss.s2.common.exception.BadFormatException;
 <@importFieldTypes model true/>
 
 import ${javaFacadePackage}.I${model.model.camelCapitalizedName};
+import ${javaFacadePackage}.I${modelJavaClassName};
 import ${javaFacadePackage}.${modelJavaClassName};
 
 <#include "Object.ftl">
 @Immutable
 @SuppressWarnings("unused")
-public abstract class ${modelJavaClassName}ModelObject extends ModelObject implements I${modelJavaClassName}ModelObject
+public abstract class ${modelJavaClassName}ModelObject extends ModelObject implements I${modelJavaClassName}
 {
   public static final String TYPE_ID = "${model.model.japigenId}#/components/schemas/${model.name}";
 

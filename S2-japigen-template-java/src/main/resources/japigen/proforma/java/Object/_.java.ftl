@@ -19,53 +19,10 @@ import ${javaGenPackage}.${model.model.camelCapitalizedName}Model;
 public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}ModelObject implements I${model.camelCapitalizedName}
 {
 <#-- Constrictor from fields -->  
-  private ${model.camelCapitalizedName}(
-    ${(modelJavaClassName + ".Factory")?right_pad(25)} _factory,
-    ${"ImmutableJsonObject"?right_pad(25)} _jsonObject,
-<#list model.fields as field><@setJavaType field/>
-    ${javaClassName?right_pad(25)} ${field.camelName}<#sep>,
-</#list>
-
-  )<@checkLimitsClassThrows model/>
+  private ${model.camelCapitalizedName}(${modelJavaClassName}.Factory _factory, I${model.camelCapitalizedName} _other)<@checkLimitsClassThrows model/>
   {
-    super(
-      _factory,
-      _jsonObject,
-<#list model.fields as field>
-<@setJavaType field/>
-      ${field.camelName}<#sep>, 
-</#list>
-
-    );
+    super(_factory, _other);
   }
-<#--     list model.fields as field>
-  <@setJavaType field/>
-  <#switch field.elementType>
-    <#case "OneOf">
-      <@setJavaType field/>
-    THIS IS NEVER CALLED I THINK  
-  public class ${field.camelCapitalizedName} extends ${field.camelCapitalizedName}ModelObject
-  {
-    public ${field.camelCapitalizedName}(
-      <#list field.fields as ref>
-        <#assign subfield=ref.reference>
-        <@setJavaType ref/>
-      ${javaClassName?right_pad(25)} ${subfield.camelName}<#sep>,
-      </#list>
-      
-    )<@checkLimitsClassThrows model/>
-    {
-      super(
-      <#list field.fields as ref>
-        <#assign subfield=ref.reference>
-        ${subfield.camelName}<#sep>,
-      </#list>
-      );
-    }
-  }
-      <#break>
-    </#switch>
-</#list   -->
   
 <#-- Constrictor from Json   -->
 
@@ -135,15 +92,7 @@ public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}
          * on the values of fields in the object, such as constraints across multiple fields.
          */
          
-        return new ${model.camelCapitalizedName}(
-          factory_,
-          getJsonObject(),
-    <#list model.fields as field>
-      <@setJavaType field/>
-          get${field.camelCapitalizedName}()<#sep>, 
-    </#list>
-    
-        );
+        return new ${model.camelCapitalizedName}(factory_, this);
       }
     }
   }

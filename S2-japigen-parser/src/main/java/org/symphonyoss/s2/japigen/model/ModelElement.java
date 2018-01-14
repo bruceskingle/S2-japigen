@@ -121,6 +121,41 @@ public class ModelElement
     }
   }
 
+  /**
+   * Get the basic schema which this type refers to.
+   * 
+   * For a field it will be the field type, for a reference the referenced type.
+   * For a field whose type is a reference then it will be the ultimate referenced type.
+   * The baseSchema could be an ArraySchema
+   * 
+   * @return The base schema which this type refers to.
+   */
+  public ModelElement getBaseSchema()
+  {
+    return this;
+  }
+
+  /**
+   * For an array type this is the schema of a single element of the array.
+   * 
+   * @return The schema of a single element of an array
+   */
+  public ModelElement getElementSchema()
+  {
+    return this;
+  }
+
+  public boolean getIsArraySchema()
+  {
+    return false;
+  }
+
+  public boolean getIsObjectSchema()
+  {
+    return false;
+  }
+
+
   public Map<String, String> getAttributes()
   {
     return attributes_;

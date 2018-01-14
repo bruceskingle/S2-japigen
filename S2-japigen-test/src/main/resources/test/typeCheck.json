@@ -20,6 +20,17 @@
         "type": "integer"
       },
       
+      "SimpleObject": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer"
+          }
+        }
+      },
       
       "ListOfInts": {
         "description": "A list of integers.",
@@ -50,7 +61,7 @@
         "minItems": 1,
         "maxItems": 5,
         "items": {
-          "$ref": "#/components/schemas/SetOfInts"
+          "$ref": "#/components/schemas/SimpleObject"
         }
       },
       

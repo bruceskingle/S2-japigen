@@ -54,6 +54,7 @@ public abstract class AbstractSchema extends ModelElement
    * 
    * @return The base schema which this type refers to.
    */
+  @Override
   public abstract Schema getBaseSchema();
   
   /**
@@ -61,10 +62,13 @@ public abstract class AbstractSchema extends ModelElement
    * 
    * @return The schema of a single element of an array
    */
+  @Override
   public abstract Schema getElementSchema();
   
+  @Override
   public abstract boolean getIsArraySchema();
   
+  @Override
   public abstract boolean getIsObjectSchema();
 
   public boolean  getIsAnonymousInnerClass()

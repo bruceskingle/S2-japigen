@@ -23,15 +23,29 @@
 
 package com.symphony.s2.japigen.runtime;
 
+import org.symphonyoss.s2.common.dom.DomSerializer;
+import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
+import org.symphonyoss.s2.common.dom.json.IJsonDomNodeProvider;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
-import org.symphonyoss.s2.common.exception.BadFormatException;
 
 public abstract class ModelObjectFactory<M extends IModelObject, F extends IModel>
 implements IModelObjectFactory<M,F>
 {
-  
-  public abstract static class Builder
+  protected static final DomSerializer SERIALIZER = DomSerializer.newBuilder().withCanonicalMode(true).build();
+
+  public abstract static class Builder implements IJsonDomNodeProvider
   {
-    public abstract ImmutableJsonObject getJsonObject() throws BadFormatException;
+    public abstract ImmutableJsonObject getJsonObject();
+    
+    @Override
+    public IImmutableJsonDomNode getJsonDomNode()
+    {
+      return getJsonObject();
+    }
+
+    public String serialize()
+    {
+      return SERIALIZER.serialize(getJsonObject());
+    }
   }
 }
