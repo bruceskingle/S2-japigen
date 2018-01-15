@@ -156,7 +156,7 @@
       }
       <#if field.isTypeDef>
 
-      public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName})<#if isExternal || field.canFailValidation> throws BadFormatException</#if>
+      public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName}) throws BadFormatException
       {
       <#if field.elementType=="Field" && field.required>
         if(${field.camelName} == null)

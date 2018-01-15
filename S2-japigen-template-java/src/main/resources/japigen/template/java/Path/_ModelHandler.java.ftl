@@ -28,11 +28,11 @@ import ${javaFacadePackage}.I${modelJavaClassName}Handler;
 
 <#include "Path.ftl">
 @Immutable
-public abstract class ${modelJavaClassName}ModelHandler extends ModelHandler implements I${modelJavaClassName}Handler
+public abstract class ${modelJavaClassName}ModelHandler extends ModelHandler<I${model.model.camelCapitalizedName}> implements I${modelJavaClassName}Handler
 {
-  public ${modelJavaClassName}ModelHandler()
+  public ${modelJavaClassName}ModelHandler(I${model.model.camelCapitalizedName} model)
   {
-    super(${model.pathParamCnt}, new String[] {
+    super(model, ${model.pathParamCnt}, new String[] {
 <#list model.partList as part>
         "${part}"<#sep>,
 </#list>

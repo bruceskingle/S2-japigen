@@ -80,10 +80,37 @@ public class ModelHandlerTest
     System.err.println(msg);
     fail(msg);
   }
-
-  private ModelHandler testHandler(int varCnt, final String path, String ...parts)
+  
+  class TestModel extends Model
   {
-    return new ModelHandler(varCnt, parts)
+
+    @Override
+    public void registerWith(IModelRegistry registry)
+    {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void start()
+    {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void stop()
+    {
+      // TODO Auto-generated method stub
+      
+    }
+
+    
+  }
+
+  private ModelHandler<TestModel> testHandler(int varCnt, final String path, String ...parts)
+  {
+    return new ModelHandler<TestModel>(new TestModel(), varCnt, parts)
     {
 
       @Override

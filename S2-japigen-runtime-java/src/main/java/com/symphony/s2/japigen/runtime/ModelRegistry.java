@@ -53,9 +53,8 @@ public class ModelRegistry implements IModelRegistry
   
   private Map<String, IModelObjectFactory<?,?>>  factoryMap_ = new HashMap<>();
   private ObjectMapper  mapper_ = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
-  private List<IUrlPathServlet> servlets_ = new LinkedList<>();
+  private Map<String, IUrlPathServlet> servlets_ = new HashMap<>();
   private List<IModel>   models_ = new LinkedList<>();
-  private List<IModelHandler>   handlers_ = new LinkedList<>();
   
   @Override
   public IModelRegistry register(IModel factory)
@@ -73,9 +72,12 @@ public class ModelRegistry implements IModelRegistry
   }
   
   @Override
-  public void register(IModelHandler handler)
+  public void register(IUrlPathServlet servlet)
   {
-    handlers_.add(handler);
+    IUrlPathServlet other = servlets_.put(servlet.getUrlPath(), servlet);
+    
+    if(other != null)
+        throw new IllegalArgumentException("Duplicate path " + servlet.getUrlPath() + " with " + other);
   }
 
   @Override
@@ -142,7 +144,7 @@ public class ModelRegistry implements IModelRegistry
   @Override
   public Collection<IUrlPathServlet> getServlets()
   {
-    return servlets_;
+    return servlets_.values();
   }
 
   @Override

@@ -36,16 +36,18 @@ import org.slf4j.LoggerFactory;
 import com.symphony.s2.japigen.runtime.exception.JapiException;
 import com.symphony.s2.japigen.runtime.http.RequestContext;
 
-public abstract class ModelHandler implements IModelHandler
+public abstract class ModelHandler<M extends IModel> implements IModelHandler
 {
   private static final Logger log_ = LoggerFactory.getLogger(ModelHandler.class);
   
+  private final M        model_;
   private final int      variableCnt_;
   private final String[] parts_;
   private final int      partsLength_;
   
-  public ModelHandler(int variableCnt, String[] parts)
+  public ModelHandler(M model, int variableCnt, String[] parts)
   {
+    model_ = model;
     parts_ = parts;
     variableCnt_ = variableCnt;
     
@@ -55,6 +57,11 @@ public abstract class ModelHandler implements IModelHandler
       cnt += s.length();
     
     partsLength_ = cnt;
+  }
+
+  public M getModel()
+  {
+    return model_;
   }
 
   @Override
@@ -73,7 +80,7 @@ public abstract class ModelHandler implements IModelHandler
     {
       log_.error("Failed to service REST request", e);
       
-      context.error(e.getMessage());
+      context.error(e);
       context.sendErrorResponse(e.getHttpStatusCode());
     }
 
@@ -82,6 +89,9 @@ public abstract class ModelHandler implements IModelHandler
   
   @Nullable List<String>  getVariablesIfCanHandle(String path)
   {
+    if(path == null || path.length()<2)
+      return null;
+    
     int           part=0;
     int           partIndex=0;
     List<String>  variables = new ArrayList<>();

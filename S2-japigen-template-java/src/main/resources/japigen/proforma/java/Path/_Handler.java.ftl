@@ -14,6 +14,11 @@ import ${javaGenPackage}.${modelJavaClassName}ModelHandler;
 @Immutable
 public class ${modelJavaClassName}Handler extends ${modelJavaClassName}ModelHandler
 {
+  public ${modelJavaClassName}Handler(I${model.model.camelCapitalizedName} model)
+  {
+    super(model);
+  }
+  
  <#list model.operations as operation>
  	<@setJavaMethod operation/>
   @Override

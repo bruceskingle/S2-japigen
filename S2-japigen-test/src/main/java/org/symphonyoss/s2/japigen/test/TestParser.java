@@ -41,7 +41,6 @@ public class TestParser
       testParser("src/main/Resources/test/minimal.json",
           "src/main/Resources/test/nestedObject.json",
           "src/main/Resources/test/oneOfEverything.json",
-          "src/main/Resources/test/presence.json",
           "src/main/Resources/test/simpleRpc.json",
           "src/main/Resources/test/typeCheck.json");
     }

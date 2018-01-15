@@ -37,10 +37,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.symphony.s2.japigen.runtime.http.HttpMethod;
 import com.symphony.s2.japigen.runtime.http.RequestContext;
 
-public abstract class ModelServlet extends HttpServlet implements IModelServlet
+public abstract class ModelServlet<M extends IModel> extends HttpServlet implements IModelServlet
 {
   private static final long serialVersionUID = 1L;
 
+  private final M  model_;
   private TreeMap<Integer, List<IModelHandler>>  handlerMap_ = new TreeMap<>(new Comparator<Integer>()
       {
         /*
@@ -57,6 +58,11 @@ public abstract class ModelServlet extends HttpServlet implements IModelServlet
           
           return 0;
         }});
+
+  public ModelServlet(M model)
+  {
+    model_ = model;
+  }
 
   public void register(String bindPath, IModelHandler handler)
   {

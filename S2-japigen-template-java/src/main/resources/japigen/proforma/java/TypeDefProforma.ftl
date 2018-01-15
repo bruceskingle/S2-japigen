@@ -1,4 +1,5 @@
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-proforma-java-SubPrologue.ftl">
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import com.google.protobuf.ByteString;
@@ -11,7 +12,7 @@ import ${javaGenPackage}.${modelJavaClassName}ModelType;
 @Immutable
 public class ${modelJavaClassName} extends ${modelJavaClassName}ModelType
 {
-  public ${modelJavaClassName}(${modelJavaFieldClassName} value)<#if model.canFailValidation> throws BadFormatException</#if>
+  public ${modelJavaClassName}(@Nonnull ${modelJavaFieldClassName} value) throws BadFormatException
   {
     super(value);
   }
@@ -19,7 +20,7 @@ public class ${modelJavaClassName} extends ${modelJavaClassName}ModelType
   public static class Builder extends ${modelJavaClassName}ModelType.Builder
   {
     @Override
-    public ${modelJavaClassName} build(${modelJavaFieldClassName} value)<#if model.canFailValidation> throws BadFormatException</#if>
+    public ${modelJavaClassName} build(@Nonnull ${modelJavaFieldClassName} value) throws BadFormatException
     {
       return new ${modelJavaClassName}(value);
     }

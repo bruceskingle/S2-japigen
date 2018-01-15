@@ -49,5 +49,5 @@ public interface IModelRegistry
   
   void stop();
 
-  void register(IModelHandler handler);
+  void register(IUrlPathServlet servlet);
 }

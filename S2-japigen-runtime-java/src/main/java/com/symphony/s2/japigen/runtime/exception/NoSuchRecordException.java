@@ -36,11 +36,11 @@ public class NoSuchRecordException extends JapiException
 {
   private static final long serialVersionUID = 1L;
   
-  private static final int HTTP_STATUS_CODE = HttpServletResponse.SC_NO_CONTENT;
+  private static final int HTTP_STATUS_CODE = HttpServletResponse.SC_NOT_FOUND;
 
   public NoSuchRecordException()
   {
-    super(HTTP_STATUS_CODE);
+    super(HTTP_STATUS_CODE, "Record Not Found");
   }
 
   public NoSuchRecordException(String message)

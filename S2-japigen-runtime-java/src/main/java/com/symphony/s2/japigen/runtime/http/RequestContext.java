@@ -106,7 +106,7 @@ public class RequestContext
     }
     catch(NumberFormatException e)
     {
-      error("Parameter %s requires a Long value but we found \"%s\"", value);
+      error("Parameter %s requires a Long value but we found \"%s\"", parameterName, value);
       return null;
     }
   }
@@ -246,5 +246,15 @@ public class RequestContext
   public void error(String format, Object ...args)
   {
     errors_.add(String.format(format, args));
+  }
+  
+  public void error(Throwable t)
+  {
+    String message = t.getMessage();
+    
+    if(message == null)
+      message = t.toString();
+    
+    errors_.add(String.format(message));
   }
 }

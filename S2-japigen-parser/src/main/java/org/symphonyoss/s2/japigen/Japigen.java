@@ -91,7 +91,7 @@ public class Japigen
   
   /**
    * Parse and code generate from the given file name which is expected to contain
-   * an OpenAPI 3 spec.
+   * a Japigen spec.
    * 
    * @param fileName A file name pointing to an OpenAPI 3 spec.
    * @throws JapigenException If there is a parse or code generation error.

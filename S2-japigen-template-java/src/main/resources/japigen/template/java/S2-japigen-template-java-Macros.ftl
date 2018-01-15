@@ -284,6 +284,34 @@
   </#switch>
 </#function>
 
+<#------------------------------------------------------------------------------------------------------
+ # Does the Java class for the given Schema implement Comparable<>
+ #
+ # @param Schema model     A Schema for which the java class name is required.
+ #----------------------------------------------------------------------------------------------------->
+<#function isComparable model>
+  <#switch model.baseSchema.elementType>
+    <#case "Integer">
+    <#case "Double">
+    <#case "Boolean">
+      <#return true>
+
+    
+    <#case "String">
+      <#switch model.baseSchema.format>
+        <#case "byte">
+          <#return false>
+        
+        <#default>
+          <#return true>
+      </#switch>
+    
+    
+    <#default>
+      <#return false>
+  </#switch>
+</#function>
+
 <#macro setDescription model>
   <#switch model.elementType>
     <#case "Ref">
@@ -692,6 +720,9 @@ ${indent}  _enumOf${field.camelName}.add("${value}");
  #----------------------------------------------------------------------------------------------------->
 
 <#function checkLimitsClass model>
+  <#if model.isTypeDef>
+    <#return true>
+  </#if>
   <#list model.fields as field>
     <#if isCheckLimits(field)>
       <#return true>
