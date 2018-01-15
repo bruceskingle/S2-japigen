@@ -24,12 +24,16 @@
 package org.symphonyoss.s2.japigen;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.symphonyoss.s2.common.writer.IndentedWriter;
 import org.symphonyoss.s2.japigen.model.ModelElement;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
+import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.JapigenException;
 import org.symphonyoss.s2.japigen.parser.ModelSetParserContext;
+import org.symphonyoss.s2.japigen.parser.ParsingException;
 import org.symphonyoss.s2.japigen.parser.log.Slf4jLogFactoryAdaptor;
 
 public class Japigen
@@ -74,6 +78,17 @@ public class Japigen
   public static final String PARAMETERS          = "parameters";
   public static final String SCHEMA              = "schema";
   public static final String X_BASE_PATH         = "x-japigen-base-path";
+  
+  private boolean            verbose_            = false;
+  private boolean            dryRun_             = false;
+  private String             sourceDir_          = "src/main/japigen";
+  private String             generationTarget_   = "target/generated-sources";
+  private String             proformaTarget_     = "target/proforma-sources";
+  private String             proformaCopy_       = null;
+  private List<String>       fileNames_          = new ArrayList<>();
+  private List<String>       errors_             = new ArrayList<>();
+  private List<File>         templateDirs_       = new ArrayList<>();
+  
   /**
    * Launcher.
    * 
@@ -82,45 +97,215 @@ public class Japigen
    */
   public static void main(String[] argv) throws JapigenException
   {
-    if(argv.length==0)
-      System.err.println("usage: japigen filename [filename...]");
-    else
-      for(String fileName : argv)
-        japigen(fileName);
+    new Japigen().run(argv);
   }
   
-  /**
-   * Parse and code generate from the given file name which is expected to contain
-   * a Japigen spec.
-   * 
-   * @param fileName A file name pointing to an OpenAPI 3 spec.
-   * @throws JapigenException If there is a parse or code generation error.
-   */
-  public static void japigen(String fileName) throws JapigenException
-  {    
-    ModelSetParserContext modelSetContext = new ModelSetParserContext(new Slf4jLogFactoryAdaptor());
+  private void run(String[] argv) throws JapigenException
+  {
+    int   i=0;
     
-    modelSetContext.addGenerationSource(new File(fileName));
-    
-    modelSetContext.process();
-    
-    IndentedWriter out = new IndentedWriter(System.out);
-    
-    modelSetContext.visitAllModels((model) ->
+    while(i<argv.length)
     {
-      System.out.println("Model " + model);
+      if(argv[i].startsWith("--"))
+      {
+        switch(argv[i].substring(2))
+        {
+          case "verbose":
+            verbose_ = true;
+            break;
+          
+          case "dryRun":
+            dryRun_ = true;
+            break;
+            
+            case "templateDir":
+              i++;
+              if(i<argv.length)
+                templateDirs_.add(new File(argv[i]));
+              else
+                error("--templateDir requires a directory name to follow.");
+              break;
+            
+          default:
+            error("Unrecognized flag \"%s\".", argv[i]);
+        }
+      }
+      else if(argv[i].startsWith("-"))
+      {
+        switch(argv[i].substring(1))
+        {
+          case "v":
+            verbose_ = true;
+            break;
+          
+          case "d":
+            dryRun_ = true;
+            break;
+          
+          case "t":
+            i++;
+            if(i<argv.length)
+              templateDirs_.add(new File(argv[i]));
+            else
+              error("-t requires a directory name to follow.");
+            break;
+            
+          default:
+            error("Unrecognized flag \"%s\".", argv[i]);
+        }
+      }
+      else
+      {
+        fileNames_.add(argv[i]);
+      }
       
-      visit(out, model);
-    });
+      i++;
+    }
     
-    out.flush();
+    File  src = new File(sourceDir_);
+    List<File> files = new ArrayList<>();
     
-    GenerationContext generationContext = new GenerationContext("target/generated-sources", "target/proforma-sources", "target/proforma-copy");
-    generationContext.addTemplateDirectory(new File("../S2-japigen-template-java/src/main/resources/japigen"));
+    if(fileNames_.isEmpty())
+    {
+      File[] fileList = src.listFiles();
+      
+      if(fileList == null)
+      {
+        error("Source directory \"%s\" does not exist", sourceDir_);
+      }
+      else
+      {
+        for(File f : fileList)
+          files.add(f);
+        
+        if(files.isEmpty())
+        {
+          error("No source files found in %s", src.getAbsolutePath());
+        }
+      }
+    }
+    else
+    {
+      for(String fileName : fileNames_)
+      {
+        File f = new File(fileName);
+        
+        if(f.isAbsolute())
+          files.add(f);
+        else
+          files.add(new File(src, fileName));
+      }
+    }
     
-//    generationContext.put("templateDebug", "true");
+    for(File f : files)
+    {
+      if(!f.exists())
+      {
+        error("File \"%s\" does not exist.", f.getAbsolutePath());
+      }
+      else if(!f.isFile())
+      {
+        error("\"%s\" is not a file", f.getAbsolutePath());
+      }
+      else if(!f.canRead())
+      {
+        error("File \"%s\" is not readable", f.getAbsolutePath());
+      }
+    }
     
-    modelSetContext.generate(generationContext);
+    if(templateDirs_.isEmpty())
+    {
+      error("No template directories specified");
+    }
+    else
+    {
+      for(File f : templateDirs_)
+      {
+        if(!f.exists())
+        {
+          error("Template directory \"%s\" does not exist.", f.getAbsolutePath());
+        }
+        else if(!f.isDirectory())
+        {
+          error("\"%s\" is not a directory", f.getAbsolutePath());
+        }
+        else if(!f.canRead())
+        {
+          error("Template directory \"%s\" is not readable", f.getAbsolutePath());
+        }
+      }
+    }
+    
+    if(errors_.isEmpty())
+    {
+      execute(files);
+    }
+    else
+    {
+      for(String e : errors_)
+      {
+        System.err.println(e);
+      }
+      System.err.println("Aborted.");
+    }
+  }
+
+  private void execute(List<File> files) throws JapigenException
+  {
+    if(verbose_)
+    {
+      System.out.printf("JAPIGEN\n");
+      System.out.printf("verbose:          %s\n", verbose_);
+      System.out.printf("dryRun:           %s\n", dryRun_);
+      System.out.printf("sourceDir:        %s\n", sourceDir_);
+      System.out.printf("generationTarget: %s\n", generationTarget_);
+      System.out.printf("proformaTarget:   %s\n", proformaTarget_);
+      System.out.printf("proformaCopy:     %s\n", proformaCopy_);
+      System.out.printf("inputFiles:\n");
+      for(File f : files)
+        System.out.println(f.getAbsolutePath());
+    }
+    
+    
+    if(dryRun_)
+    {
+      System.out.println("Dry Run, nothing done.");
+    }
+    else
+    {
+      ModelSetParserContext modelSetContext = new ModelSetParserContext(new Slf4jLogFactoryAdaptor());
+      
+      for(File f : files)
+        modelSetContext.addGenerationSource(f);
+      
+      modelSetContext.process();
+      
+      IndentedWriter out = new IndentedWriter(System.out);
+      
+      modelSetContext.visitAllModels((model) ->
+      {
+        System.out.println("Model " + model);
+        
+        visit(out, model);
+      });
+      
+      out.flush();
+      
+      GenerationContext generationContext = new GenerationContext("target/generated-sources", "target/proforma-sources", "target/proforma-copy");
+      
+      for(File d : templateDirs_)
+        generationContext.addTemplateDirectory(d);
+      
+//      generationContext.put("templateDebug", "true");
+      
+      modelSetContext.generate(generationContext);
+    }
+    
+  }
+
+  private void error(String format, Object ...args)
+  {
+    errors_.add(String.format(format, args));
   }
 
   private static void visit(IndentedWriter out, ModelElement model)

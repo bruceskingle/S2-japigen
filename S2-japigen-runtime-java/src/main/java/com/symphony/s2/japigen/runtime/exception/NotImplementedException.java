@@ -21,14 +21,22 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.model;
+package com.symphony.s2.japigen.runtime.exception;
 
-import org.symphonyoss.s2.japigen.parser.ParserContext;
-
-public class Response extends AbstractPayload
+/**
+ * An Exception which may be thrown by JAPIGEN implementing methods to indicate
+ * that the business logic for the method has not yet been implemented. The generated
+ * server stubs throw this exception, which should be replaced by the real business logic.
+ * 
+ * @author Bruce Skingle
+ *
+ */
+public class NotImplementedException extends ServerErrorException
 {
-  public Response(Operation parent, ParserContext parserContext)
+  private static final long serialVersionUID = 1L;
+
+  public NotImplementedException()
   {
-    super(parent, parserContext, "Response");
+    super("Method not implemented");
   }
 }

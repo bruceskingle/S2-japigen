@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import com.symphony.s2.japigen.runtime.exception.JapiException;
+import com.symphony.s2.japigen.runtime.exception.NotImplementedException;
 
 <@importFieldTypes model true/>
 
@@ -23,6 +24,14 @@ public class ${modelJavaClassName}Handler extends ${modelJavaClassName}ModelHand
  	<@setJavaMethod operation/>
   @Override
   public ${methodReturnType} handle${operation.camelCapitalizedName}(
+  <#if operation.payload??>
+    <@setJavaType operation.payload.schema/>
+    <#if operation.payload.isRequired>
+    @Nonnull  ${javaClassName?right_pad(25)} _payload<#if operation.parameters?size != 0>,</#if>
+    <#else>
+    @Nullable ${javaClassName?right_pad(25)} _payload<#if operation.parameters?size != 0>,</#if>
+    </#if>
+  </#if>
   <#list operation.parameters as parameter>
     <@setJavaType parameter.schema/>
     <#if parameter.isRequired>
@@ -35,8 +44,7 @@ public class ${modelJavaClassName}Handler extends ${modelJavaClassName}ModelHand
   )
   throws JapiException
   	{
-  	   // TODO Auto-generated method stub
-    ${methodReturnPlaceholder}
+  	  throw new NotImplementedException();
 	}
 
  </#list>

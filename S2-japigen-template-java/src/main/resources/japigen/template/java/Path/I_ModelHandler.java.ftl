@@ -14,6 +14,14 @@ public interface I${modelJavaClassName}ModelHandler extends IModelHandler
 <#list model.operations as operation>
   <@setJavaMethod operation/>
   ${methodReturnType} handle${operation.camelCapitalizedName}(
+  <#if operation.payload??>
+  <@setJavaType operation.payload.schema/>
+  <#if operation.payload.isRequired>
+    @Nonnull  ${javaClassName?right_pad(25)} _payload<#if operation.parameters?size != 0>,</#if>
+  <#else>
+    @Nullable ${javaClassName?right_pad(25)} _payload<#if operation.parameters?size != 0>,</#if>
+  </#if>
+  </#if>
 	<#list operation.parameters as parameter>
 	  <@setJavaType parameter.schema/>
 	  <#if parameter.isRequired>

@@ -40,12 +40,21 @@ public class Operation extends ParameterContainer
   private final PathItem pathItem_;
 
   private Response response_;
+  private Payload payload_;
   private List<Parameter> pathParameters_ = new ArrayList<>();
 
   public Operation(PathItem parent, ParserContext parserContext)
   {
     super(parent, parserContext, "Operation", parserContext.getName());
     pathItem_ = parent;
+    
+    ParserContext payloadContext = parserContext.get("payload");
+    
+    if(payloadContext != null)
+    { 
+      payload_ = new Payload(this, payloadContext);
+      add(payload_);
+    }
     
     ParserContext responseContext = parserContext.get("response");
     
@@ -59,6 +68,11 @@ public class Operation extends ParameterContainer
   public Response getResponse()
   {
     return response_;
+  }
+
+  public Payload getPayload()
+  {
+    return payload_;
   }
 
   @Override

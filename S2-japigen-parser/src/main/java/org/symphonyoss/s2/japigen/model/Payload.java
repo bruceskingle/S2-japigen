@@ -25,10 +25,10 @@ package org.symphonyoss.s2.japigen.model;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public class Response extends AbstractPayload
+public class Payload extends AbstractPayload
 {
-  public Response(Operation parent, ParserContext parserContext)
+  public Payload(Operation parent, ParserContext parserContext)
   {
-    super(parent, parserContext, "Response");
+    super(parent, parserContext, "Payload");
   }
 }

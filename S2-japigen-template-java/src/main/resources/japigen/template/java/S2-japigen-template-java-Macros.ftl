@@ -884,7 +884,7 @@ ${indent}}
       
       <#default>
         <#if isArrayType>
-${indent}if(node instanceof JsonArray)
+${indent}if(node instanceof ImmutableJsonArray)
 ${indent}{
 ${indent}  ${var} = ${javaConstructTypePrefix}(ImmutableJsonArray)node, ((ImmutableJsonArray)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class)${javaConstructTypePostfix};
 ${indent}  <@checkItemLimits field field.camelName var/>
@@ -916,15 +916,13 @@ ${indent}}
     </#switch>
   <#else>
     <#if isArrayType>
-${indent}if(node instanceof JsonArray)
+${indent}if(node instanceof ImmutableJsonArray)
 ${indent}{
-// TODO: This is not right for arrays of generated type, not sure how to fix it right now...
-
-${indent}  ${var} = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
-
-
-
-
+      <#if field.isObjectSchema>
+${indent}  ${var} = _factory_.getModel().get${javaElementClassName}Factory().newInstance${javaCardinality}((ImmutableJsonArray)node);
+      <#else>
+${indent}  ${var} = ((ImmutableJsonArray)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
+      </#if>
 ${indent}  <@checkItemLimits field field.camelName var/>
 ${indent}}
 ${indent}else

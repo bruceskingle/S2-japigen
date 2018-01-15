@@ -52,7 +52,6 @@ public class ModelRegistry implements IModelRegistry
   private static final Logger LOG = LoggerFactory.getLogger(ModelRegistry.class);
   
   private Map<String, IModelObjectFactory<?,?>>  factoryMap_ = new HashMap<>();
-  private ObjectMapper  mapper_ = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
   private Map<String, IUrlPathServlet> servlets_ = new HashMap<>();
   private List<IModel>   models_ = new LinkedList<>();
   
@@ -92,18 +91,19 @@ public class ModelRegistry implements IModelRegistry
     return factory.newInstance(jsonObject);
   }
   
-  @Override
-  public IModelObject parseOne(Reader reader) throws IOException, BadFormatException
+  public static ImmutableJsonObject parseOneJsonObject(Reader reader) throws IOException, BadFormatException
   {
+    ObjectMapper  mapper = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
+    
     try
     {
-      JsonNode tree = mapper_.readTree(reader);
+      JsonNode tree = mapper.readTree(reader);
       
       IJsonDomNode adapted = JacksonAdaptor.adapt(tree);
       
       if(adapted instanceof IJsonObject)
       {
-        return newInstance((ImmutableJsonObject) adapted.immutify());
+        return (ImmutableJsonObject) adapted.immutify();
       }
       else
       {
@@ -114,6 +114,12 @@ public class ModelRegistry implements IModelRegistry
     {
       throw new BadFormatException("Failed to parse input", e);
     }
+  }
+  
+  @Override
+  public IModelObject parseOne(Reader reader) throws IOException, BadFormatException
+  {
+    return newInstance(parseOneJsonObject(reader));
   }
 
   @Override

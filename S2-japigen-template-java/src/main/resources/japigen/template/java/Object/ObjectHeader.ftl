@@ -20,7 +20,6 @@ import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
-import org.symphonyoss.s2.common.dom.json.JsonArray;
 import org.symphonyoss.s2.common.dom.json.MutableJsonObject;
 
 import org.symphonyoss.s2.common.exception.BadFormatException;

@@ -23,16 +23,61 @@
 
 package com.symphony.s2.japigen.runtime;
 
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import org.symphonyoss.s2.common.dom.DomSerializer;
 import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNodeProvider;
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.exception.BadFormatException;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 public abstract class ModelObjectFactory<M extends IModelObject, F extends IModel>
 implements IModelObjectFactory<M,F>
 {
   protected static final DomSerializer SERIALIZER = DomSerializer.newBuilder().withCanonicalMode(true).build();
 
+  public ImmutableList<M> newInstanceList(ImmutableJsonArray jsonArray) throws BadFormatException
+  {
+    List<M> list = new LinkedList<>();
+    
+    for(IImmutableJsonDomNode node : jsonArray)
+    {
+      if(node instanceof ImmutableJsonObject)
+        list.add(newInstance((ImmutableJsonObject) node));
+      else
+        throw new BadFormatException("Expected an array of JSON objectcs, but encountered a " + node.getClass().getName());
+    }
+    
+    return ImmutableList.copyOf(list);
+  }
+  
+  public ImmutableSet<M> newInstanceSet(ImmutableJsonArray jsonArray) throws BadFormatException
+  {
+    Set<M> list = new HashSet<>();
+    
+    for(IImmutableJsonDomNode node : jsonArray)
+    {
+      if(node instanceof ImmutableJsonObject)
+      {
+        if(!list.add(newInstance((ImmutableJsonObject) node)))
+          throw new BadFormatException("Duplicate value " + node + " encountered in Set.");
+      }
+      else
+      {
+        throw new BadFormatException("Expected an array of JSON objectcs, but encountered a " + node.getClass().getName());
+      }
+    }
+    
+    return ImmutableSet.copyOf(list);
+  }
+  
   public abstract static class Builder implements IJsonDomNodeProvider
   {
     public abstract ImmutableJsonObject getJsonObject();

@@ -126,6 +126,12 @@ public abstract class ${modelJavaClassName}ModelHandler extends ModelHandler<I${
     <@checkLimits "    " parameter parameter.camelName/>
     </#if>
   </#list>
+  <#if operation.payload??>
+  
+    <@setJavaType operation.payload.schema/>
+    
+    ${javaClassName} _payload = context.parsePayload(getModel().get${javaClassName}Factory());
+  </#if>
   
     if(context.preConditionsAreMet())
     {
@@ -136,6 +142,9 @@ public abstract class ${modelJavaClassName}ModelHandler extends ModelHandler<I${
         ${javaClassName} response =
   </#if> 
           handle${operation.camelCapitalizedName}(
+  <#if operation.payload??>
+            _payload<#if operation.parameters?size != 0>,</#if>
+  </#if>
   <#list operation.parameters as parameter>
     <@setJavaType parameter.schema/>
             ${parameter.camelName}<#sep>,
