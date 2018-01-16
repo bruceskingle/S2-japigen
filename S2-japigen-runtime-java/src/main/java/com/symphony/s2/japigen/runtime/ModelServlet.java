@@ -64,7 +64,7 @@ public abstract class ModelServlet<M extends IModel> extends HttpServlet impleme
     model_ = model;
   }
 
-  public void register(String bindPath, IModelHandler handler)
+  public void register(IModelHandler handler)
   {
     List<IModelHandler> list = handlerMap_.get(handler.getPartsLength());
     

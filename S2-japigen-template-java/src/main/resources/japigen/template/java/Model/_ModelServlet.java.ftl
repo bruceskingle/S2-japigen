@@ -3,21 +3,8 @@
 <@setPrologueJavaType model/>
 import javax.annotation.concurrent.Immutable;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.symphony.s2.japigen.runtime.ModelServlet;
-import com.symphony.s2.japigen.runtime.http.ParameterLocation;
-import com.symphony.s2.japigen.runtime.http.RequestContext;
 
-<@importFieldTypes model true/>
-
-<#list model.paths.children as path>
-import ${javaFacadePackage}.${path.camelCapitalizedName}Handler;
-</#list>
 import ${javaFacadePackage}.I${model.model.camelCapitalizedName};
 
 @Immutable
@@ -25,18 +12,17 @@ public class ${modelJavaClassName}ModelServlet extends ModelServlet<I${model.mod
 {
   private static final long serialVersionUID = 1L;
 
-  public ${modelJavaClassName}ModelServlet(I${model.model.camelCapitalizedName} model)
+  public ${modelJavaClassName}ModelServlet(
+    I${model.model.camelCapitalizedName} model<#if model.paths.children?size != 0>,</#if>
+<#list model.paths.children as path>
+    I${path.camelCapitalizedName}ModelHandler ${path.camelName}Handler<#sep>,
+</#list>
+
+  )
   {
     super(model);
 <#list model.paths.children as path>
-  // path ${path.path}
-  // bindPath ${path.bindPath}
-    register("${path.bindPath}", new ${path.camelCapitalizedName}Handler(model));
- <#list path.operations as operation>
-      
-  // operation ${operation}
-  </#list>
-
+    register(${path.camelName}Handler);
 </#list>
   }
  

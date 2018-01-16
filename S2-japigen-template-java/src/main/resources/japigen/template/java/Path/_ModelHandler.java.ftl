@@ -24,11 +24,10 @@ import com.symphony.s2.japigen.runtime.http.RequestContext;
 <@importFieldTypes model true/>
 
 import ${javaFacadePackage}.I${model.model.camelCapitalizedName};
-import ${javaFacadePackage}.I${modelJavaClassName}Handler;
 
 <#include "Path.ftl">
 @Immutable
-public abstract class ${modelJavaClassName}ModelHandler extends ModelHandler<I${model.model.camelCapitalizedName}> implements I${modelJavaClassName}Handler
+public abstract class ${modelJavaClassName}ModelHandler extends ModelHandler<I${model.model.camelCapitalizedName}> implements I${modelJavaClassName}ModelHandler
 {
   public ${modelJavaClassName}ModelHandler(I${model.model.camelCapitalizedName} model)
   {
