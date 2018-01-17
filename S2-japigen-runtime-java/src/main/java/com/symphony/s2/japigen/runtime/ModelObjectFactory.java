@@ -78,7 +78,7 @@ implements IModelObjectFactory<M,F>
     return ImmutableSet.copyOf(list);
   }
   
-  public abstract static class Builder implements IJsonDomNodeProvider
+  public abstract static class Builder implements IJsonDomNodeProvider, IModelEntity
   {
     public abstract ImmutableJsonObject getJsonObject();
     
@@ -88,6 +88,7 @@ implements IModelObjectFactory<M,F>
       return getJsonObject();
     }
 
+    @Override
     public String serialize()
     {
       return SERIALIZER.serialize(getJsonObject());

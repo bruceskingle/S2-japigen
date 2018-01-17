@@ -12,13 +12,28 @@ import ${javaGenPackage}.${modelJavaClassName}ModelType;
 @Immutable
 public class ${modelJavaClassName} extends ${modelJavaClassName}ModelType
 {
-  public ${modelJavaClassName}(@Nonnull ${modelJavaFieldClassName} value) throws BadFormatException
+  private static Builder theBuilder = new Builder();
+  
+  private ${modelJavaClassName}(@Nonnull ${modelJavaFieldClassName} value) throws BadFormatException
   {
     super(value);
   }
   
+  public static Builder newBuilder()
+  {
+    /* The generated version of this builder is stateless and so it is safe to return a 
+     * reference to a shared instance, if you add functionality to this builder which is
+     * not thread safe then you need to change this to return new Builder();
+     */
+    return theBuilder;
+  }
+  
   public static class Builder extends ${modelJavaClassName}ModelType.Builder
   {
+    private Builder()
+    {
+    }
+    
     @Override
     public ${modelJavaClassName} build(@Nonnull ${modelJavaFieldClassName} value) throws BadFormatException
     {
@@ -26,7 +41,7 @@ public class ${modelJavaClassName} extends ${modelJavaClassName}ModelType
     }
     
     @Override
-    public ${modelJavaFieldClassName} to${modelJavaFieldClassName}(${modelJavaClassName} instance)
+    public ${modelJavaFieldClassName} toValue(${modelJavaClassName} instance)
     {
       return instance.getValue();
     }

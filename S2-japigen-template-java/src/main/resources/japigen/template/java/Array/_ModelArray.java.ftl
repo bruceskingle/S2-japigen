@@ -6,12 +6,12 @@ import javax.annotation.concurrent.Immutable;
 import ${javaFacadePackage}.${modelJavaClassName};
 import ${javaFacadePackage}.I${model.model.camelCapitalizedName};
 
-import com.symphony.s2.japigen.runtime.IModelObject;
+import com.symphony.s2.japigen.runtime.IModel${modelJavaCardinality};
 import com.symphony.s2.japigen.runtime.ModelArrayFactory;
 
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
-import org.symphonyoss.s2.common.dom.json.JsonArray;
+import org.symphonyoss.s2.common.dom.json.MutableJsonArray;
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
 import com.symphony.s2.japigen.runtime.Model${modelJavaCardinality};
@@ -20,84 +20,90 @@ import com.symphony.s2.japigen.runtime.Model${modelJavaCardinality};
 @Immutable
 public class ${modelJavaClassName}ModelArray extends Model${modelJavaCardinality}<${modelJavaElementClassName}>
 {
-<@printModel/>
-  public ${modelJavaClassName}ModelArray(ImmutableJsonArray jsonArray, ${modelJavaFieldClassName} elements)<#if model.canFailValidation> throws BadFormatException</#if>
+  protected ${modelJavaClassName}ModelArray(IModel${modelJavaCardinality}<${modelJavaElementClassName}> other)<#if model.canFailValidation> throws BadFormatException</#if>
   {
-    super(jsonArray, elements);
-    <@checkItemLimits model "Array" "this"/>
+    super(other);
+<@checkItemLimits "    " model "Array" "this"/>
   }
   
   <#-- Constructor from Json   -->  
   protected ${modelJavaClassName}ModelArray(ImmutableJsonArray jsonArray) throws BadFormatException
   {
-    super(jsonArray, parse(jsonArray));
-  }
-  
-  <@setJavaType model/>
-  private static ${modelJavaFieldClassName} parse(ImmutableJsonArray jsonArray) throws BadFormatException
-  {
-    ${modelJavaFieldClassName} elements = jsonArray.asImmutable${javaCardinality}Of(${modelJavaElementClassName}.class);
-    <@checkItemLimits model "value" "elements"/>
-    
-    return elements;
+    super(jsonArray, jsonArray.asImmutable${modelJavaCardinality}Of(${modelJavaElementClassName}.class));
+<@checkItemLimits "    " model "Array" "this"/>
   }
 
-  public static abstract class Factory extends ModelArrayFactory<${modelJavaClassName}, I${model.model.camelCapitalizedName}>
+  public static abstract class Builder extends ModelArrayFactory.Builder implements IModel${modelJavaCardinality}<${modelJavaElementClassName}>
   {
-    private I${model.model.camelCapitalizedName} model_;
+    private ${modelJavaFieldClassName} elements__ =
+    <#switch model.cardinality>
+      <#case "SET">
+                                          new HashSet<>();
+        <#break>
+        
+      <#default>
+                                          new LinkedList<>();
+    </#switch>
     
-    public Factory(I${model.model.camelCapitalizedName} model)
+    
+    protected Builder()
     {
-      model_ = model;
+    }
+    
+    protected Builder(Builder initial)
+    {
+      elements__.addAll(initial.elements__);
     }
     
     @Override
-    public I${model.model.camelCapitalizedName} getModel()
+    public Immutable${modelJavaFieldClassName} getElements()
     {
-      return model_;
+      return Immutable${modelJavaCardinality}.copyOf(elements__);
     }
     
-    public static abstract class Builder extends ModelArrayFactory.Builder
+    @Override
+    public int size()
     {
-      private ${modelJavaFieldClassName} elements__ =
-      <#switch model.cardinality>
-        <#case "SET">
-                                            new HashSet<>();
-          <#break>
-          
-        <#default>
-                                            new LinkedList<>();
-      </#switch>
-      
-      
-      protected Builder()
-      {
-      }
-      
-      protected Builder(Builder initial)
-      {
-        elements__.addAll(initial.elements__);
-      }
-      
-      public ${modelJavaFieldClassName} getElements()
-      {
-        return elements__;
-      }
-
-      public ${modelJavaClassName}.Factory.Builder with(${modelJavaElementClassName} element)
-      {
-        elements__.add(element);
-        return (${modelJavaClassName}.Factory.Builder)this;
-      }
-
-      public ${modelJavaClassName}.Factory.Builder with(${modelJavaClassName} elements)
-      {
-        elements__.addAll(elements.getElements());
-        return (${modelJavaClassName}.Factory.Builder)this;
-      }
-      
-      public abstract ${modelJavaClassName} build()<@checkLimitsClassThrows model/>;
+      return elements__.size();
     }
+
+    public ${modelJavaClassName}.Builder with(${modelJavaElementClassName} element)
+    {
+      elements__.add(element);
+      return (${modelJavaClassName}.Builder)this;
+    }
+
+    public ${modelJavaClassName}.Builder with(${modelJavaClassName} elements)
+    {
+      elements__.addAll(elements.getElements());
+      return (${modelJavaClassName}.Builder)this;
+    }
+
+    public ${modelJavaClassName}.Builder with(ImmutableJsonArray node) throws BadFormatException
+    {
+      elements__.addAll(node.asImmutableListOf(${modelJavaElementClassName}.class));
+      return (${modelJavaClassName}.Builder)this;
+    }
+    
+    @Override 
+    public ImmutableJsonArray getJsonArray()
+    {
+      MutableJsonArray jsonArray = new MutableJsonArray();
+      
+      <@printModel/>
+      // model.items = ${model.items}
+      // model.items.baseSchema.isObjectSchema = ${model.items.baseSchema.isObjectSchema?c}
+      for(${modelJavaElementClassName} value : elements__)
+      <#if model.items.baseSchema.isObjectSchema>
+        jsonArray.add(value.getJsonObject());
+      <#else>
+        jsonArray.add(value);
+      </#if>
+      
+      return jsonArray.immutify();
+    }
+    
+    public abstract ${modelJavaClassName} build() throws BadFormatException;
   }
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

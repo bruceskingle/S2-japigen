@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.IJsonObject;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.JsonValue;
 import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
 import org.symphonyoss.s2.common.exception.BadFormatException;
 import org.symphonyoss.s2.common.http.IUrlPathServlet;
@@ -108,6 +109,29 @@ public class ModelRegistry implements IModelRegistry
       else
       {
         throw new BadFormatException("Expected a JSON Object but read a " + adapted.getClass().getName());
+      }
+    }
+    catch(JsonProcessingException e)
+    {
+      throw new BadFormatException("Failed to parse input", e);
+    }
+  }
+  
+  public static JsonValue<?,?> parseOneJsonValue(Reader reader) throws IOException, BadFormatException
+  {
+    ObjectMapper  mapper = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
+    
+    try
+    {
+      JsonNode tree = mapper.readTree(reader);
+      
+      if(tree.isValueNode())
+      {
+        return (JsonValue<?,?>)JacksonAdaptor.adapt(tree);
+      }
+      else
+      {
+        throw new BadFormatException("Expected a JSON value but read a " + tree.getClass().getName());
       }
     }
     catch(JsonProcessingException e)

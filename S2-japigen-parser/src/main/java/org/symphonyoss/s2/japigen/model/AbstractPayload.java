@@ -43,7 +43,7 @@ public class AbstractPayload extends ModelElement
     super(parent, parserContext, elementType);
     
     required_ = parserContext.getBooleanNode("required", true);
-    multiple_ = parserContext.getBooleanNode("multiple", true);
+    multiple_ = parserContext.getBooleanNode("multiple", false);
     
     ParserContext schemaContext = parserContext.get(Japigen.SCHEMA);
     
@@ -75,7 +75,7 @@ public class AbstractPayload extends ModelElement
   {
     super.validate();
     
-    if(schema_ != null && !schema_.getIsObjectSchema())
+    if(schema_ != null && !multiple_ && !schema_.getIsObjectSchema())
     {
         getContext().raise(new ParserError(getElementType() + " schemas must be objects"));
     }

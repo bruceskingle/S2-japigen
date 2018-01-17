@@ -24,9 +24,12 @@
 package org.symphonyoss.s2.japigen.model;
 
 import java.util.List;
+import java.util.Map;
 
 import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.model.ValueMap.Entry;
+import org.symphonyoss.s2.japigen.parser.GenerationContext;
+import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.OnlyOneAllowedError;
 
@@ -45,6 +48,13 @@ public abstract class AbstractSchema extends ModelElement
     super(parent, context, type, name);
   }
   
+  @Override
+  protected void generateChildren(GenerationContext generationContext, Map<String, Object> dataModel)
+      throws GenerationException
+  {
+    // Nothing
+  }
+
   /**
    * Get the basic schema which this type refers to.
    * 

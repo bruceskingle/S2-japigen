@@ -23,8 +23,6 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import java.util.Set;
-
 import javax.annotation.concurrent.Immutable;
 
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
@@ -36,14 +34,26 @@ public class ModelSet<T> extends ModelArray
 {
   private final ImmutableSet<T> elements_;
   
-  public ModelSet(ImmutableJsonArray jsonArray, Set<T> elements)
+  public ModelSet(IModelSet<T> other)
+  {
+    super(other.getJsonArray());
+    elements_ = other.getElements();
+  }
+  
+  public ModelSet(ImmutableJsonArray jsonArray, ImmutableSet<T> elements)
   {
     super(jsonArray);
-    elements_ = ImmutableSet.copyOf(elements);
+    elements_ = elements;
   }
 
   public ImmutableSet<T> getElements()
   {
     return elements_;
+  }
+
+  @Override
+  public int size()
+  {
+    return elements_.size();
   }
 }

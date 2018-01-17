@@ -28,4 +28,6 @@ import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
 public interface IModelArray extends IModelEntity
 {
   ImmutableJsonArray getJsonArray();
+
+  int size();
 }

@@ -23,25 +23,12 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import javax.annotation.concurrent.Immutable;
+import org.symphonyoss.s2.common.dom.json.JsonValue;
+import org.symphonyoss.s2.common.exception.BadFormatException;
 
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
-
-@Immutable
-public abstract class ModelArray extends ModelEntity implements IModelArray
+public abstract class ModelTypeBuilder<M,T>
 {
-  private final ImmutableJsonArray        jsonArray_;
-    
-  public ModelArray(ImmutableJsonArray jsonArray)
-  {
-    super(jsonArray);
-    
-    jsonArray_ = jsonArray;
-  }
-
-  @Override
-  public ImmutableJsonArray getJsonArray()
-  {
-    return jsonArray_;
-  }
+  public abstract M build(T value) throws BadFormatException;
+  public abstract M build(JsonValue<?,?> jsonValue) throws BadFormatException;
+  public abstract T toValue(M instance);
 }

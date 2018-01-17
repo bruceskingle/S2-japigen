@@ -342,6 +342,7 @@
       <#break>
       
     <#case "Ref">
+      <#assign javaConstructTypePostfix=")">
       <#if javaGeneratedBuilderClassName?has_content>
         <#if model.reference.enum??>
           <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.valueOf(">
@@ -349,9 +350,13 @@
           <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
         </#if>
       <#else>
-        <#assign javaConstructTypePrefix="new ${javaClassName}(">
+        <#if model.reference.elementType=="Array">
+          <#assign javaConstructTypePrefix="${javaClassName}.newBuilder().with(">
+          <#assign javaConstructTypePostfix=").build()">
+        <#else>
+          <#assign javaConstructTypePrefix="${javaClassName}.newBuilder().build(">
+        </#if>
       </#if>
-      <#assign javaConstructTypePostfix=")">
       <#switch model.reference.elementType>
         <#case "Array">
           <#assign javaGetValuePostfix=".getElements()">
@@ -393,9 +398,7 @@
 <#macro decorateIfArray model>
   <#if model.elementType=="Array">
     <#assign isArrayType=true>
-    // TRACE javaElementClassName = ${javaElementClassName}
-    // model.items.elementType = ${model.items.elementType!NULL}
-    <#if model.items.elementType == "Ref">
+    <#if model.items.baseSchema.isObjectSchema>
       <#assign addJsonNode="addCollectionOfDomNode">
     <#else>
       <#assign addJsonNode="addCollectionOf${javaElementClassName}">
@@ -817,26 +820,26 @@ ${indent}  throw new BadFormatException("${name} is required.");
 <#------------------------------------------------------------------------------------------------------
  # Generate limit checks for the given Array type if necessary
  #
- # @param indent    TO BE ADDED: An indent string which is output at the start of each line generated
+ # @param indent    An indent string which is output at the start of each line generated
  # @param model     A model element representing the field to generate for
  # @param var       The name of a variable to which the extracted value will be assigned 
  # @param name      The name of an array value being checked
  #----------------------------------------------------------------------------------------------------->
-<#macro checkItemLimits model name var>
+<#macro checkItemLimits indent model name var>
   <#switch model.elementType>
     <#case "Array">
       <#if model.minItems??>
 
-    if(${var}.size() < ${model.minItems})
-    {
-      throw new BadFormatException("${name} has " + ${var}.size() + " items but at least ${model.minItems} are required");
-    }
+${indent}if(${var}.size() < ${model.minItems})
+${indent}{
+${indent}  throw new BadFormatException("${name} has " + ${var}.size() + " items but at least ${model.minItems} are required");
+${indent}}
       </#if>
       <#if model.maxItems??>
-    if(${var}.size() > ${model.maxItems})
-    {
-      throw new BadFormatException("${name} has " + ${var}.size() + " items but at most ${model.maxItems} are allowed");
-    }
+${indent}if(${var}.size() > ${model.maxItems})
+${indent}{
+${indent}  throw new BadFormatException("${name} has " + ${var}.size() + " items but at most ${model.maxItems} are allowed");
+${indent}}
       </#if>
       <#break>
   </#switch>
@@ -882,18 +885,19 @@ ${indent}  throw new BadFormatException("${field.camelName} must be an Object no
 ${indent}}
         <#break>
       
-      <#default>
-        <#if isArrayType>
+      <#case "Array">
 ${indent}if(node instanceof ImmutableJsonArray)
 ${indent}{
-${indent}  ${var} = ${javaConstructTypePrefix}(ImmutableJsonArray)node, ((ImmutableJsonArray)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class)${javaConstructTypePostfix};
-${indent}  <@checkItemLimits field field.camelName var/>
+${indent}  ${var} = ${javaConstructTypePrefix}(ImmutableJsonArray)node${javaConstructTypePostfix};
+<@checkItemLimits indent field field.camelName var/>
 ${indent}}
 ${indent}else
 ${indent}{
-${indent}  throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
+${indent}  throw new BadFormatException("${field.camelName} must be an Array node not " + node.getClass().getName());
 ${indent}}
-        <#else>
+        <#break>
+      
+      <#default>
 ${indent}if(node instanceof I${javaElementClassName}Provider)
 ${indent}{
 ${indent}  ${javaElementClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
@@ -910,8 +914,7 @@ ${indent}}
 ${indent}else
 ${indent}{
 ${indent}    throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
-${indent}}
-        </#if>      
+${indent}}     
         <#break>
     </#switch>
   <#else>
@@ -923,7 +926,7 @@ ${indent}  ${var} = _factory_.getModel().get${javaElementClassName}Factory().new
       <#else>
 ${indent}  ${var} = ((ImmutableJsonArray)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
       </#if>
-${indent}  <@checkItemLimits field field.camelName var/>
+<@checkItemLimits indent field field.camelName var/>
 ${indent}}
 ${indent}else
 ${indent}{

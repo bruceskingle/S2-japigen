@@ -23,27 +23,33 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import java.util.List;
-
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
 
 import com.google.common.collect.ImmutableList;
 
-public class ModelList<T> extends ModelArray
+public class ModelList<T> extends ModelArray implements IModelList<T>
 {
   private final ImmutableList<T> elements_;
   
-  public ModelList(ImmutableJsonArray jsonObject, List<T> elements)
+  public ModelList(IModelList<T> other)
   {
-    super(jsonObject);
-    elements_ = ImmutableList.copyOf(elements);
+    super(other.getJsonArray());
+    elements_ = other.getElements();
+  }
+  
+  public ModelList(ImmutableJsonArray jsonArray, ImmutableList<T> elements)
+  {
+    super(jsonArray);
+    elements_ = elements;
   }
 
+  @Override
   public ImmutableList<T> getElements()
   {
     return elements_;
   }
 
+  @Override
   public int size()
   {
     return elements_.size();

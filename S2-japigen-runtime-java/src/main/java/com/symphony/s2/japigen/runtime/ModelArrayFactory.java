@@ -23,14 +23,30 @@
 
 package com.symphony.s2.japigen.runtime;
 
+import org.symphonyoss.s2.common.dom.DomSerializer;
+import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
+import org.symphonyoss.s2.common.dom.json.IJsonDomNodeProvider;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
 
 public abstract class ModelArrayFactory<M extends IModelArray, F extends IModel>
 implements IModelArrayFactory<M,F>
 {
+  protected static final DomSerializer SERIALIZER = DomSerializer.newBuilder().withCanonicalMode(true).build();
   
-  public abstract static class Builder
+  public abstract static class Builder implements IJsonDomNodeProvider, IModelEntity
   {
     public abstract ImmutableJsonArray getJsonArray();
+    
+    @Override
+    public IImmutableJsonDomNode getJsonDomNode()
+    {
+      return getJsonArray();
+    }
+
+    @Override
+    public String serialize()
+    {
+      return SERIALIZER.serialize(getJsonArray());
+    }
   }
 }

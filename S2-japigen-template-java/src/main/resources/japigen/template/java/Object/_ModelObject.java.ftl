@@ -143,6 +143,7 @@
     <#list model.fields as field>
       <@setJavaType field/>
       
+      @Override
       public ${javaClassName} get${field.camelCapitalizedName}()
       {
         return ${field.camelName}__;

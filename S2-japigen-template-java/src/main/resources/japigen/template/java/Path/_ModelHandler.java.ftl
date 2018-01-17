@@ -11,6 +11,7 @@ import java.util.List;
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
 import com.symphony.s2.japigen.runtime.ModelHandler;
+import com.symphony.s2.japigen.runtime.ModelRegistry;
 import com.symphony.s2.japigen.runtime.exception.BadRequestException;
 import com.symphony.s2.japigen.runtime.exception.JapiException;
 import com.symphony.s2.japigen.runtime.exception.NoSuchRecordException;
@@ -128,8 +129,13 @@ public abstract class ${modelJavaClassName}ModelHandler extends ModelHandler<I${
   <#if operation.payload??>
   
     <@setJavaType operation.payload.schema/>
-    
+    // operation.payload = ${operation.payload.schema}
+    <#if operation.payload.schema.isTypeDef>
+      // typedef
+    ${javaClassName} _payload = context.parsePayload(${javaClassName}.newBuilder());
+    <#else>
     ${javaClassName} _payload = context.parsePayload(getModel().get${javaClassName}Factory());
+    </#if>
   </#if>
   
     if(context.preConditionsAreMet())

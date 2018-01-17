@@ -38,6 +38,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.JsonValue;
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,6 +48,7 @@ import com.symphony.s2.japigen.runtime.IModelEntity;
 import com.symphony.s2.japigen.runtime.IModelObject;
 import com.symphony.s2.japigen.runtime.IModelObjectFactory;
 import com.symphony.s2.japigen.runtime.ModelRegistry;
+import com.symphony.s2.japigen.runtime.ModelTypeBuilder;
 
 public class RequestContext
 {
@@ -276,8 +278,31 @@ public class RequestContext
       
       String message = e.getMessage();
       
-      if(e != null)
-        error(e);
+      if(message != null)
+        error(message);
+      
+      return null;
+    }
+  }
+
+  public <M,T> M parsePayload(ModelTypeBuilder<M,T> builder)
+  {
+    try
+    {
+      JsonValue<?, ?> jsonObject = ModelRegistry.parseOneJsonValue(getRequest().getReader());
+      
+      return builder.build(jsonObject);
+    }
+    catch (BadFormatException | IOException e)
+    {
+      log_.error("Failed to parse payload", e);
+      error("Unable to parse payload");
+      
+      String message = e.getMessage();
+      
+      if(message != null)
+        error(message);
+      
       return null;
     }
   }

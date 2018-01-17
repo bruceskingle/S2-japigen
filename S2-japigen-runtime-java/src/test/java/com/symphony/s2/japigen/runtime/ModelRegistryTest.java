@@ -1,12 +1,12 @@
 /*
  *
  *
- * Copyright 2017 Symphony Communication Services, LLC.
+ * Copyright 2018 Symphony Communication Services, LLC.
  *
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The SSF licenses this file
+ * regarding copyright ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -23,25 +23,29 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import javax.annotation.concurrent.Immutable;
+import java.io.IOException;
+import java.io.StringReader;
 
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
+import org.junit.Test;
+import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.exception.BadFormatException;
 
-@Immutable
-public abstract class ModelArray extends ModelEntity implements IModelArray
+public class ModelRegistryTest
 {
-  private final ImmutableJsonArray        jsonArray_;
-    
-  public ModelArray(ImmutableJsonArray jsonArray)
+  @Test
+  public void testObject() throws BadFormatException, IOException
   {
-    super(jsonArray);
+    ImmutableJsonObject result = ModelRegistry.parseOneJsonObject(new StringReader("{\"a\": true}"));
     
-    jsonArray_ = jsonArray;
+    System.err.println(result);
   }
 
-  @Override
-  public ImmutableJsonArray getJsonArray()
+  @Test
+  public void testNumber() throws BadFormatException, IOException
   {
-    return jsonArray_;
+    IJsonDomNode result = ModelRegistry.parseOneJsonValue(new StringReader("66"));
+    
+    System.err.println(result);
   }
 }

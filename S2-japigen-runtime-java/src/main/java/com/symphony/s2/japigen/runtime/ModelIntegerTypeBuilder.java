@@ -1,12 +1,12 @@
 /*
  *
  *
- * Copyright 2017 Symphony Communication Services, LLC.
+ * Copyright 2018 Symphony Communication Services, LLC.
  *
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The SSF licenses this file
+ * regarding copyright ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -23,25 +23,19 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import javax.annotation.concurrent.Immutable;
+import org.symphonyoss.s2.common.dom.json.JsonInteger;
+import org.symphonyoss.s2.common.dom.json.JsonValue;
+import org.symphonyoss.s2.common.exception.BadFormatException;
 
-import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
-
-@Immutable
-public abstract class ModelArray extends ModelEntity implements IModelArray
+public abstract class ModelIntegerTypeBuilder<M> extends ModelTypeBuilder<M,Integer>
 {
-  private final ImmutableJsonArray        jsonArray_;
-    
-  public ModelArray(ImmutableJsonArray jsonArray)
+  @Override
+  public M build(JsonValue<?, ?> jsonValue) throws BadFormatException
   {
-    super(jsonArray);
+    if(jsonValue instanceof JsonInteger)
+      return build(((JsonInteger)jsonValue).asInteger());
     
-    jsonArray_ = jsonArray;
+    throw new BadFormatException("Expected an int but found a " + jsonValue.getClass().getName());
   }
 
-  @Override
-  public ImmutableJsonArray getJsonArray()
-  {
-    return jsonArray_;
-  }
 }

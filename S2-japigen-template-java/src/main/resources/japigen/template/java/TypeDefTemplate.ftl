@@ -15,6 +15,7 @@ import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
+import com.symphony.s2.japigen.runtime.Model${modelJavaFieldClassName}TypeBuilder;
 import ${javaFacadePackage}.${modelJavaClassName};
 
 <#include "TypeDefHeader.ftl">
@@ -49,7 +50,7 @@ public class ${modelJavaClassName}ModelType<#if isComparable(model)> implements 
     if(node instanceof JsonArray)
     {
       value_ = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
-      <@checkItemLimits model "value" "value_"/>
+<@checkItemLimits "      " model "value" "value_"/>
     }
     else
     {
@@ -116,9 +117,7 @@ public class ${modelJavaClassName}ModelType<#if isComparable(model)> implements 
     </#list>
   </#if>
   
-  public static abstract class Builder
+  public static abstract class Builder extends Model${modelJavaFieldClassName}TypeBuilder<${modelJavaClassName}>
   {
-    public abstract ${modelJavaClassName} build(${modelJavaFieldClassName} value) throws BadFormatException;
-    public abstract ${modelJavaFieldClassName} to${modelJavaFieldClassName}(${modelJavaClassName} instance);
   }
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-template-java-SubEpilogue.ftl">
