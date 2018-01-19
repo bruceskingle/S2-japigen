@@ -44,7 +44,6 @@ import org.symphonyoss.s2.common.reader.LinePartialReader;
 import org.symphonyoss.s2.common.reader.LinePartialReader.Factory;
 
 import com.fasterxml.jackson.core.JsonParser.Feature;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -92,7 +91,7 @@ public class ModelRegistry implements IModelRegistry
     return factory.newInstance(jsonObject);
   }
   
-  public static ImmutableJsonObject parseOneJsonObject(Reader reader) throws IOException, BadFormatException
+  public static ImmutableJsonObject parseOneJsonObject(Reader reader) throws BadFormatException
   {
     ObjectMapper  mapper = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
     
@@ -111,13 +110,13 @@ public class ModelRegistry implements IModelRegistry
         throw new BadFormatException("Expected a JSON Object but read a " + adapted.getClass().getName());
       }
     }
-    catch(JsonProcessingException e)
+    catch(IOException e)
     {
       throw new BadFormatException("Failed to parse input", e);
     }
   }
   
-  public static JsonValue<?,?> parseOneJsonValue(Reader reader) throws IOException, BadFormatException
+  public static JsonValue<?,?> parseOneJsonValue(Reader reader) throws BadFormatException
   {
     ObjectMapper  mapper = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
     
@@ -134,7 +133,7 @@ public class ModelRegistry implements IModelRegistry
         throw new BadFormatException("Expected a JSON value but read a " + tree.getClass().getName());
       }
     }
-    catch(JsonProcessingException e)
+    catch(IOException e)
     {
       throw new BadFormatException("Failed to parse input", e);
     }

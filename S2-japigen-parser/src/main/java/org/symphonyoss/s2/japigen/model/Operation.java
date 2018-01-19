@@ -94,6 +94,20 @@ public class Operation extends ParameterContainer
       }
     }
   }
+  
+  public boolean getIsStreamable()
+  {
+    if(payload_ == null && response_ == null)
+      return false;
+    
+    if(payload_ != null && !payload_.getIsMultiple())
+      return false;
+    
+    if(response_ != null && !response_.getIsMultiple())
+      return false;
+    
+    return true;
+  }
 
   public PathItem getPathItem()
   {

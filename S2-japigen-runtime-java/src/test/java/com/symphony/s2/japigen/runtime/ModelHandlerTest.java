@@ -37,7 +37,7 @@ public class ModelHandlerTest
   @Test
   public void testNoParam()
   {
-    ModelHandler handler = testHandler(0, "/users", "/users");
+    PathHandler handler = testHandler(0, "/users", "/users");
     
     test(handler, "/users", true);
     test(handler, "/users/", false);
@@ -48,7 +48,7 @@ public class ModelHandlerTest
   @Test
   public void testOneParam()
   {
-    ModelHandler handler = testHandler(1, "/users/{userId}", "/users/");
+    PathHandler handler = testHandler(1, "/users/{userId}", "/users/");
     
     test(handler, "/users", false);
     test(handler, "/users/", false);
@@ -59,7 +59,7 @@ public class ModelHandlerTest
   @Test
   public void testOneParamExtra()
   {
-    ModelHandler handler = testHandler(1, "/users/{userId}/extra", "/users/", "/extra");
+    PathHandler handler = testHandler(1, "/users/{userId}/extra", "/users/", "/extra");
     
     test(handler, "/users", false);
     test(handler, "/users/", false);
@@ -67,7 +67,7 @@ public class ModelHandlerTest
     test(handler, "/users/21", false);
   }
 
-  private void test(ModelHandler handler, String path, boolean expected)
+  private void test(PathHandler handler, String path, boolean expected)
   {
     if((handler.getVariablesIfCanHandle(path)!=null) != expected)
     {
@@ -108,9 +108,9 @@ public class ModelHandlerTest
     
   }
 
-  private ModelHandler<TestModel> testHandler(int varCnt, final String path, String ...parts)
+  private PathHandler<TestModel> testHandler(int varCnt, final String path, String ...parts)
   {
-    return new ModelHandler<TestModel>(new TestModel(), varCnt, parts)
+    return new PathHandler<TestModel>(new TestModel(), varCnt, parts)
     {
 
       @Override

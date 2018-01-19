@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
-import com.symphony.s2.japigen.runtime.ModelHandler;
+import com.symphony.s2.japigen.runtime.PathHandler;
 import com.symphony.s2.japigen.runtime.ModelRegistry;
 import com.symphony.s2.japigen.runtime.exception.BadRequestException;
 import com.symphony.s2.japigen.runtime.exception.JapiException;
@@ -28,9 +28,9 @@ import ${javaFacadePackage}.I${model.model.camelCapitalizedName};
 
 <#include "Path.ftl">
 @Immutable
-public abstract class ${modelJavaClassName}ModelHandler extends ModelHandler<I${model.model.camelCapitalizedName}> implements I${modelJavaClassName}ModelHandler
+public abstract class ${modelJavaClassName}PathHandler extends PathHandler<I${model.model.camelCapitalizedName}> implements I${modelJavaClassName}PathHandler
 {
-  public ${modelJavaClassName}ModelHandler(I${model.model.camelCapitalizedName} model)
+  public ${modelJavaClassName}PathHandler(I${model.model.camelCapitalizedName} model)
   {
     super(model, ${model.pathParamCnt}, new String[] {
 <#list model.partList as part>

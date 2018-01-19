@@ -959,7 +959,56 @@ ${indent}}
  # @param operation   An operation object 
  #----------------------------------------------------------------------------------------------------->
 <#macro setJavaMethod operation>
-<@setDescription operation/>
+  <#if operation.response??>
+    <@setJavaType operation.response.schema/>
+    <#assign methodResponseType="${javaClassName}">
+    <#if operation.response.isRequired>
+      <#assign methodResponseDecl="@Nonnull ${javaClassName}">
+      <#assign methodThrows="throws PermissionDeniedException, ServerErrorException">
+    <#else>
+      <#assign methodResponseDecl="@Nullable ${javaClassName}">
+      <#assign methodThrows="throws PermissionDeniedException, NoSuchRecordException, ServerErrorException">
+    </#if>
+    <#if operation.payload??>
+      <#assign methodStyle="PayloadResponse">
+    <#else>
+      <#assign methodStyle="Response">
+    </#if>
+  <#else>
+  //T3
+    <#assign methodResponseType="">
+    <#assign methodResponseDecl="void">
+    <#assign methodThrows="throws PermissionDeniedException, ServerErrorException">
+    <#if operation.payload??>
+      <#assign methodStyle="Payload">
+    <#else>
+      <#assign methodStyle="">
+    </#if>
+  </#if>
+  <#if operation.payload??>
+    <@setJavaType operation.payload.schema/>
+    <#assign methodPayloadType="${javaClassName}">
+    <#if operation.payload.isRequired>
+      <#assign methodPayloadDecl="@Nonnull ${javaClassName}">
+    <#else>
+      <#assign methodPayloadDecl="@Nullable ${javaClassName}">
+    </#if>
+  <#else>
+    <#assign methodPayloadType="">
+    <#assign methodPayloadDecl="">
+  </#if>
+  <@setDescription operation/>
+</#macro>
+
+<#------------------------------------------------------------------------------------------------------
+ # 
+ # Print javadoc comment for the given operation.
+ #
+ # NB this macro calls setJavaMethod and setJavaType
+ # @param operation   An operation object 
+ #----------------------------------------------------------------------------------------------------->
+<#macro printMethodJavadoc operation>
+<@setJavaMethod operation/>
   /**
    * ${operation.name} ${operation.pathItem.path}
    * ${summary}
@@ -977,18 +1026,10 @@ ${indent}}
    * @return A ${javaClassName}
     </#if>
     <#if operation.response.isRequired>
-      <#assign methodReturnType="@Nonnull ${javaClassName}">
-      <#assign methodThrows="throws PermissionDeniedException, ServerErrorException">
     <#else>
    * or <code>null</code>
-      <#assign methodReturnType="@Nullable ${javaClassName}">
-      <#assign methodThrows="throws PermissionDeniedException, NoSuchRecordException, ServerErrorException">
    * @throws NoSuchRecordException            If there is no data to return
     </#if>
-  <#else>
-    <#assign methodReturnType="void">
-    <#assign methodReturnPlaceholder="">
-    <#assign methodThrows="throws PermissionDeniedException, ServerErrorException">
   </#if>
    * @throws PermissionDeniedException        If the caller lacks necessary entitlements for the action
    * @throws ServerErrorException             If an unexpected error occurred

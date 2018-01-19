@@ -9,11 +9,11 @@ import com.symphony.s2.japigen.runtime.IModelHandler;
 <@importFieldTypes model true/>
 
 <#include "Path.ftl">
-public interface I${modelJavaClassName}ModelHandler extends IModelHandler
+public interface I${modelJavaClassName}PathHandler extends I${model.model.camelCapitalizedName}ModelHandler
 {
 <#list model.operations as operation>
-  <@setJavaMethod operation/>
-  ${methodReturnType} handle${operation.camelCapitalizedName}(
+  <@printMethodJavadoc operation/>
+  ${methodResponseDecl} handle${operation.camelCapitalizedName}(
   <#if operation.payload??>
   <@setJavaType operation.payload.schema/>
   <#if operation.payload.isRequired>

@@ -13,17 +13,13 @@ public class ${modelJavaClassName}ModelServlet extends ModelServlet<I${model.mod
   private static final long serialVersionUID = 1L;
 
   public ${modelJavaClassName}ModelServlet(
-    I${model.model.camelCapitalizedName} model<#if model.paths.children?size != 0>,</#if>
-<#list model.paths.children as path>
-    I${path.camelCapitalizedName}ModelHandler ${path.camelName}Handler<#sep>,
-</#list>
-
-  )
+    I${model.model.camelCapitalizedName} model,
+    I${model.model.camelCapitalizedName}ModelHandler ...handlers)
   {
     super(model);
-<#list model.paths.children as path>
-    register(${path.camelName}Handler);
-</#list>
+    
+    for(I${model.model.camelCapitalizedName}ModelHandler handler : handlers)
+      register(handler);
   }
  
   @Override

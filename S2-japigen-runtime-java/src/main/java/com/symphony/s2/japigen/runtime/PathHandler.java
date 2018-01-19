@@ -36,16 +36,16 @@ import org.slf4j.LoggerFactory;
 import com.symphony.s2.japigen.runtime.exception.JapiException;
 import com.symphony.s2.japigen.runtime.http.RequestContext;
 
-public abstract class ModelHandler<M extends IModel> implements IModelHandler
+public abstract class PathHandler<M extends IModel> implements IModelHandler
 {
-  private static final Logger log_ = LoggerFactory.getLogger(ModelHandler.class);
+  private static final Logger log_ = LoggerFactory.getLogger(PathHandler.class);
   
   private final M        model_;
   private final int      variableCnt_;
   private final String[] parts_;
   private final int      partsLength_;
   
-  public ModelHandler(M model, int variableCnt, String[] parts)
+  public PathHandler(M model, int variableCnt, String[] parts)
   {
     model_ = model;
     parts_ = parts;

@@ -41,6 +41,9 @@ public class TestEntityJSON
 {
   public static void main(String[] argv) throws JapigenException, ProcessingException
   {
+    String PRESENCE_SPEC = "/Users/bruce/symphony/git-SymphonyOSF/S2-japigen-example/S2-presence-client/src/main/japigen/presence.json";
+    String PRESENCE_DATA = "/Users/bruce/eclipse-workspace/S2/Structured Objects/userPresence.json";
+    
     String JSON_SCHEMA = "/Users/bruce/symphony/git-bruceskingle/S2-japigen/S2-japigen-parser/src/main/resources/json-schema-v4.schema.json";
     String OBJECT_SCHEMA = "/Users/bruce/symphony/git-SymphonyOSF/symphony-object/docs/schema/structured-object-v0_1.json";
     String RFQ_SCHEMA = "/Users/bruce/symphony/git-SymphonyOSF/symphony-object/docs/proposed/org/symphonyoss/fin/rfq/request/bond-v0_1.json";
@@ -54,6 +57,14 @@ public class TestEntityJSON
     
     validate(JSON_SCHEMA, ENTIY_JSON_SCHEMA, "ENTIY_JSON_SCHEMA");
     validate(ENTIY_JSON_SCHEMA, ENTIY_JSON_EXAMPLE, "ENTIY_JSON_EXAMPLE");
+    
+    validate(JSON_SCHEMA,
+        PRESENCE_SPEC,
+        "PRESENCE_SPEC");
+    
+    validate(PRESENCE_SPEC,
+        PRESENCE_DATA,
+        "PRESENCE_DATA");
   }
   
   private static void validate(String schemaFileName, String instanceFileName, String desc) throws ParsingException, ProcessingException
