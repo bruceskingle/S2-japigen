@@ -25,9 +25,9 @@ public interface I${modelJavaClassName}AsyncPathHandler extends I${model.model.c
 	<#list operation.parameters as parameter>
 	  <@setJavaType parameter.schema/>
 	  <#if parameter.isRequired>
-    @Nonnull  ${javaClassName?right_pad(25)} ${parameter.camelName}<#sep>,
+    @Nonnull  ${javaClassName?right_pad(25)} ${parameter.camelName}<#sep>,</#sep>
     <#else>
-    @Nullable ${javaClassName?right_pad(25)} ${parameter.camelName}<#sep>,
+    @Nullable ${javaClassName?right_pad(25)} ${parameter.camelName}<#sep>,</#sep>
     </#if>
 	</#list>
 	

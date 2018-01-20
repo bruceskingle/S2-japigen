@@ -71,61 +71,8 @@ public abstract class ${modelJavaClassName}PathHandler extends PathHandler<I${mo
 
   private void do${operation.camelCapitalizedName}(RequestContext context, List<String> pathParams) throws IOException, JapiException
   {
-    Iterator<String> it = pathParams.iterator();
-  <#list operation.pathParameters as parameter>
-  <@setJavaType parameter.schema/>
+  <#include "GetParams.ftl">
 
-    // We have already checked that there are the correct number of parameters
-      
-    ${javaFieldClassName?right_pad(25)} ${parameter.camelName}Value = context.as${javaFieldClassName}("${parameter.name}", it.next());
-    ${javaClassName?right_pad(25)} ${parameter.camelName} = null;
-
-    <#if requiresChecks>
-    <@checkLimits "    " parameter parameter.camelName/>
-    </#if>
-    
-    <#if checkLimitsClass(parameter.schema)>
-    try
-    {
-      ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
-    }
-    catch(BadFormatException e)
-    {
-      context.error("Parameter \"${parameter.camelName}\" has invalid value \"%s\" (%s)", ${parameter.camelName}Value, e.getMessage());
-    }
-    <#else>
-    ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
-    </#if>
-    
-    
-  </#list>
-  
-  <#list operation.nonPathParameters as parameter>
-  <@setJavaType parameter.schema/>
-
-    ${javaFieldClassName?right_pad(25)} ${parameter.camelName}Value = context.getParameterAs${javaFieldClassName}("${parameter.name}", ParameterLocation.${parameter.location}, ${parameter.isRequired?c});
-    ${javaClassName?right_pad(25)} ${parameter.camelName} = null; 
-    
-    if(${parameter.camelName}Value != null)
-    {
-    <#if checkLimitsClass(parameter.schema)>
-      try
-      {
-        ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
-      }
-      catch(BadFormatException e)
-      {
-        context.error("Parameter \"${parameter.camelName}\" has invalid value \"%s\" (%s)", ${parameter.camelName}Value, e.getMessage());
-      }
-    <#else>
-      ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
-    </#if>
-    }
-
-    <#if requiresChecks>
-    <@checkLimits "    " parameter parameter.camelName/>
-    </#if>
-  </#list>
   <#if operation.payload??>
   
     <@setJavaType operation.payload.schema/>

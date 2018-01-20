@@ -76,6 +76,12 @@ public abstract class AbstractParameter extends ModelElement
     return required_;
   }
 
+  @Override
+  public boolean getCanFailValidation()
+  {
+    return required_ || super.getCanFailValidation();
+  }
+
   public ReferenceOrSchema getSchema()
   {
     return schema_;

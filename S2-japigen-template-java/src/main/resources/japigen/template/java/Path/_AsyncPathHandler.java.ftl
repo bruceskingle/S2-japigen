@@ -23,6 +23,7 @@ import org.symphonyoss.s2.common.exception.BadFormatException;
 import com.symphony.s2.japigen.runtime.AsyncPathHandler;
 import com.symphony.s2.japigen.runtime.IConsumer;
 import com.symphony.s2.japigen.runtime.PayloadResponseRequestManager;
+import com.symphony.s2.japigen.runtime.ResponseOnlyRequestManager;
 import com.symphony.s2.japigen.runtime.ModelRegistry;
 import com.symphony.s2.japigen.runtime.exception.BadRequestException;
 import com.symphony.s2.japigen.runtime.exception.JapiException;
@@ -83,136 +84,93 @@ public abstract class ${modelJavaClassName}AsyncPathHandler extends AsyncPathHan
     }
   }
 <#list model.operations as operation>
+  
   <@setJavaMethod operation/>
   
   private void do${operation.camelCapitalizedName}(RequestContext context, List<String> pathParams) throws IOException, JapiException
   {
-    Iterator<String> it = pathParams.iterator();
-  <#list operation.pathParameters as parameter>
-  <@setJavaType parameter.schema/>
+  <#include "GetParams.ftl">
 
-    // We have already checked that there are the correct number of parameters
-      
-    ${javaFieldClassName?right_pad(25)} ${parameter.camelName}Value = context.as${javaFieldClassName}("${parameter.name}", it.next());
-    ${javaClassName?right_pad(25)} ${parameter.camelName} = null;
-
-    <#if requiresChecks>
-    <@checkLimits "    " parameter parameter.camelName/>
-    </#if>
-    
-    <#if checkLimitsClass(parameter.schema)>
-    try
-    {
-      ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
-    }
-    catch(BadFormatException e)
-    {
-      context.error("Parameter \"${parameter.camelName}\" has invalid value \"%s\" (%s)", ${parameter.camelName}Value, e.getMessage());
-    }
-    <#else>
-    ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
-    </#if>
-    
-    
-  </#list>
-  
-  <#list operation.nonPathParameters as parameter>
-  <@setJavaType parameter.schema/>
-
-    ${javaFieldClassName?right_pad(25)} ${parameter.camelName}Value = context.getParameterAs${javaFieldClassName}("${parameter.name}", ParameterLocation.${parameter.location}, ${parameter.isRequired?c});
-    ${javaClassName?right_pad(25)} ${parameter.camelName} = null; 
-    
-    if(${parameter.camelName}Value != null)
-    {
-    <#if checkLimitsClass(parameter.schema)>
-      try
-      {
-        ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
-      }
-      catch(BadFormatException e)
-      {
-        context.error("Parameter \"${parameter.camelName}\" has invalid value \"%s\" (%s)", ${parameter.camelName}Value, e.getMessage());
-      }
-    <#else>
-      ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
-    </#if>
-    }
-
-    <#if requiresChecks>
-    <@checkLimits "    " parameter parameter.camelName/>
-    </#if>
-  </#list>
   
     if(context.preConditionsAreMet())
     {
-        ServletInputStream in = context.getRequest().getInputStream();
-        ServletOutputStream out = context.getResponse().getOutputStream();
-        AsyncContext async=context.getRequest().startAsync();
+      ServletInputStream in = context.getRequest().getInputStream();
+      ServletOutputStream out = context.getResponse().getOutputStream();
+      AsyncContext async=context.getRequest().startAsync();
 
-        PayloadResponseRequestManager<${methodPayloadType}, ${methodResponseType}> manager =
-          new PayloadResponseRequestManager<${methodPayloadType}, ${methodResponseType}>(in, out, async, getProcessExecutor(), getResponseExecutor())
-        {
-          @Override
-          public void handle(${methodPayloadDecl} payload, IConsumer<${methodResponseType}> consumer) throws JapiException
-          {
-            handlePost(payload, consumer);
-          }
-<#if operation.payload??>
-  <@setJavaType operation.payload.schema/>
-  
-          @Override
-          protected ${methodPayloadType} parsePayload(String request) throws BadFormatException
-          {
-  <#if operation.payload.schema.isTypeDef>
-              JsonValue<?, ?> jsonValue = ModelRegistry.parseOneJsonValue(new StringReader(request));
-              return ${javaClassName}.newBuilder().build(jsonValue);
-  <#else>
-              ImmutableJsonObject jsonObject = ModelRegistry.parseOneJsonObject(new StringReader(request));
-              return getModel().get${javaClassName}Factory().newInstance(jsonObject);
-  </#if>
-          }
-         
-<#else>
-  <@setJavaType operation.response.schema/>
-  /*          
-          @Override
-          protected ${javaClassName} handle${operation.camelCapitalizedName}()
-          {
-              return handle${operation.camelCapitalizedName}();
-          }
-          */
-</#if>
-        };
-        
-        out.setWriteListener(manager);
-        in.setReadListener(manager);
-        System.err.println("isReady=" + in.isReady());
-  
-  <#--     
   <#switch methodStyle>
     <#case "PayloadResponse">
-      handleWithPayloadResponse(context, pathParams, handler);
+      // Method has both Payload and Response
+      PayloadResponseRequestManager<${methodPayloadType}, ${methodResponseType}> manager =
+        new PayloadResponseRequestManager<${methodPayloadType}, ${methodResponseType}>(in, out, async, getProcessExecutor(), getResponseExecutor())
+      {
+        @Override
+        public void handle(${methodPayloadDecl} payload, IConsumer<${methodResponseType}> consumer) throws JapiException
+        {
+          handle${operation.camelCapitalizedName}(payload, consumer<#if operation.parameters?size != 0>,</#if>
+      <#list operation.parameters as parameter>
+        ${parameter.camelName}<#sep>,</#sep>
+      </#list>
+          );
+        }
+      <@setJavaType operation.payload.schema/>
+  
+        @Override
+        protected ${methodPayloadType} parsePayload(String request) throws BadFormatException
+        {
+      <#if operation.payload.schema.isTypeDef>
+          JsonValue<?, ?> jsonValue = ModelRegistry.parseOneJsonValue(new StringReader(request));
+          return ${javaClassName}.newBuilder().build(jsonValue);
+      <#else>
+          ImmutableJsonObject jsonObject = ModelRegistry.parseOneJsonObject(new StringReader(request));
+          return getModel().get${javaClassName}Factory().newInstance(jsonObject);
+      </#if>
+        }
+      };
+      
+      out.setWriteListener(manager);
+      in.setReadListener(manager);
+      System.err.println("isReady=" + in.isReady());
       <#break>
      
-     <#case "Payload">
-      handleWithPayload(context, pathParams);
+    <#case "Payload">
+      // Method has a Payload but no Response
+      handle${operation.camelCapitalizedName}(payload);
       <#break>
      
-     <#case "Response">
-      handleWithResponse(context, pathParams);
+    <#case "Response">
+      // Method has no Payload but does have a Response
+      
+      <#list operation.parameters as parameter>
+        <@setJavaType parameter.schema/>
+        final ${javaClassName?right_pad(25)} final${parameter.camelCapitalizedName} = ${parameter.camelName}; 
+      </#list>
+      
+      ResponseOnlyRequestManager<${methodResponseType}> manager =
+        new ResponseOnlyRequestManager<${methodResponseType}>(in, out, async, getProcessExecutor(), getResponseExecutor())
+      {
+        @Override
+        public void handle(IConsumer<${methodResponseType}> consumer) throws JapiException
+        {
+          handle${operation.camelCapitalizedName}(consumer<#if operation.parameters?size != 0>,</#if>
+      <#list operation.parameters as parameter>
+            final${parameter.camelCapitalizedName}<#sep>,</#sep>
+      </#list>
+          );
+        }
+      };
+      
+      out.setWriteListener(manager);
+      
+      manager.start();
       <#break>
     
     <#default>
-      handle(context, pathParams);
-  </#switch>
-  ---->
+      // Method has neither Payload nor Response
+      handle${operation.camelCapitalizedName}();
+  </#switch>   
     }
   }
-  
-
-
-
 </#list>
-
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

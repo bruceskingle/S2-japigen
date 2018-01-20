@@ -23,8 +23,16 @@
 
 package com.symphony.s2.japigen.runtime;
 
-public interface IConsumer<T>
+import com.symphony.s2.japigen.runtime.exception.JapiException;
+
+/**
+ * A handler for some async method which takes a payload and returns a response.
+ * 
+ * @author Bruce Skingle
+ *
+ * @param <R>   The type of the response.
+ */
+public interface IResponseOnlyRequestManager<R>
 {
-  void consume(T item);
-  void close();
+  void handle(IConsumer<R> consumer) throws JapiException;
 }
