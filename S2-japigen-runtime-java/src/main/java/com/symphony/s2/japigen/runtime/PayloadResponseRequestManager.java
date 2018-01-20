@@ -26,16 +26,16 @@ implements ReadListener, WriteListener, IPayloadResponseRequestManager<P,R>
   protected abstract P parsePayload(String payload) throws BadFormatException;
   
   @Override
-  protected void handleRequest(String request)
+  protected void handleRequest(String request) throws BadFormatException, JapiException
   {
-    try
-    {
-      handle(parsePayload(request), getResponseTask());
-    }
-    catch(BadFormatException | JapiException e)
-    {
-      e.printStackTrace();
-    }
+    handle(parsePayload(request), getResponseTask());
+  }
+
+  @Override
+  protected void finishRequest()
+  {
+    System.err.println("Request finish()");
+    getResponseTask().close();
   }
 }
 

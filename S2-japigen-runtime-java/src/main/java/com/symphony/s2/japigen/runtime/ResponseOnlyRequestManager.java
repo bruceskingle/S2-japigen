@@ -21,16 +21,16 @@ implements WriteListener, IResponseOnlyRequestManager<R>
   }
 
   @Override
-  protected void handleRequest(String request)
+  protected void handleRequest(String request) throws JapiException
   {
-    try
-    {
-      handle(getResponseTask());
-    }
-    catch(JapiException e)
-    {
-      e.printStackTrace();
-    }
+    handle(getResponseTask());
+  }
+
+  @Override
+  protected void finishRequest()
+  {
+    System.err.println("Request finish()");
+    getResponseTask().close();
   }
   
   public void start()

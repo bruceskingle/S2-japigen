@@ -22,6 +22,8 @@ import org.symphonyoss.s2.common.exception.BadFormatException;
 
 import com.symphony.s2.japigen.runtime.AsyncPathHandler;
 import com.symphony.s2.japigen.runtime.IConsumer;
+import com.symphony.s2.japigen.runtime.EmptyRequestManager;
+import com.symphony.s2.japigen.runtime.PayloadOnlyRequestManager;
 import com.symphony.s2.japigen.runtime.PayloadResponseRequestManager;
 import com.symphony.s2.japigen.runtime.ResponseOnlyRequestManager;
 import com.symphony.s2.japigen.runtime.ModelRegistry;
@@ -98,6 +100,11 @@ public abstract class ${modelJavaClassName}AsyncPathHandler extends AsyncPathHan
       ServletOutputStream out = context.getResponse().getOutputStream();
       AsyncContext async=context.getRequest().startAsync();
 
+      <#list operation.parameters as parameter>
+        <@setJavaType parameter.schema/>
+        final ${javaClassName?right_pad(25)} final${parameter.camelCapitalizedName} = ${parameter.camelName}; 
+      </#list>
+      
   <#switch methodStyle>
     <#case "PayloadResponse">
       // Method has both Payload and Response
@@ -109,7 +116,7 @@ public abstract class ${modelJavaClassName}AsyncPathHandler extends AsyncPathHan
         {
           handle${operation.camelCapitalizedName}(payload, consumer<#if operation.parameters?size != 0>,</#if>
       <#list operation.parameters as parameter>
-        ${parameter.camelName}<#sep>,</#sep>
+        final${parameter.camelCapitalizedName}<#sep>,</#sep>
       </#list>
           );
         }
@@ -135,17 +142,39 @@ public abstract class ${modelJavaClassName}AsyncPathHandler extends AsyncPathHan
      
     <#case "Payload">
       // Method has a Payload but no Response
-      handle${operation.camelCapitalizedName}(payload);
+      PayloadOnlyRequestManager<${methodPayloadType}> manager =
+        new PayloadOnlyRequestManager<${methodPayloadType}>(in, out, async, getProcessExecutor())
+      {
+        @Override
+        public void handle(${methodPayloadDecl} payload) throws JapiException
+        {
+          handle${operation.camelCapitalizedName}(payload<#if operation.parameters?size != 0>,</#if>
+      <#list operation.parameters as parameter>
+        final${parameter.camelCapitalizedName}<#sep>,</#sep>
+      </#list>
+          );
+        }
+      <@setJavaType operation.payload.schema/>
+  
+        @Override
+        protected ${methodPayloadType} parsePayload(String request) throws BadFormatException
+        {
+      <#if operation.payload.schema.isTypeDef>
+          JsonValue<?, ?> jsonValue = ModelRegistry.parseOneJsonValue(new StringReader(request));
+          return ${javaClassName}.newBuilder().build(jsonValue);
+      <#else>
+          ImmutableJsonObject jsonObject = ModelRegistry.parseOneJsonObject(new StringReader(request));
+          return getModel().get${javaClassName}Factory().newInstance(jsonObject);
+      </#if>
+        }
+      };
+      
+      in.setReadListener(manager);
+      System.err.println("isReady=" + in.isReady());
       <#break>
      
     <#case "Response">
       // Method has no Payload but does have a Response
-      
-      <#list operation.parameters as parameter>
-        <@setJavaType parameter.schema/>
-        final ${javaClassName?right_pad(25)} final${parameter.camelCapitalizedName} = ${parameter.camelName}; 
-      </#list>
-      
       ResponseOnlyRequestManager<${methodResponseType}> manager =
         new ResponseOnlyRequestManager<${methodResponseType}>(in, out, async, getProcessExecutor(), getResponseExecutor())
       {
@@ -167,7 +196,23 @@ public abstract class ${modelJavaClassName}AsyncPathHandler extends AsyncPathHan
     
     <#default>
       // Method has neither Payload nor Response
-      handle${operation.camelCapitalizedName}();
+      EmptyRequestManager manager =
+        new EmptyRequestManager(in, out, async, getProcessExecutor())
+      {
+        @Override
+        public void handle() throws JapiException
+        {
+          handle${operation.camelCapitalizedName}(
+      <#list operation.parameters as parameter>
+        final${parameter.camelCapitalizedName}<#sep>,</#sep>
+      </#list>
+          );
+        }
+      };
+      
+      System.err.println("isReady=" + in.isReady());
+      
+      manager.start();
   </#switch>   
     }
   }

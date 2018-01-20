@@ -6,8 +6,11 @@ import java.util.concurrent.ExecutorService;
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 
 import org.symphonyoss.s2.common.exception.BadFormatException;
+
+import com.symphony.s2.japigen.runtime.exception.JapiException;
 
 public abstract class AbstractRequestManager<P,R extends IModelEntity>
 {
@@ -71,8 +74,29 @@ public abstract class AbstractRequestManager<P,R extends IModelEntity>
       @Override
       protected void handleTask(String request)
       {
-        // delegated to sub-classes
-        handleRequest(request);
+        try
+        {
+          // delegated to sub-classes
+          handleRequest(request);
+        }
+        catch(BadFormatException e)
+        {
+          HttpServletResponse response = (HttpServletResponse)getAsync().getResponse();
+          
+          if(!response.isCommitted())
+          {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          }
+        }
+        catch(JapiException e)
+        {
+          HttpServletResponse response = (HttpServletResponse)getAsync().getResponse();
+          
+          if(!response.isCommitted())
+          {
+            response.setStatus(e.getHttpStatusCode());
+          }
+        }
       }
 
       @Override
@@ -85,8 +109,7 @@ public abstract class AbstractRequestManager<P,R extends IModelEntity>
       @Override
       protected void finish()
       {
-        System.err.println("Request finish()");
-        responseTask_.close();
+        finishRequest();
       }
     };
     
@@ -100,6 +123,8 @@ public abstract class AbstractRequestManager<P,R extends IModelEntity>
     };
   }
   
+  protected abstract void finishRequest();
+
   protected ModelHandlerTask<String> getProcessTask()
   {
     return processTask_;
@@ -110,7 +135,12 @@ public abstract class AbstractRequestManager<P,R extends IModelEntity>
     return responseTask_;
   }
 
-  protected abstract void handleRequest(String request);
+  protected AsyncContext getAsync()
+  {
+    return async_;
+  }
+
+  protected abstract void handleRequest(String request) throws BadFormatException, JapiException;
 
 
   public void onDataAvailable() throws IOException

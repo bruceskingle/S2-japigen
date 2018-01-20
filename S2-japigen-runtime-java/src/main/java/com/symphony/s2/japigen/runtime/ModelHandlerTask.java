@@ -51,6 +51,7 @@ public abstract class ModelHandlerTask<T> implements Runnable, IConsumer<T>
     schedule();
   }
   
+  @Override
   public synchronized void  close()
   {
     closed_ = true;
