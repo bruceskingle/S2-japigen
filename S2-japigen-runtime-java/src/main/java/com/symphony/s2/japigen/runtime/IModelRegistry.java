@@ -25,13 +25,15 @@ package com.symphony.s2.japigen.runtime;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collection;
 
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 import org.symphonyoss.s2.common.exception.BadFormatException;
+import org.symphonyoss.s2.common.http.IUrlPathServlet;
 
 public interface IModelRegistry
 {
-  IModelRegistry register(IModelFactory factory);
+  IModelRegistry register(IModel factory);
 
   IModelRegistry register(String name, IModelObjectFactory<?,?> factory);
 
@@ -40,4 +42,12 @@ public interface IModelRegistry
   IModelObject parseOne(Reader reader) throws IOException, BadFormatException;
   
   void parseStream(Reader reader, IModelObjectConsumer consumer) throws BadFormatException;
+  
+  Collection<IUrlPathServlet> getServlets();
+
+  void start();
+  
+  void stop();
+
+  void register(IUrlPathServlet servlet);
 }

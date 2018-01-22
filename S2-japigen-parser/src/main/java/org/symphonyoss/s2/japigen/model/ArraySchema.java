@@ -25,7 +25,7 @@ package org.symphonyoss.s2.japigen.model;
 
 import java.util.Set;
 
-import org.symphonyoss.s2.japigen.JAPIGEN;
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ArraysRequireElementsError;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
@@ -36,16 +36,16 @@ import org.symphonyoss.s2.japigen.parser.error.ParserError;
  * @author Bruce Skingle
  *
  */
-public class ArraySchema extends Type
+public class ArraySchema extends Schema
 {
   private final AbstractSchema items_;
   private final String cardinality_;
   private final Long minItems_;
   private final Long maxItems_;
   
-  public ArraySchema(ModelElement parent, ParserContext context)
+  public ArraySchema(ModelElement parent, ParserContext context, String name)
   {
-    super(parent, context, "Array");
+    super(parent, context, "Array", name);
 
     ParserContext items = context.get("items");
     if(items==null)
@@ -56,19 +56,20 @@ public class ArraySchema extends Type
     else
     {
       items_ = AbstractSchema.createSchema(this, items);
+      add(items_);
     }
     
     minItems_ = context.getLongNode("minItems");
     maxItems_ = context.getLongNode("maxItems");
     
-    switch(context.getText(JAPIGEN.X_CARDINALITY, JAPIGEN.X_CARDINALITY_LIST))
+    switch(context.getText(Japigen.X_CARDINALITY, Japigen.X_CARDINALITY_LIST))
     {
-      case JAPIGEN.X_CARDINALITY_SET:
-        cardinality_ = JAPIGEN.X_CARDINALITY_SET;
+      case Japigen.X_CARDINALITY_SET:
+        cardinality_ = Japigen.X_CARDINALITY_SET;
         break;
         
       default:
-        cardinality_ = JAPIGEN.X_CARDINALITY_LIST;
+        cardinality_ = Japigen.X_CARDINALITY_LIST;
     }
       
   }
@@ -82,6 +83,24 @@ public class ArraySchema extends Type
       getContext().raise(new ParserError("Array items must be specified"));
     else
       items_.validate();
+  }
+
+  @Override
+  public Schema getElementSchema()
+  {
+    return items_.getBaseSchema();
+  }
+
+  @Override
+  public boolean getIsArraySchema()
+  {
+    return true;
+  }
+
+  @Override
+  public boolean getIsObjectSchema()
+  {
+    return items_.getIsObjectSchema();
   }
 
   public AbstractSchema getItems()
@@ -107,13 +126,13 @@ public class ArraySchema extends Type
   @Override
   public boolean getHasSet()
   {
-    return JAPIGEN.X_CARDINALITY_SET.equals(cardinality_);
+    return Japigen.X_CARDINALITY_SET.equals(cardinality_);
   }
   
   @Override
   public boolean getHasList()
   {
-    return JAPIGEN.X_CARDINALITY_LIST.equals(cardinality_);
+    return Japigen.X_CARDINALITY_LIST.equals(cardinality_);
   }
   
   @Override
@@ -129,7 +148,7 @@ public class ArraySchema extends Type
   }
   
   @Override
-  public void getReferencedTypes(Set<Schema> result)
+  public void getReferencedTypes(Set<AbstractSchema> result)
   {
     super.getReferencedTypes(result);
     

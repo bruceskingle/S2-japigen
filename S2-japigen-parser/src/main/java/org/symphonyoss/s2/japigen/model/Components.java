@@ -23,21 +23,29 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 public class Components extends ModelElement
 {
-  private static final String SCHEMAS = "schemas";
+  
 
   public Components(Model parent, ParserContext parserContext)
   {
     super(parent, parserContext, "Components");
     
-    ParserContext schemas = parserContext.get(SCHEMAS);
+    ParserContext schemas = parserContext.get(Japigen.SCHEMAS);
     
     if(schemas != null)
     {
-      add(SCHEMAS, new Schemas(this, schemas));
+      add(Japigen.SCHEMAS, new Schemas(this, schemas));
+    }
+    
+    ParserContext parameterSets = parserContext.get(Japigen.X_PARAMETER_SETS);
+    
+    if(parameterSets != null)
+    {
+      add(Japigen.X_PARAMETER_SETS, new ParameterSets(this, parameterSets));
     }
   }
   

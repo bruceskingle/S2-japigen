@@ -1,4 +1,5 @@
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-template-java-SubPrologue.ftl">
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import com.google.protobuf.ByteString;
@@ -14,24 +15,32 @@ import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
+import com.symphony.s2.japigen.runtime.ModelType;
+import com.symphony.s2.japigen.runtime.Model${modelJavaFieldClassName}TypeBuilder;
 import ${javaFacadePackage}.${modelJavaClassName};
 
 <#include "TypeDefHeader.ftl">
 <@setJavaType model/>
 @Immutable
-public class ${modelJavaClassName}ModelType
+public class ${modelJavaClassName}ModelType<#if isComparable(model)> extends ModelType implements Comparable<${modelJavaClassName}ModelType></#if>
 {
-  private ${modelJavaFieldClassName} value_;
+  private @Nonnull ${modelJavaFieldClassName} value_;
 
-  protected ${modelJavaClassName}ModelType(${modelJavaFieldClassName} value)<#if model.canFailValidation> throws BadFormatException</#if>
+  protected ${modelJavaClassName}ModelType(@Nonnull ${modelJavaFieldClassName} value) throws BadFormatException
   {
+    if(value == null)
+      throw new BadFormatException("value is required.");
+      
 <@checkLimits "    " model "value"/>
     value_ = value;
   }
 
   <#-- Constructor from Json   -->  
-  protected ${modelJavaClassName}ModelType(IJsonDomNode node) throws BadFormatException
+  protected ${modelJavaClassName}ModelType(@Nonnull IJsonDomNode node) throws BadFormatException
   {
+    if(node == null)
+      throw new BadFormatException("value is required.");
+      
   <#switch model.elementType>
     <#case "Ref">
     value_ = ${javaConstructTypePrefix}node${javaConstructTypePostfix};
@@ -42,7 +51,7 @@ public class ${modelJavaClassName}ModelType
     if(node instanceof JsonArray)
     {
       value_ = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
-      <@checkItemLimits model "value" "value_"/>
+<@checkItemLimits "      " model "value" "value_"/>
     }
     else
     {
@@ -66,10 +75,41 @@ public class ${modelJavaClassName}ModelType
 
   }
   
-  public ${modelJavaFieldClassName} getValue()
+  public @Nonnull ${modelJavaFieldClassName} getValue()
   {
     return value_;
   }
+  
+  @Override
+  public String toString()
+  {
+    return value_.toString();
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return value_.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if(obj instanceof ${modelJavaClassName}ModelType)
+    {
+      return value_.equals(((${modelJavaClassName}ModelType)obj).value_);
+    }
+    
+    return false;
+  }
+
+  <#if isComparable(model)>  
+  @Override
+  public int compareTo(${modelJavaClassName}ModelType other)
+  {
+    return value_.compareTo(other.value_);
+  }
+  </#if>
   
   <#if model.enum??>
   // ENUM
@@ -78,9 +118,7 @@ public class ${modelJavaClassName}ModelType
     </#list>
   </#if>
   
-  public static abstract class Builder
+  public static abstract class Builder extends Model${modelJavaFieldClassName}TypeBuilder<${modelJavaClassName}>
   {
-    public abstract ${modelJavaClassName} build(${modelJavaFieldClassName} value)<#if model.canFailValidation> throws BadFormatException</#if>;
-    public abstract ${modelJavaFieldClassName} to${modelJavaFieldClassName}(${modelJavaClassName} instance);
   }
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-template-java-SubEpilogue.ftl">

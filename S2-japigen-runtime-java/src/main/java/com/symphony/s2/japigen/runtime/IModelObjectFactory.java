@@ -26,8 +26,8 @@ package com.symphony.s2.japigen.runtime;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
-public interface IModelObjectFactory<M extends IModelObject, F extends IModelFactory>
+public interface IModelObjectFactory<M extends IModelObject, F extends IModel>
 {
-  F  getFactory();
+  F  getModel();
   M  newInstance(ImmutableJsonObject jsonObject) throws BadFormatException;
 }

@@ -100,7 +100,7 @@ public class GenerateMojo extends AbstractMojo
   @Parameter(property = "templateArtifacts")
   private TemplateArtifact[]  templateArtifacts;
   
-  @Parameter(property = "srcDir")
+  @Parameter(defaultValue = "${project.basedir}/src/main/japigen", property = "srcDir")
   protected File[] srcDirs;
   
   @Parameter( defaultValue = "false", property = "dumpDataModel", required = true )
@@ -223,7 +223,7 @@ public class GenerateMojo extends AbstractMojo
       
       File artefactFile = artefact.getFile();
       
-      log.info("Artefact file is " + artefactFile.getAbsolutePath());
+      log.debug("Artefact file is " + artefactFile.getAbsolutePath());
       
       if(artefactFile.isDirectory())
       {
@@ -232,7 +232,7 @@ public class GenerateMojo extends AbstractMojo
         
         if(artefactFile.isDirectory())
         {
-          log.info("Copy artefacts from " + artefactFile.getAbsolutePath());
+          log.debug("Copy artefacts from " + artefactFile.getAbsolutePath());
           
           try
           {
@@ -282,17 +282,17 @@ public class GenerateMojo extends AbstractMojo
               
               if(jarEntry.isDirectory())
               {
-                log.info("Artefact dir " + jarEntry.getName());
+                log.debug("Artefact dir " + jarEntry.getName());
                 
                 if(!file.exists())
                 {
-                  log.info("Create artefact dir " + file);
+                  log.debug("Create artefact dir " + file);
                   file.mkdirs();
                 }
               }
               else
               {
-                log.info("Artefact file " + jarEntry.getName());
+                log.debug("Artefact file " + jarEntry.getName());
                 
                 try(
                     FileOutputStream out = new FileOutputStream(file);
@@ -310,7 +310,7 @@ public class GenerateMojo extends AbstractMojo
             }
             else
             {
-              log.info("SKIP Artefact file " + jarEntry.getName());
+              log.debug("SKIP Artefact file " + jarEntry.getName());
             }
           }
         } catch (IOException e)

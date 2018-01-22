@@ -20,6 +20,17 @@
         "type": "integer"
       },
       
+      "SimpleObject": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer"
+          }
+        }
+      },
       
       "ListOfInts": {
         "description": "A list of integers.",
@@ -50,7 +61,7 @@
         "minItems": 1,
         "maxItems": 5,
         "items": {
-          "$ref": "#/components/schemas/SetOfInts"
+          "$ref": "#/components/schemas/SimpleObject"
         }
       },
       
@@ -87,6 +98,75 @@
           },
           "aListofTypedefsField": {
             "$ref": "#/components/schemas/ListOfInts"
+          }
+        }
+      },
+      
+      "AllTheLists": {
+        "type": "object",
+        "properties": {
+          "intField": {
+            "type": "integer"
+          },
+          "int64ListField": {
+            "type": "array",
+            "x-japigen-cardinality": "LIST",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "int32ListField": {
+            "type": "array",
+            "x-japigen-cardinality": "LIST",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "doubleListField": {
+            "type": "array",
+            "x-japigen-cardinality": "LIST",
+            "items": {
+              "type": "number"
+            }
+          },
+          "floatListField": {
+            "type": "array",
+            "x-japigen-cardinality": "LIST",
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          "booleanListField": {
+            "type": "array",
+            "x-japigen-cardinality": "LIST",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "stringListField": {
+            "type": "array",
+            "x-japigen-cardinality": "LIST",
+            "items": {
+              "type": "string"
+            }
+          },
+          "byteStringListField": {
+            "type": "array",
+            "x-japigen-cardinality": "LIST",
+            "items": {
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "objectListField": {
+            "type": "array",
+            "x-japigen-cardinality": "LIST",
+            "items": {
+              "$ref": "#/components/schemas/SimpleObject"
+            }
           }
         }
       }

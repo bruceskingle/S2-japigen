@@ -1,4 +1,5 @@
 <#assign subTemplateName="${.current_template_name!''}"><#include "S2-japigen-proforma-java-SubPrologue.ftl">
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import com.google.protobuf.ByteString;
@@ -11,21 +12,36 @@ import ${javaGenPackage}.${modelJavaClassName}ModelType;
 @Immutable
 public class ${modelJavaClassName} extends ${modelJavaClassName}ModelType
 {
-  public ${modelJavaClassName}(${modelJavaFieldClassName} value)<#if model.canFailValidation> throws BadFormatException</#if>
+  private static Builder theBuilder = new Builder();
+  
+  private ${modelJavaClassName}(@Nonnull ${modelJavaFieldClassName} value) throws BadFormatException
   {
     super(value);
   }
   
+  public static Builder newBuilder()
+  {
+    /* The generated version of this builder is stateless and so it is safe to return a 
+     * reference to a shared instance, if you add functionality to this builder which is
+     * not thread safe then you need to change this to return new Builder();
+     */
+    return theBuilder;
+  }
+  
   public static class Builder extends ${modelJavaClassName}ModelType.Builder
   {
+    private Builder()
+    {
+    }
+    
     @Override
-    public ${modelJavaClassName} build(${modelJavaFieldClassName} value)<#if model.canFailValidation> throws BadFormatException</#if>
+    public ${modelJavaClassName} build(@Nonnull ${modelJavaFieldClassName} value) throws BadFormatException
     {
       return new ${modelJavaClassName}(value);
     }
     
     @Override
-    public ${modelJavaFieldClassName} to${modelJavaFieldClassName}(${modelJavaClassName} instance)
+    public ${modelJavaFieldClassName} toValue(${modelJavaClassName} instance)
     {
       return instance.getValue();
     }

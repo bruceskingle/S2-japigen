@@ -12,7 +12,157 @@
     "javaGenPackage":  "com.symphony.s2.japigen.test.oneofeverything",
     "javaFacadePackage":  "com.symphony.s2.japigen.test.oneofeverything.facade"
   },
-  "paths": {},
+  "paths": {
+    "/hello/{greeting}": {
+	    "summary": "Greeting operations.",
+	    "description": "Various operations to do with greeting callers.",
+      "get": {
+        "summary": "Say Hello",
+        "operationId": "sayHello",
+        "tags": [
+          "hello"
+        ],
+        "parameters": [
+          {
+            "name": "greeting",
+            "in": "path",
+            "description": "A greeting from the client",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DefString"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many items to return at one time (max 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sessionToken",
+            "in": "cookie",
+            "description": "A cookie parameter",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "anotherSessionToken",
+            "in": "cookie",
+            "description": "Another cookie parameter",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Int64MinMax"
+            }
+          },
+          {
+            "name": "authToken",
+            "in": "header",
+            "description": "A header parameter",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An paged array of objects",
+            "headers": {
+              "x-next": {
+                "description": "A link to the next page of responses",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefString"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hello/world/{greeting}": {
+      "get": {
+        "summary": "Say Hello",
+        "operationId": "sayHello",
+        "tags": [
+          "hello"
+        ],
+        "parameters": [
+          {
+            "name": "greeting",
+            "in": "path",
+            "description": "A greeting from the client",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DefString"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many items to return at one time (max 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An paged array of objects",
+            "headers": {
+              "x-next": {
+                "description": "A link to the next page of responses",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefString"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefString"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "components": {
     "schemas": {
       "DefInt": {
@@ -132,7 +282,6 @@
         "type": "string",
         "format": "byte"
       },
-      
       "ListOfByteString": {
         "description": "A list of byte String.",
         "type": "array",
@@ -167,11 +316,41 @@
         }
       },
       
+      "MessageA": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "number",
+            "format": "double",
+            "minimum": -2.25,
+            "maximum": 5.25
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      
+      "MessageB": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "boolean"
+          },
+          "value": {
+            "type": "integer"
+          }
+        }
+      },
+      
       "ObjectWithOneOfEverything": {
-        "description": "An object with one field of every type.",
+        "description": [
+          "An object with one field of every type.",
+          ""
+        ],
         "type": "object",
         "required": [
-          "secs"
+          "secs", "aDoubleMinMax"
         ],
         "properties": {
           "aBoolean": {
@@ -205,26 +384,39 @@
           "aDoubleMinMax": {
             "$ref": "#/components/schemas/DoubleMinMax"
           },
-          "aSetOfByteString": {
-            "description": "A set of byte String.",
+          "aSetOfString": {
+            "description": "A set of String.",
             "type": "array",
             "x-japigen-cardinality": "SET",
             "items": {
-              "description": "A byte String array element.",
-              "type": "string",
-              "format": "byte"
+              "description": "A String array element.",
+              "type": "string"
             }
           },
-          "aListOfByteString": {
-            "description": "A list of byte String.",
+          "aListOfString": {
+            "description": "A list of  String.",
             "type": "array",
             "minItems": 1,
             "maxItems": 5,
             "items": {
-              "description": "A byte String array element.",
-              "type": "string",
-              "format": "byte"
+              "description": "A  String array element.",
+              "type": "string"
             }
+          },
+          "aListOfObjects": {
+            "description": "A list of  Objects.",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/ASimpleObject"
+            }
+          },
+          "aListOfByteString": {
+            "$ref": "#/components/schemas/ListOfByteString"
+          },
+          "aSetOfFloatMinMax": {
+            "$ref": "#/components/schemas/SetOfFloatMinMax"
           },
           "nanos": {
             "description": "Nanosecond-of-second, which will always be between 0 and 999,999,999",
@@ -266,208 +458,25 @@
             "$ref": "#/components/schemas/Int64MinMax"
           },
           {
-            "type": "object",
-            "required": [
-              "aFloat"
-            ],
-            "properties": {
-              "aFloat": {
-                "description": "A float",
-                "type": "number",
-                "format": "double"
-              },
-              "aHash": {
-                "$ref": "#/components/schemas/Hash"
-              }
-            }
+            "$ref": "#/components/schemas/ASimpleObject"
           }
         ]
       },
       
-      "EitherFloatOrInt": {
+      "OneOfExample": {
         "oneOf": [
           {
-            "$ref": "#/components/schemas/FloatMinMax"
+            "$ref": "#/components/schemas/ASimpleObject"
           },
           {
-            "$ref": "#/components/schemas/Int32MinMax"
+            "$ref": "#/components/schemas/ObjectWithOneOfEverything"
           }
         ],
         "discriminator": {
-          "propertyName": "floatOrIntType"
+          "propertyName": "thisIsNotNeededAndShouldCauseAnError"
         }
       },
       
-      "PetResponse": {
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/Cat"
-          },
-          {
-            "$ref": "#/components/schemas/Dog"
-          },
-          {
-            "$ref": "#/components/schemas/Lizard"
-          }
-        ],
-        "discriminator": {
-          "propertyName": "petType",
-          "mapping": {
-            "cachorro": "Dog"
-          }
-        }
-      },
-      
-      "Pet": {
-        "type": "object",
-        "discriminator": {
-          "propertyName": "petType"
-        },
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "petType": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name",
-          "petType"
-        ]
-      },
-      "Cat": {
-        "description": "A representation of a cat. Note that `Cat` will be used as the discriminator value.",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Pet"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "huntingSkill": {
-                "type": "string",
-                "description": "The measured skill for hunting",
-                "default": "lazy",
-                "enum": [
-                  "clueless",
-                  "lazy",
-                  "adventurous",
-                  "aggressive"
-                ]
-              }
-            },
-            "required": [
-              "huntingSkill"
-            ]
-          }
-        ]
-      },
-      "Dog": {
-        "description": "A representation of a dog. Note that `Dog` will be used as the discriminator value.",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Pet"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "packSize": {
-                "type": "integer",
-                "format": "int32",
-                "description": "the size of the pack the dog is from",
-                "default": 0,
-                "minimum": 0
-              }
-            },
-            "required": [
-              "packSize"
-            ]
-          }
-        ]
-      },
-      "Lizard": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Pet"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "lovesRocks": {
-                "type": "boolean"
-              }
-            }
-          }
-        ]
-      },
-      "NestedObject": {
-        "description": "An object with a field of type oneOf.",
-        "type": "object",
-        "required": [
-          "outerNestedObject"
-        ],
-        "properties": {
-          "yetAnotherBoolean": {
-            "description": "A boolean.",
-            "type": "boolean"
-          },
-          "outerNestedObject": {
-            "type": "object",
-            "required": [
-              "innerNestedObject"
-            ],
-            "properties": {
-              "outerName": {
-                "type": "string"
-              },
-              "outerValue": {
-                "type": "string"
-              },
-              "innerNestedObject": {
-                "type": "object",
-                "properties": {
-                  "innerName": {
-                    "type": "string"
-                  },
-                  "innerValue": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "FundamentalObject": {
-        "description": "An object with a field of type oneOf.",
-        "type": "object",
-        "required": [
-          "fundamentalPayloadType"
-        ],
-        "properties": {
-          "anotherBoolean": {
-            "description": "A boolean.",
-            "type": "boolean"
-          },
-          "fundamentalPayloadType": {
-            "type": "string"
-          },
-          "fundamentalPayload": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Texture"
-              },
-              {
-                "$ref": "#/components/schemas/Colour"
-              }
-            ],
-            "discriminator": {
-              "propertyName": "fundamentalPayloadType"
-            }
-          }
-        }
-      },
       "ListOfObjects": {
         "description": "A list of objects.",
         "type": "array",
@@ -475,7 +484,7 @@
         "minItems": 1,
         "maxItems": 5,
         "items": {
-          "$ref": "#/components/schemas/FundamentalObject"
+          "$ref": "#/components/schemas/ASimpleObject"
         }
       },
       "Colour": {

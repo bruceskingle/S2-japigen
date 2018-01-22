@@ -50,15 +50,16 @@ import com.symphony.s2.japigen.runtime.IModelRegistry;
 import com.symphony.s2.japigen.runtime.ModelRegistry;
 import com.symphony.s2.japigen.test.oneofeverything.facade.ASimpleObject;
 import com.symphony.s2.japigen.test.oneofeverything.facade.DoubleMinMax;
+import com.symphony.s2.japigen.test.oneofeverything.facade.ListOfByteString;
 import com.symphony.s2.japigen.test.oneofeverything.facade.ObjectWithOneOfEverything;
-import com.symphony.s2.japigen.test.oneofeverything.facade.OneOfEverythingFactory;
+import com.symphony.s2.japigen.test.oneofeverything.facade.OneOfEverything;
 
 public class TestOneOfEverything extends AbstractModelObjectTest
 {
-  private final OneOfEverythingFactory            oneOfEverythingFactory_ = new OneOfEverythingFactory();
+  private final OneOfEverything                   oneOfEverything_ = new OneOfEverything();
   private final IModelRegistry                    modelRegistry_          = new ModelRegistry()
-                                                                            .register(oneOfEverythingFactory_);
-  private final ObjectWithOneOfEverything.Factory objectFactory_          = oneOfEverythingFactory_
+                                                                            .register(oneOfEverything_);
+  private final ObjectWithOneOfEverything.Factory objectFactory_          = oneOfEverything_
                                                                             .getObjectWithOneOfEverythingFactory();
   
   @Test
@@ -67,22 +68,22 @@ public class TestOneOfEverything extends AbstractModelObjectTest
     ImmutableJsonObject dom = objectFactory_.newBuilder()
         .withABoolean(true)
         .withADouble(7.0)
-        .withADoubleMinMax(new DoubleMinMax(5.0))
+        .withADoubleMinMax(DoubleMinMax.newBuilder().build(5.0))
         .withSecs(10L)
-        .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("Hello".getBytes()), ByteString.copyFrom("World".getBytes())))
+        .withAListOfString(ImmutableList.of("Hello", "World"))
         .build().getJsonObject();
     
     DomSerializer serializer = DomSerializer.newBuilder()
         .withCanonicalMode(true)
         .build();
     
-    assertEquals("{\"_type\":\"https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/oneOfEverything.json#/components/schemas/ObjectWithOneOfEverything\",\"aBoolean\":true,\"aDouble\":7.0,\"aDoubleMinMax\":5.0,\"aListOfByteString\":[\"SGVsbG8\",\"V29ybGQ\"],\"aSetOfByteString\":[],\"secs\":10}",
+    assertEquals("{\"_type\":\"https://github.com/bruceskingle/S2-japigen/blob/master/S2-japigen-test/src/main/resources/test/oneOfEverything.json#/components/schemas/ObjectWithOneOfEverything\",\"aBoolean\":true,\"aDouble\":7.0,\"aDoubleMinMax\":5.0,\"aListOfObjects\":[],\"aListOfString\":[\"Hello\",\"World\"],\"aSetOfString\":[],\"secs\":10}",
         serializer.serialize(objectFactory_.newBuilder()
     .withABoolean(true)
     .withADouble(7.0)
-    .withADoubleMinMax(new DoubleMinMax(5.0))
+    .withADoubleMinMax(DoubleMinMax.newBuilder().build(5.0))
     .withSecs(10L)
-    .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("Hello".getBytes()), ByteString.copyFrom("World".getBytes())))
+    .withAListOfString(ImmutableList.of("Hello", "World"))
     .build().getJsonObject()));
   }
   
@@ -211,7 +212,7 @@ public class TestOneOfEverything extends AbstractModelObjectTest
   
   private ASimpleObject createTestObject3() throws BadFormatException
   {
-    return oneOfEverythingFactory_.getASimpleObjectFactory().newBuilder()
+    return oneOfEverything_.getASimpleObjectFactory().newBuilder()
         .withName("Simple3")
         .withValue("Value Three\nhas\nthree lines.")
         .build();
@@ -219,7 +220,7 @@ public class TestOneOfEverything extends AbstractModelObjectTest
 
   private ASimpleObject createTestObject2() throws BadFormatException
   {
-    return oneOfEverythingFactory_.getASimpleObjectFactory().newBuilder()
+    return oneOfEverything_.getASimpleObjectFactory().newBuilder()
         .withName("Simple2")
         .withValue("Value Two")
         .build();
@@ -234,10 +235,16 @@ public class TestOneOfEverything extends AbstractModelObjectTest
         .withSecs(20L)
         .withAByteString(ByteString.copyFrom("Hello World".getBytes()))
         .withAFloat(3.14f)
-        .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("Hello".getBytes()), ByteString.copyFrom("World".getBytes())))
-        .withASetOfByteString(ImmutableSet.of(ByteString.copyFrom("This is a set".getBytes()), ByteString.copyFrom("So the items are unique".getBytes())))
+        .withAListOfString(ImmutableList.of("Hello", "World"))
+        .withASetOfString(ImmutableSet.of("This is a set", "So the items are unique"))
+        .withAListOfByteString(
+            ListOfByteString.newBuilder()
+            .with(ByteString.copyFrom("Hello".getBytes()))
+            .with(ByteString.copyFrom("Byte".getBytes()))
+            .with(ByteString.copyFrom("World".getBytes()))
+            .build()
+            )
         .withNanos(200)
-        .withAListOfByteString(ImmutableList.of(ByteString.copyFrom("More".getBytes()), ByteString.copyFrom("Strings".getBytes())))
         .build();
   }
 }

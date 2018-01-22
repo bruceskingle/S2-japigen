@@ -2,11 +2,16 @@
 <@setPrologueJavaType model/>
 import javax.annotation.concurrent.Immutable;
 
-<@importFieldTypes model false/>
+<@importFieldTypes model true/>
+import ${javaFacadePackage}.${modelJavaClassName};
+import ${javaFacadePackage}.I${model.model.camelCapitalizedName};
 
-import com.symphony.s2.japigen.runtime.IModelObject;
+import com.symphony.s2.japigen.runtime.IModel${modelJavaCardinality};
+import com.symphony.s2.japigen.runtime.ModelArrayFactory;
+
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
-import org.symphonyoss.s2.common.dom.json.JsonArray;
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonArray;
+import org.symphonyoss.s2.common.dom.json.MutableJsonArray;
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
 import com.symphony.s2.japigen.runtime.Model${modelJavaCardinality};
@@ -15,33 +20,90 @@ import com.symphony.s2.japigen.runtime.Model${modelJavaCardinality};
 @Immutable
 public class ${modelJavaClassName}ModelArray extends Model${modelJavaCardinality}<${modelJavaElementClassName}>
 {
-  public ${modelJavaClassName}ModelArray(${modelJavaFieldClassName} elements)<#if model.canFailValidation> throws BadFormatException</#if>
+  protected ${modelJavaClassName}ModelArray(IModel${modelJavaCardinality}<${modelJavaElementClassName}> other)<#if model.canFailValidation> throws BadFormatException</#if>
   {
-    super(elements);
-    <@checkItemLimits model "Array" "this"/>
+    super(other);
+<@checkItemLimits "    " model "Array" "this"/>
   }
   
   <#-- Constructor from Json   -->  
-  protected ${modelJavaClassName}ModelArray(IJsonDomNode node) throws BadFormatException
+  protected ${modelJavaClassName}ModelArray(ImmutableJsonArray jsonArray) throws BadFormatException
   {
-    super(parse(node));
+    super(jsonArray, jsonArray.asImmutable${modelJavaCardinality}Of(${modelJavaElementClassName}.class));
+<@checkItemLimits "    " model "Array" "this"/>
   }
-  
-  <@setJavaType model/>
-  private static ${modelJavaFieldClassName} parse(IJsonDomNode node) throws BadFormatException
+
+  public static abstract class Builder extends ModelArrayFactory.Builder implements IModel${modelJavaCardinality}<${modelJavaElementClassName}>
   {
+    private ${modelJavaFieldClassName} elements__ =
+    <#switch model.cardinality>
+      <#case "SET">
+                                          new HashSet<>();
+        <#break>
+        
+      <#default>
+                                          new LinkedList<>();
+    </#switch>
     
-    if(node instanceof JsonArray)
+    
+    protected Builder()
     {
-      ${modelJavaFieldClassName} elements = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${modelJavaElementClassName}.class);
-      <@checkItemLimits model "value" "elements"/>
+    }
+    
+    protected Builder(Builder initial)
+    {
+      elements__.addAll(initial.elements__);
+    }
+    
+    @Override
+    public Immutable${modelJavaFieldClassName} getElements()
+    {
+      return Immutable${modelJavaCardinality}.copyOf(elements__);
+    }
+    
+    @Override
+    public int size()
+    {
+      return elements__.size();
+    }
+
+    public ${modelJavaClassName}.Builder with(${modelJavaElementClassName} element)
+    {
+      elements__.add(element);
+      return (${modelJavaClassName}.Builder)this;
+    }
+
+    public ${modelJavaClassName}.Builder with(${modelJavaClassName} elements)
+    {
+      elements__.addAll(elements.getElements());
+      return (${modelJavaClassName}.Builder)this;
+    }
+
+    public ${modelJavaClassName}.Builder with(ImmutableJsonArray node) throws BadFormatException
+    {
+      elements__.addAll(node.asImmutableListOf(${modelJavaElementClassName}.class));
+      return (${modelJavaClassName}.Builder)this;
+    }
+    
+    @Override 
+    public ImmutableJsonArray getJsonArray()
+    {
+      MutableJsonArray jsonArray = new MutableJsonArray();
       
-      return elements;
+      <@printModel/>
+      // model.items = ${model.items}
+      // model.items.baseSchema.isObjectSchema = ${model.items.baseSchema.isObjectSchema?c}
+      for(${modelJavaElementClassName} value : elements__)
+      <#if model.items.baseSchema.isObjectSchema>
+        jsonArray.add(value.getJsonObject());
+      <#else>
+        jsonArray.add(value);
+      </#if>
+      
+      return jsonArray.immutify();
     }
-    else
-    {
-      throw new BadFormatException("value must be an array not " + node.getClass().getName());
-    }
+    
+    public abstract ${modelJavaClassName} build() throws BadFormatException;
   }
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

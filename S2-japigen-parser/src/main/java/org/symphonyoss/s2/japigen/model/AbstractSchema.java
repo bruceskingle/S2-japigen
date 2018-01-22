@@ -24,8 +24,12 @@
 package org.symphonyoss.s2.japigen.model;
 
 import java.util.List;
+import java.util.Map;
 
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.model.ValueMap.Entry;
+import org.symphonyoss.s2.japigen.parser.GenerationContext;
+import org.symphonyoss.s2.japigen.parser.GenerationException;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.OnlyOneAllowedError;
 
@@ -39,23 +43,44 @@ import org.symphonyoss.s2.japigen.parser.error.OnlyOneAllowedError;
 public abstract class AbstractSchema extends ModelElement
 {
   
-  public AbstractSchema(ModelElement parent, ParserContext context, String type)
+  public AbstractSchema(ModelElement parent, ParserContext context, String type, String name)
   {
-    super(parent, context, type);
+    super(parent, context, type, name);
   }
   
- 
-
   @Override
-  public String getName()
+  protected void generateChildren(GenerationContext generationContext, Map<String, Object> dataModel)
+      throws GenerationException
   {
-    ParserContext context = getContext();
-    if(context == null)
-      return "Unnamed " + getClass().getName();
-    
-    return context.getName();
+    // Nothing
   }
+
+  /**
+   * Get the basic schema which this type refers to.
+   * 
+   * For a field it will be the field type, for a reference the referenced type.
+   * For a field whose type is a reference then it will be the ultimate referenced type.
+   * The baseSchema could be an ArraySchema
+   * 
+   * @return The base schema which this type refers to.
+   */
+  @Override
+  public abstract Schema getBaseSchema();
   
+  /**
+   * For an array type this is the schema of a single element of the array.
+   * 
+   * @return The schema of a single element of an array
+   */
+  @Override
+  public abstract Schema getElementSchema();
+  
+  @Override
+  public abstract boolean getIsArraySchema();
+  
+  @Override
+  public abstract boolean getIsObjectSchema();
+
   public boolean  getIsAnonymousInnerClass()
   {
     ParserContext context = getContext();
@@ -72,12 +97,17 @@ public abstract class AbstractSchema extends ModelElement
   
   /* package */ static AbstractSchema createSchema(ModelElement parent, ParserContext context)
   {
+    return createSchema(parent, context, context.getName());
+  }
+  
+  /* package */ static AbstractSchema createSchema(ModelElement parent, ParserContext context, String name)
+  {
     SchemaBuilder builder = new SchemaBuilder(parent, context);
     
-    builder.build("allOf", (m, c, n) -> new AllOfSchema(m, c, n));
-    builder.build("oneOf", (m, c, n) -> new OneOfSchema(m, c, n));
-    builder.build("$ref", (m, c, n) -> new ReferenceSchema(m, c, n));
-    builder.build("type", (m, c, n) -> Type.create(m, c, n));
+    builder.build("allOf", (m, c, n) -> new AllOfSchema(m, c, n, name));
+    builder.build("oneOf", (m, c, n) -> new OneOfSchema(m, c, n, name));
+    builder.build(Japigen.DOLLAR_REF, (m, c, n) -> new ReferenceSchema(m, c, n, name));
+    builder.build("type", (m, c, n) -> Type.create(m, c, n, name));
     
     if(builder.getResult() == null)
     {
@@ -85,7 +115,7 @@ public abstract class AbstractSchema extends ModelElement
       
       if(properties != null)
       {
-        return new ObjectSchema(parent, context);
+        return new ObjectSchema(parent, context, name);
       }
     }
     

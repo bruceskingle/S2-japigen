@@ -25,6 +25,7 @@ package org.symphonyoss.s2.japigen.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,12 @@ public class Schemas extends ModelElement
       else
         schema.raise(new UnexpectedTypeError(ReferenceOrSchema.class, objectSchema));
     }
+  }
+  
+  @Override
+  protected void getReferencedTypes(Set<AbstractSchema> result)
+  {
+    result.addAll(schemaMap_.values());
   }
   
   @Override

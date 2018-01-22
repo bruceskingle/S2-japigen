@@ -23,19 +23,46 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.Set;
+
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
 public class Field extends AbstractSchema
 {
   private final boolean required_;
-  private final Type    type_;
+  private final AbstractSchema    type_;
   
-  public Field(ModelElement parent, ParserContext context, Type type, boolean required)
+  public Field(ModelElement parent, ParserContext context, AbstractSchema type, boolean required, String name)
   {
-    super(parent, context, "Field");
+    super(parent, context, "Field", name);
     required_ = required;
     type_ = type;
+    add(type_);
+  }
+
+  @Override
+  public Schema getBaseSchema()
+  {
+    return type_.getBaseSchema();
+  }
+
+  @Override
+  public Schema getElementSchema()
+  {
+    return type_.getElementSchema();
+  }
+
+  @Override
+  public boolean getIsArraySchema()
+  {
+    return type_.getIsArraySchema();
+  }
+
+  @Override
+  public boolean getIsObjectSchema()
+  {
+    return type_.getIsObjectSchema();
   }
 
   public boolean isRequired()
@@ -43,7 +70,7 @@ public class Field extends AbstractSchema
     return required_;
   }
 
-  public Type getType()
+  public AbstractSchema getType()
   {
     return type_;
   }
@@ -67,11 +94,23 @@ public class Field extends AbstractSchema
   }
   
   @Override
+  public boolean getIsTypeDef()
+  {
+    return type_.getIsTypeDef();
+  }
+  
+  @Override
+  public boolean getIsObjectType()
+  {
+    return type_.getIsObjectType();
+  }
+  
+  @Override
   public boolean  getCanFailValidation()
   {
     return required_ || type_.getCanFailValidation();
   }
-
+  
   @Override
   public void validate()
   {
@@ -79,18 +118,29 @@ public class Field extends AbstractSchema
     
     if(type_ == null)
       getContext().raise(new ParserError("Field type must be specified"));
-    else
-      type_.validate();
   }
 
   public static AbstractSchema create(ModelElement parent, ParserContext context, boolean required)
   {
     AbstractSchema schema = AbstractSchema.createSchema(parent, context);
     
-    if(schema instanceof Type)
-      return new Field(parent, context, (Type)schema, required);
+    return new Field(parent, context, schema, required, context.getName());
+  }
+  
+  @Override
+  protected void getReferencedTypes(Set<AbstractSchema> result)
+  {
+    super.getReferencedTypes(result);
     
-    return schema;
+    if(type_ instanceof ReferenceSchema ||
+        type_ instanceof AbstractContainerSchema)
+    {
+      result.add(this);
+    }
+    else if(type_ instanceof ArraySchema)
+    {
+      result.add(((ArraySchema) type_).getItems());
+    }
   }
 
   @Override

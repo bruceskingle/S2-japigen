@@ -28,8 +28,8 @@ import org.symphonyoss.s2.japigen.parser.ParserContext;
 public class BooleanType extends Type
 {
 
-  public BooleanType(ModelElement parent, ParserContext context)
+  public BooleanType(ModelElement parent, ParserContext context, String name)
   {
-    super(parent, context, "Boolean");
+    super(parent, context, "Boolean", name);
   }
 }

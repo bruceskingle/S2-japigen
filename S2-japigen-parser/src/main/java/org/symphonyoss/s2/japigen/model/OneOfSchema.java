@@ -23,11 +23,10 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.symphonyoss.s2.japigen.JAPIGEN;
+import org.symphonyoss.s2.japigen.Japigen;
 import org.symphonyoss.s2.japigen.parser.GenerationContext;
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
@@ -36,11 +35,11 @@ public class OneOfSchema extends AbstractContainerSchema
 {
   private Discriminator discriminator_;
 
-  public OneOfSchema(ModelElement parent, ParserContext context, ParserContext node)
+  public OneOfSchema(ModelElement parent, ParserContext context, ParserContext node, String name)
   {
-    super(parent, context, node, "OneOf");
+    super(parent, context, node, "OneOf", name);
     
-    ParserContext d = context.get(JAPIGEN.DISCRIMINATOR);
+    ParserContext d = context.get(Japigen.DISCRIMINATOR);
     
     if(d == null)
     {
@@ -50,36 +49,12 @@ public class OneOfSchema extends AbstractContainerSchema
     {
       discriminator_ = new Discriminator(this, d);
     }
-  }
-
-  public Discriminator getDiscriminator()
-  {
-    return discriminator_;
-  }
-
-  @Override
-  protected void getReferencedTypes(Set<Schema> result)
-  {
-    super.getReferencedTypes(result);
     
-    result.add(this);
+    if(!(parent instanceof Schemas))
+    {
+      context.raise(new ParserError("Nested in-line object definitions are not supported, move this to Components/Schemas amd refer to is with $ref"));
+    }
   }
-
-  @Override
-  protected void generateChildren(GenerationContext generationContext, Map<String, Object> dataModel)
-  {}
-  
-  /**
-   * Return the fields of this object, for a normal object this is the same as
-   * getChildren() for an AllOf it is something else.
-   * 
-   * @return The fields of this object.
-   */
-  public List<ModelElement> getFields()
-  {
-    return getChildren();
-  }
-
 
   @Override
   public void validate()
@@ -92,6 +67,15 @@ public class OneOfSchema extends AbstractContainerSchema
       {
         getContext().raise(new ParserError("OneOf children must be declared as $ref not as in-line objects. This is a japigen restriction."));
       }
+      else if(child instanceof ReferenceSchema)
+      {
+        Schema type = ((ReferenceSchema)child).getType();
+        
+        if(!(type instanceof ObjectSchema))
+        {
+          getContext().raise(new ParserError("OneOf children must be declared as $ref to an object, not a %s", type.getClass().getName()));
+        }
+      }
     }
     
 //    if(getParent() instanceof Schemas)
@@ -103,4 +87,21 @@ public class OneOfSchema extends AbstractContainerSchema
 //      getContext().raise(new ParserError("OneOf is only allowed in a top level schema (parent is %s for %s)", getParent().getClass(), getName()));
 //    }
   }
+
+  public Discriminator getDiscriminator()
+  {
+    return discriminator_;
+  }
+
+  @Override
+  protected void getReferencedTypes(Set<AbstractSchema> result)
+  {
+    super.getReferencedTypes(result);
+    
+    result.add(this);
+  }
+
+  @Override
+  protected void generateChildren(GenerationContext generationContext, Map<String, Object> dataModel)
+  {}
 }

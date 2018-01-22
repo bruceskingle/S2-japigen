@@ -23,6 +23,7 @@
 
 package org.symphonyoss.s2.japigen.parser;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,9 +31,14 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.symphonyoss.s2.japigen.model.Model;
+import org.symphonyoss.s2.japigen.model.PathItem;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 import org.symphonyoss.s2.japigen.parser.error.ParserWarning;
 import org.symphonyoss.s2.japigen.parser.error.RequiredItemMissingError;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class AbstractParserTest
 {
@@ -142,5 +148,16 @@ public class AbstractParserTest
       Assert.fail(msg);
     }
     return model;
+  }
+  
+  public ParserContext  createParserContext(String input) throws ParsingException, JsonProcessingException, IOException
+  {
+    ModelSetParserContext modelSetContext = new ModelSetParserContext();
+    RootParserContext rootParserContext = new RootParserContext(modelSetContext, TEST_URL, new StringReader(input));
+    
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode rootNode = mapper.readTree(rootParserContext.getReader());
+    
+    return new ParserContext(rootParserContext, rootNode);
   }
 }

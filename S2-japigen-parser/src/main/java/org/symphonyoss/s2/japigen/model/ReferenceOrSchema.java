@@ -25,12 +25,10 @@ package org.symphonyoss.s2.japigen.model;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public class ReferenceOrSchema extends AbstractSchema
+public abstract class ReferenceOrSchema extends AbstractSchema
 {
-
-  public ReferenceOrSchema(ModelElement parent, ParserContext context, String type)
+  public ReferenceOrSchema(ModelElement parent, ParserContext context, String type, String name)
   {
-    super(parent, context, type);
+    super(parent, context, type, name);
   }
-
 }

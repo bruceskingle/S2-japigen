@@ -23,8 +23,6 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Set;
 
 import org.symphonyoss.s2.japigen.parser.ParserContext;
@@ -48,117 +46,103 @@ import org.symphonyoss.s2.japigen.parser.error.ParserError;
  */
 public class ReferenceSchema extends ReferenceOrSchema
 {
-  private URI uri_;
-  private Schema    reference_;
-  private String    path_;
-  private String    fragment_;
-  private URI       baseUri_;
+  private Reference<Schema> reference_;
+  private Schema    type_;
   
-  public ReferenceSchema(ModelElement parent, ParserContext context, ParserContext node)
+  
+  public ReferenceSchema(ModelElement parent, ParserContext context, ParserContext node, String name)
   {
-    super(parent, context, "Ref");
-    try
-    {
-      uri_ = new URI(node.getJsonNode().asText());
-      
-      path_ = uri_.getPath();
-      fragment_ = uri_.getFragment();
-      
-      String s = uri_.toString();
-      int i = s.indexOf('#');
-      
-      if(i== -1)
-        baseUri_ = uri_;
-      else
-      {
-        try
-        {
-          baseUri_ = new URI(s.substring(0, i));
-        }
-        catch (URISyntaxException e)
-        {
-          context.raise(new ParserError("Invalid base URI \"%s\"", s.substring(0, i)));
-        }
-      }
-      
-      if(path_.length()>0)
-      {
-        context.getRootParserContext().addReferencedModel(baseUri_, context);
-      }
-    }
-    catch (URISyntaxException | ParsingException e)
-    {
-      context.raise(new ParserError("Invalid URI \"%s\"", node.getJsonNode().asText()));
-    }
+    super(parent, context, "Ref", name);
     
+    reference_ = new Reference<>(this, node, Schema.class);
+    add(reference_);
+    
+    if(reference_.getPath().length()>0)
+    {
+      try
+      {
+        context.getRootParserContext().addReferencedModel(reference_.getBaseUri(), context);
+      }
+      catch (ParsingException e)
+      {
+        context.raise(new ParserError("Unable to load referenced model from \"%s\" (%s)", reference_.getUri(), e.getMessage()));
+      }
+    }
   }
-  
-  
 
   @Override
-  public void validate()
+  public void resolve()
   {
-    super.validate();
+    super.resolve();
     
-    if(path_ != null)
-    {
-      ModelElement referent;
-      
-      if(path_.length()>0)
-      {
-        Model model = getContext().getRootParserContext().getModel(baseUri_);
-        
-        referent = fragment_.startsWith("/") ?
-            model.getByPath(fragment_.split("/"), 1) :
-              model.getByPath(fragment_.split("/"), 0); 
-      }
-      else
-      {
-        referent = fragment_.startsWith("/") ?
-            getModel().getByPath(fragment_.split("/"), 1) :
-            getByPath(fragment_.split("/"), 0); 
-      }  
-      if(referent == null)
-        getContext().raise(new ParserError("Referenced schema \"%s\" not found.", uri_));
-      else if(referent instanceof Schema)
-        reference_ = (Schema) referent;
-      else
-        getContext().raise(new ParserError("Referenced schema \"%s\" is not a schema but a %s", uri_, referent.getClass().getName()));
-    }
+    type_ = reference_.getReferent();
+  }
+
+  @Override
+  public Schema getBaseSchema()
+  {
+    return type_.getBaseSchema();
+  }
+
+  @Override
+  public Schema getElementSchema()
+  {
+    return type_.getElementSchema();
+  }
+
+  @Override
+  public boolean getIsArraySchema()
+  {
+    return type_.getIsArraySchema();
+  }
+
+  @Override
+  public boolean getIsObjectSchema()
+  {
+    return type_.getIsObjectSchema();
   }
 
   public boolean  isResolved()
   {
-    return reference_ != null;
+    return type_ != null;
   }
 
-  public URI getUri()
-  {
-    return uri_;
-  }
-
+  // TODO: rename to getType so Field and Reference both have type
   @Override
   public Schema getReference()
   {
-    return reference_;
+    return type_;
   }
   
   public Schema getType()
   {
-    return reference_;
+    return type_;
   }
   
   @Override
-  public void getReferencedTypes(Set<Schema> result)
+  public boolean getIsTypeDef()
+  {
+    return type_ instanceof Type;
+  }
+  
+  @Override
+  public boolean getIsObjectType()
+  {
+    return type_ instanceof AbstractContainerSchema || type_ instanceof ObjectSchema;
+  }
+  
+  @Override
+  protected void getReferencedTypes(Set<AbstractSchema> result)
   {
     super.getReferencedTypes(result);
     
-    result.add(reference_);
+    result.add(this);
+    //result.add(reference_);
   }
   
   private boolean doNotDeref()
   {
-    return reference_ == null || !(getParent() instanceof AbstractContainerSchema);
+    return type_ == null || !(getParent() instanceof AbstractContainerSchema);
   }
   
   @Override
@@ -167,7 +151,7 @@ public class ReferenceSchema extends ReferenceOrSchema
     if(doNotDeref())
       return super.getName();
     
-    return reference_.getName();
+    return type_.getName();
   }
 
   @Override
@@ -176,7 +160,7 @@ public class ReferenceSchema extends ReferenceOrSchema
     if(doNotDeref())
       return super.getCamelName();
     
-    return reference_.getCamelName();
+    return type_.getCamelName();
   }
 
   @Override
@@ -185,7 +169,7 @@ public class ReferenceSchema extends ReferenceOrSchema
     if(doNotDeref())
       return super.getCamelCapitalizedName();
     
-    return reference_.getCamelCapitalizedName();
+    return type_.getCamelCapitalizedName();
   }
 
   @Override
@@ -194,7 +178,7 @@ public class ReferenceSchema extends ReferenceOrSchema
     if(doNotDeref())
       return super.getSnakeName();
     
-    return reference_.getSnakeName();
+    return type_.getSnakeName();
   }
 
   @Override
@@ -203,43 +187,43 @@ public class ReferenceSchema extends ReferenceOrSchema
     if(doNotDeref())
       return super.getSnakeCapitalizedName();
     
-    return reference_.getSnakeCapitalizedName();
+    return type_.getSnakeCapitalizedName();
   }
 
   @Override
   public boolean getCanFailValidation()
   {
-    return reference_.getCanFailValidation() || super.getCanFailValidation();
+    return type_.getCanFailValidation() || super.getCanFailValidation();
   }
   
   @Override
   public boolean getHasSet()
   {
-    return reference_.getHasSet();
+    return type_.getHasSet();
   }
   
   @Override
   public boolean getHasList()
   {
-    return reference_.getHasList();
+    return type_.getHasList();
   }
 
   @Override
   public boolean getHasCollections()
   {
-    return reference_.getHasCollections();
+    return type_.getHasCollections();
   }
 
   @Override
   public boolean getHasByteString()
   {
-    return reference_.getHasByteString();
+    return type_.getHasByteString();
   }
 
   @Override
   public String toString()
   {
     return super.toString(new ValueMap<String, Object>()
-        .append("uri", uri_, null));
+        .append("uri", reference_.getUri(), null));
   }
 }

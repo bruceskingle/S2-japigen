@@ -1,14 +1,16 @@
 <#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubPrologue.ftl">
-<#if templateDebug??>
-/*----------------------------------------------------------------------------------------------------
- * Generating for Object ${model}
- *------------------------------------------------------------------------------------------------- */
-</#if>
 /**
 <#if isFacade??>
- * Facade for
+ * Facade for Object ${model}
+<#else>
+ * Object ${model}
+</#if>
+<#if model.summary??>
+ *
+ * ${model.summary}
 </#if>
 <#if model.description??>
+ *
  * ${model.description}
 </#if>
  */

@@ -25,7 +25,10 @@ package com.symphony.s2.japigen.runtime;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -33,13 +36,14 @@ import org.slf4j.LoggerFactory;
 import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 import org.symphonyoss.s2.common.dom.json.IJsonObject;
 import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
+import org.symphonyoss.s2.common.dom.json.JsonValue;
 import org.symphonyoss.s2.common.dom.json.jackson.JacksonAdaptor;
 import org.symphonyoss.s2.common.exception.BadFormatException;
+import org.symphonyoss.s2.common.http.IUrlPathServlet;
 import org.symphonyoss.s2.common.reader.LinePartialReader;
 import org.symphonyoss.s2.common.reader.LinePartialReader.Factory;
 
 import com.fasterxml.jackson.core.JsonParser.Feature;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -48,11 +52,13 @@ public class ModelRegistry implements IModelRegistry
   private static final Logger LOG = LoggerFactory.getLogger(ModelRegistry.class);
   
   private Map<String, IModelObjectFactory<?,?>>  factoryMap_ = new HashMap<>();
-  private ObjectMapper  mapper_ = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
+  private Map<String, IUrlPathServlet> servlets_ = new HashMap<>();
+  private List<IModel>   models_ = new LinkedList<>();
   
   @Override
-  public IModelRegistry register(IModelFactory factory)
+  public IModelRegistry register(IModel factory)
   {
+    models_.add(factory);
     factory.registerWith(this);
     return this;
   }
@@ -65,6 +71,15 @@ public class ModelRegistry implements IModelRegistry
   }
   
   @Override
+  public void register(IUrlPathServlet servlet)
+  {
+    IUrlPathServlet other = servlets_.put(servlet.getUrlPath(), servlet);
+    
+    if(other != null)
+        throw new IllegalArgumentException("Duplicate path " + servlet.getUrlPath() + " with " + other);
+  }
+
+  @Override
   public IModelObject newInstance(ImmutableJsonObject jsonObject) throws BadFormatException
   {
     String typeId = jsonObject.getString(JapigenRuntime.JSON_TYPE);
@@ -76,28 +91,58 @@ public class ModelRegistry implements IModelRegistry
     return factory.newInstance(jsonObject);
   }
   
-  @Override
-  public IModelObject parseOne(Reader reader) throws IOException, BadFormatException
+  public static ImmutableJsonObject parseOneJsonObject(Reader reader) throws BadFormatException
   {
+    ObjectMapper  mapper = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
+    
     try
     {
-      JsonNode tree = mapper_.readTree(reader);
+      JsonNode tree = mapper.readTree(reader);
       
       IJsonDomNode adapted = JacksonAdaptor.adapt(tree);
       
       if(adapted instanceof IJsonObject)
       {
-        return newInstance((ImmutableJsonObject) adapted.immutify());
+        return (ImmutableJsonObject) adapted.immutify();
       }
       else
       {
         throw new BadFormatException("Expected a JSON Object but read a " + adapted.getClass().getName());
       }
     }
-    catch(JsonProcessingException e)
+    catch(IOException e)
     {
       throw new BadFormatException("Failed to parse input", e);
     }
+  }
+  
+  public static JsonValue<?,?> parseOneJsonValue(Reader reader) throws BadFormatException
+  {
+    ObjectMapper  mapper = new ObjectMapper().configure(Feature.AUTO_CLOSE_SOURCE, false);
+    
+    try
+    {
+      JsonNode tree = mapper.readTree(reader);
+      
+      if(tree.isValueNode())
+      {
+        return (JsonValue<?,?>)JacksonAdaptor.adapt(tree);
+      }
+      else
+      {
+        throw new BadFormatException("Expected a JSON value but read a " + tree.getClass().getName());
+      }
+    }
+    catch(IOException e)
+    {
+      throw new BadFormatException("Failed to parse input", e);
+    }
+  }
+  
+  @Override
+  public IModelObject parseOne(Reader reader) throws IOException, BadFormatException
+  {
+    return newInstance(parseOneJsonObject(reader));
   }
 
   @Override
@@ -123,5 +168,25 @@ public class ModelRegistry implements IModelRegistry
     {
       LOG.error("Failed to close LinePartialReader.Factory", e);
     }
+  }
+
+  @Override
+  public Collection<IUrlPathServlet> getServlets()
+  {
+    return servlets_.values();
+  }
+
+  @Override
+  public void start()
+  {
+    for(IModel model : models_)
+      model.start();
+  }
+
+  @Override
+  public void stop()
+  {
+    for(IModel model : models_)
+      model.stop();
   }
 }

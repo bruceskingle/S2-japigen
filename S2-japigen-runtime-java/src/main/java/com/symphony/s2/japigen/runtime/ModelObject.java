@@ -23,10 +23,22 @@
 
 package com.symphony.s2.japigen.runtime;
 
-import org.symphonyoss.s2.common.dom.DomSerializer;
+import org.symphonyoss.s2.common.dom.json.ImmutableJsonObject;
 
-public abstract class ModelObject implements IModelObject
+public class ModelObject extends ModelEntity implements IModelObject
 {
-  protected static final DomSerializer SERIALIZER = DomSerializer.newBuilder().withCanonicalMode(true).build();
+  private final ImmutableJsonObject        jsonObject_;
+    
+  public ModelObject(ImmutableJsonObject jsonObject)
+  {
+    super(jsonObject);
+    
+    jsonObject_ = jsonObject;
+  }
 
+  @Override
+  public ImmutableJsonObject getJsonObject()
+  {
+    return jsonObject_;
+  }
 }

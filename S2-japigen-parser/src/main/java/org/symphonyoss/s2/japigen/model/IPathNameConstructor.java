@@ -25,8 +25,10 @@ package org.symphonyoss.s2.japigen.model;
 
 import java.util.Map;
 
+import org.symphonyoss.s2.japigen.parser.GenerationException;
+
 @FunctionalInterface
 public interface IPathNameConstructor
 {
-  String  constructFile(Map<String, Object> dataModel, String language, String templateName, ModelElement modelElement);
+  String  constructFile(Map<String, Object> dataModel, String language, String templateName, ModelElement modelElement) throws GenerationException;
 }
