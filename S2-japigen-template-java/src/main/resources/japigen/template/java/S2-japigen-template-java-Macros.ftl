@@ -975,7 +975,6 @@ ${indent}}
       <#assign methodStyle="Response">
     </#if>
   <#else>
-  //T3
     <#assign methodResponseType="">
     <#assign methodResponseDecl="void">
     <#assign methodThrows="throws PermissionDeniedException, ServerErrorException">

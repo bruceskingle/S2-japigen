@@ -74,6 +74,8 @@ public abstract class JsonArrayParser
       }
       else
       {
+        boolean consume = false;
+        
         switch(inputBuffer_[i])
         {
           case '"':
@@ -92,33 +94,42 @@ public abstract class JsonArrayParser
             if(objectDepth_==0 && arrayDepth_==0)
             {
               // This is the start of an array document
+              while(i<nbytes-1 && inputBuffer_[i+1] <= ' ')
+              {
+                i++;
+              }
+              
               offset = i+1;
-              len -= offset;
+              len = -1;
               arrayDocument_ = true;
             }
             arrayDepth_++;
             break;
             
           case ']':
+            consume = arrayDepth_==1 && objectDepth_==0;
             arrayDepth_--;
             break;
             
           case ',':
-            if(arrayDepth_==1 && objectDepth_==0)
-            {
-              inputBufferStream_.write(inputBuffer_, offset, len);
-              
-              String input = new String(inputBufferStream_.toByteArray(), StandardCharsets.UTF_8);
-              
-              System.err.println("Got input " + input);
-              handle(input);
-              
-              inputBufferStream_.reset();
-              
-              len = -1;
-              offset = i+1;
-            }
+            consume = arrayDepth_==1 && objectDepth_==0;
             break;
+        }
+        if(consume)
+        {
+          inputBufferStream_.write(inputBuffer_, offset, len);
+          
+          String input = new String(inputBufferStream_.toByteArray(), StandardCharsets.UTF_8);
+          
+          System.err.println("Got input " + input);
+          handle(input);
+          
+          inputBufferStream_.reset();
+          
+          while(i<nbytes-1 && inputBuffer_[i+1] <= ' ')
+            i++;
+          len = -1;
+          offset = i+1;
         }
       }
       i++;

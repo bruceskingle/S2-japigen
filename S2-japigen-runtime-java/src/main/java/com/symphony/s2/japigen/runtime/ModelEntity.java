@@ -23,6 +23,8 @@
 
 package com.symphony.s2.japigen.runtime;
 
+import javax.annotation.Nonnull;
+
 import org.symphonyoss.s2.common.dom.DomSerializer;
 import org.symphonyoss.s2.common.dom.json.IImmutableJsonDomNode;
 
@@ -30,29 +32,32 @@ public class ModelEntity implements IModelEntity
 {
   protected static final DomSerializer SERIALIZER = DomSerializer.newBuilder().withCanonicalMode(true).build();
 
-  private final IImmutableJsonDomNode      jsonDomNode_;
-  private final String                     asString_;
+  private final @Nonnull IImmutableJsonDomNode      jsonDomNode_;
+  private final @Nonnull String                     asString_;
   
-  public ModelEntity(IImmutableJsonDomNode jsonDomNode)
+  public ModelEntity(@Nonnull IImmutableJsonDomNode jsonDomNode)
   {
+    if(jsonDomNode == null)
+      throw new NullPointerException("dom node is required");
+    
     jsonDomNode_ = jsonDomNode;
     asString_ = SERIALIZER.serialize(jsonDomNode_);
   }
 
   @Override
-  public IImmutableJsonDomNode getJsonDomNode()
+  public @Nonnull IImmutableJsonDomNode getJsonDomNode()
   {
     return jsonDomNode_;
   }
   
   @Override
-  public String toString()
+  public @Nonnull String toString()
   {
     return asString_;
   }
   
   @Override
-  public String serialize()
+  public @Nonnull String serialize()
   {
     return asString_;
   }

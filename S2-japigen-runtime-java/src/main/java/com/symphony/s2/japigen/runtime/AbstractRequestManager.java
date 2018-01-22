@@ -36,6 +36,9 @@ public abstract class AbstractRequestManager<P,R extends IModelEntity>
   
     responseTask_ = new ModelHandlerTask<R>(responseExecutor_)
     {
+      R       responseBuffer_ = null;
+      int     rowCnt_         = 0;
+      
       @Override
       protected void handleTask(R response)
       {
@@ -43,7 +46,14 @@ public abstract class AbstractRequestManager<P,R extends IModelEntity>
         {
           System.err.println("sendResponse: " + response);
 
-          out_.print(response.serialize() + "\n");
+          if(responseBuffer_ != null)
+          {
+            if(rowCnt_++ == 0)
+              out_.print("[\n " + responseBuffer_.serialize());
+            else
+              out_.print(",\n " + responseBuffer_.serialize());
+          }
+          responseBuffer_ = response;
         }
         catch (IOException e)
         {
@@ -65,6 +75,22 @@ public abstract class AbstractRequestManager<P,R extends IModelEntity>
       protected void finish()
       {
         System.err.println("Response finish()");
+        
+        if(responseBuffer_ != null)
+        {
+          try
+          {
+            if(rowCnt_++ == 0)
+              out_.print(responseBuffer_.serialize() + "\n");
+            else
+              out_.print(",\n " + responseBuffer_.serialize() + "\n]\n");
+          }
+          catch (IOException e)
+          {
+            onError(e);
+          }
+        }
+        
         async_.complete();
       }
     };

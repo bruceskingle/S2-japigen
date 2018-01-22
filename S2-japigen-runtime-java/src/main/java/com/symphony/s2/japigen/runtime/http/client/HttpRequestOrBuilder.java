@@ -1,12 +1,12 @@
 /*
  *
  *
- * Copyright 2017 Symphony Communication Services, LLC.
+ * Copyright 2018 Symphony Communication Services, LLC.
  *
  * Licensed to The Symphony Software Foundation (SSF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The SSF licenses this file
+ * regarding copyright ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -21,14 +21,38 @@
  * under the License.
  */
 
-package org.symphonyoss.s2.japigen.model;
+package com.symphony.s2.japigen.runtime.http.client;
 
-import java.util.Map;
+import org.apache.commons.codec.binary.Base64;
 
-import org.symphonyoss.s2.japigen.parser.GenerationException;
+import com.google.protobuf.ByteString;
 
-@FunctionalInterface
-public interface IPathNameConstructor
+public class HttpRequestOrBuilder<MC extends HttpModelClient>
 {
-  String  constructFile(Map<String, Object> dataModel, String language, String templateName, ModelElement modelElement) throws GenerationException;
+  private final MC japiClient_;
+
+  public HttpRequestOrBuilder(MC japiClient)
+  {
+    japiClient_ = japiClient;
+  }
+
+  public MC getJapiClient()
+  {
+    return japiClient_;
+  }
+
+  public String asString(ByteString byteString)
+  {
+    return Base64.encodeBase64URLSafeString(byteString.toByteArray());
+  }
+  
+  public String asString(Number number)
+  {
+    return number.toString();
+  }
+  
+  public String asString(String s)
+  {
+    return s;
+  }
 }

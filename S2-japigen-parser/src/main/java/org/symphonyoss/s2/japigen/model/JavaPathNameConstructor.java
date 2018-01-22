@@ -26,6 +26,8 @@ package org.symphonyoss.s2.japigen.model;
 import java.io.File;
 import java.util.Map;
 
+import org.symphonyoss.s2.japigen.parser.GenerationException;
+
 public class JavaPathNameConstructor extends PathNameConstructor
 {
   private String packageVar_;
@@ -37,9 +39,9 @@ public class JavaPathNameConstructor extends PathNameConstructor
 
   @Override
   public String constructFile(Map<String, Object> dataModel, String language, String templateName,
-      ModelElement modelElement)
+      ModelElement modelElement) throws GenerationException
   {
-    return constructFile(language, convertPath(dataModel.get(packageVar_)), templateName, modelElement.getCamelCapitalizedName());
+    return constructFile(language, convertPath(dataModel.get(packageVar_)), templateName, modelElement, modelElement.getCamelCapitalizedName());
   }
 
   private Object convertPath(Object object)

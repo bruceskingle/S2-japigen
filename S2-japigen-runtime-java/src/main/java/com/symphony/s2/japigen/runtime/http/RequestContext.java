@@ -52,7 +52,7 @@ import com.symphony.s2.japigen.runtime.ModelTypeBuilder;
 
 public class RequestContext
 {
-  private static final String JSON_CONTENT_TYPE = "application/json";
+  public static final String JSON_CONTENT_TYPE = "application/json; charset=utf-8";
 
   private static Logger log_ = LoggerFactory.getLogger(RequestContext.class);
   
@@ -139,7 +139,7 @@ public class RequestContext
     
     if(!Base64.isBase64(value))
     {
-      error("Parameter %s requires a Base64 value but we found \"%s\"", value);
+      error("Parameter %s requires a Base64 value but we found \"%s\"", parameterName, value);
       return null;
     }
     

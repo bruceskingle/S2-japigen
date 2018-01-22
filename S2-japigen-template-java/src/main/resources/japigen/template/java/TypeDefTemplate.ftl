@@ -15,13 +15,14 @@ import org.symphonyoss.s2.common.dom.json.IJsonDomNode;
 
 import org.symphonyoss.s2.common.exception.BadFormatException;
 
+import com.symphony.s2.japigen.runtime.ModelType;
 import com.symphony.s2.japigen.runtime.Model${modelJavaFieldClassName}TypeBuilder;
 import ${javaFacadePackage}.${modelJavaClassName};
 
 <#include "TypeDefHeader.ftl">
 <@setJavaType model/>
 @Immutable
-public class ${modelJavaClassName}ModelType<#if isComparable(model)> implements Comparable<${modelJavaClassName}ModelType></#if>
+public class ${modelJavaClassName}ModelType<#if isComparable(model)> extends ModelType implements Comparable<${modelJavaClassName}ModelType></#if>
 {
   private @Nonnull ${modelJavaFieldClassName} value_;
 

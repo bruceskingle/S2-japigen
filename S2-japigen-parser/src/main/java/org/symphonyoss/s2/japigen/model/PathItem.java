@@ -44,12 +44,13 @@ public class PathItem extends ParameterContainer
   private final Set<String>     pathParamNames_;
   private final String          bindPath_;
   private final String          path_;
+  private final String          pathFormat_;
   private final List<Operation> operations_ = new ArrayList<>();
   private final Set<HttpMethod> unsupportedOperations_ = EnumSet.allOf(HttpMethod.class);
   private List<String>          partList_;
   
   public PathItem(Paths parent, ParserContext parserContext, String name, Set<String> pathParams,
-      List<String> partList, String bindPath, String path)
+      List<String> partList, String bindPath, String path, String pathFormat)
   {
     super(parent, parserContext, "Path", name);
     
@@ -57,6 +58,7 @@ public class PathItem extends ParameterContainer
     partList_ = partList;
     bindPath_ = bindPath;
     path_ = path;
+    pathFormat_ = pathFormat;
     
     for(HttpMethod method : HttpMethod.values())
       addMethod(method, parserContext);
@@ -71,6 +73,7 @@ public class PathItem extends ParameterContainer
     StringBuffer bindBuf = new StringBuffer();
     StringBuffer nameBuf = new StringBuffer();
     StringBuffer partBuf = new StringBuffer();
+    StringBuffer formatBuf = new StringBuffer();
     boolean      inParam=false;
     boolean      inWord=false;
     boolean      inBindPath=true;
@@ -83,6 +86,7 @@ public class PathItem extends ParameterContainer
     
     lineBuf.append('/');
     partBuf.append('/');
+    formatBuf.append('/');
     
     for(int i=1 ; i<chars.length ; i++)
     {
@@ -106,6 +110,7 @@ public class PathItem extends ParameterContainer
             }
             inParam = true;
             paramBuf = new StringBuffer();
+            formatBuf.append("%s");
           }
           break;
           
@@ -137,6 +142,7 @@ public class PathItem extends ParameterContainer
           else
           {
             partBuf.append(c);
+            formatBuf.append(c);
           }
           break;
         
@@ -152,6 +158,7 @@ public class PathItem extends ParameterContainer
           else
           {
             partBuf.append(c);
+            formatBuf.append(c);
           }
           
           if(inWord)
@@ -194,7 +201,8 @@ public class PathItem extends ParameterContainer
         log_.debug("Path param \"{}\"", p);
     }
     
-    return new PathItem(paths, parserContext, nameBuf.toString(), pathParams, partList, bindBuf.toString(), lineBuf.toString());
+    return new PathItem(paths, parserContext, nameBuf.toString(), pathParams, partList, bindBuf.toString(),
+        lineBuf.toString(), formatBuf.toString());
   }
 
   private void addMethod(HttpMethod method, ParserContext parserContext)
@@ -229,6 +237,11 @@ public class PathItem extends ParameterContainer
     return path_;
   }
   
+  public String getPathFormat()
+  {
+    return pathFormat_;
+  }
+
   public String getAbsolutePath()
   {
     return getModel().getBasePath() + path_;
