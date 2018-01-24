@@ -57,4 +57,9 @@ public abstract class AbstractServer implements IServer
     
     modelRegistry_.stop();
   }
+  
+  public void join() throws InterruptedException
+  {
+    httpServer_.join();
+  }
 }
