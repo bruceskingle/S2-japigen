@@ -122,7 +122,7 @@ public class ReferenceSchema extends ReferenceOrSchema
   @Override
   public boolean getIsTypeDef()
   {
-    return type_ instanceof Type;
+    return type_.getIsTypeDef();
   }
   
   @Override
@@ -136,7 +136,7 @@ public class ReferenceSchema extends ReferenceOrSchema
   {
     super.getReferencedTypes(result);
     
-    result.add(this);
+    result.add(type_);
     //result.add(reference_);
   }
   

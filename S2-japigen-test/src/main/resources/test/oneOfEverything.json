@@ -384,6 +384,9 @@
           "aDoubleMinMax": {
             "$ref": "#/components/schemas/DoubleMinMax"
           },
+          "anObject": {
+            "$ref": "#/components/schemas/ASimpleObject"
+          },
           "aSetOfString": {
             "description": "A set of String.",
             "type": "array",

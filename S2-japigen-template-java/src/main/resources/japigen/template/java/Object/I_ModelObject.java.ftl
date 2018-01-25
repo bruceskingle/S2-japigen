@@ -1,4 +1,5 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
+<#assign model=model.type>
 <@setPrologueJavaType model/>
 
 import com.symphony.s2.japigen.runtime.IModelObject;
@@ -10,6 +11,7 @@ public interface I${model.camelCapitalizedName}ModelObject extends IModelObject
 {
 <#list model.fields as field>
   <@setJavaType field/>
+  <@printField/>
   
   ${javaClassName} get${field.camelCapitalizedName}();
 </#list>

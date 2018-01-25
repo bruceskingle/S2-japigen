@@ -1,4 +1,5 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
+<#assign model=model.type>
 <@setPrologueJavaType model/>
 
 import com.symphony.s2.japigen.runtime.IModelObject;

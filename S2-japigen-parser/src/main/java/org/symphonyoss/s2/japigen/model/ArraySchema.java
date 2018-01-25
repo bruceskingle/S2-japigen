@@ -45,7 +45,7 @@ public class ArraySchema extends Schema
   
   public ArraySchema(ModelElement parent, ParserContext context, String name)
   {
-    super(parent, context, "Array", name);
+    super(parent, context, "ArraySchema", name);
 
     ParserContext items = context.get("items");
     if(items==null)

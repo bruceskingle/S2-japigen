@@ -1,5 +1,6 @@
 <#include "ObjectHeader.ftl">
 
+// model = ${model}
 <#list model.fields as field>
   <@setJavaType field/>
   private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
@@ -46,7 +47,7 @@
     }
     else
     {
-  <#if isNotNullable>
+  <#if field.required>
       throw new BadFormatException("${field.camelName} is required.");
   <#else>
       ${field.camelName}_ = null;

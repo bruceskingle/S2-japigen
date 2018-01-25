@@ -36,7 +36,7 @@ public class AllOfSchema extends AbstractContainerSchema
 
   public AllOfSchema(ModelElement parent, ParserContext context, ParserContext node, String name)
   {
-    super(parent, context, node, "AllOf", name);
+    super(parent, context, node, "AllOfSchema", name);
   }
 
   public ParserContext getDiscriminator()
@@ -85,7 +85,7 @@ public class AllOfSchema extends AbstractContainerSchema
   @Override
   protected void getSchemas(Set<AbstractSchema> result)
   {
-    super.getSchemas(result);
+    //super.getSchemas(result);
     
     result.add(this);
   }
