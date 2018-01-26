@@ -23,10 +23,15 @@
 
 package org.symphonyoss.s2.japigen.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
 public abstract class Schema extends ReferenceOrSchema
 {
+  private List<Component> superClasses_ = new ArrayList<>();
+  
   public Schema(ModelElement parent, ParserContext context, String type, String name)
   {
     super(parent, context, type, name);
@@ -36,5 +41,10 @@ public abstract class Schema extends ReferenceOrSchema
   public Schema getBaseSchema()
   {
     return this;
+  }
+
+  public List<Component> getSuperClasses()
+  {
+    return superClasses_;
   }
 }

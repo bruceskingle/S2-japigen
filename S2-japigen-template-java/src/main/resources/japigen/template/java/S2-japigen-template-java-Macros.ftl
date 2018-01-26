@@ -213,25 +213,19 @@
    # first set javaElementClassName which is the basic Java type which stores simple values.
    #
    #-->
-   //setJavaType ${model}
-   //javaElementClassName(${model.elementSchema.elementType})
   <#assign javaElementClassName=getJavaClassName(model.elementSchema)/>
-  //javaElementClassName = ${javaElementClassName}
   <#-- 
    #
    # now set javaFieldClassName
    #
    #-->
-   //javaFieldClassName(${model.baseSchema.elementType})
   <#assign javaFieldClassName=getJavaClassName(model.baseSchema)/>
-   //javaFieldClassName = ${javaFieldClassName}
   <#-- 
    #
    # now set the javaClassName
    #
    #-->
   <@setClassName model javaFieldClassName/>
-  // javaClassName = ${javaClassName}
   <#-- 
    #
    # now set decorator attributes
@@ -247,7 +241,6 @@
  # @param Schema model     A Schema for which the java class name is required.
  #----------------------------------------------------------------------------------------------------->
 <#function getJavaClassName model>
-//getJavaClassName ${model}
   <#if model.isArraySchema>
     <#switch model.cardinality>
       <#case "SET">
@@ -338,7 +331,6 @@
 </#macro>
 
 <#macro decorateArray model>
-// DA model=${model}
   <#if model.items.baseSchema.isObjectSchema>
     <#assign addJsonNode="addCollectionOfDomNode">
   <#else>
@@ -363,17 +355,12 @@
 </#macro>
 
 <#macro decorate model>
-  // D1
   <#if model.isComponent>
-  // D2
     <#if model.enum??>
-      //D3
       <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.valueOf(">
       <#assign javaConstructTypePostfix=")">
       <#assign javaGetValuePostfix=".toString()">
     <#else>
-      
-      //D4
       <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
       <#assign javaConstructTypePostfix=")">
       <#if model.isArraySchema>
@@ -393,14 +380,10 @@
       </#if>
     </#if>
   <#else>
-    //D 5
     <#if model.isArraySchema>
-      //D6
       <@decorateArray model.baseSchema/>
       <#assign javaConstructTypePrefix="${javaClassName}.newBuilder().with(">
       <#assign javaConstructTypePostfix=").build()">
-    <#else>
-    //D 7
     </#if>
   </#if>
   
@@ -580,10 +563,7 @@
 </#macro>
 
 <#macro setTypeDefClassName model>
-// STD1
   <#if model.attributes['javaExternalType']??>
-// Its external
-// STD2
     <#assign isExternal=true>
     <#assign javaClassName=model.attributes['javaExternalType']>
     <#assign javaFullyQualifiedClassName="${model.attributes['javaExternalPackage']}.${javaClassName}">
@@ -595,14 +575,11 @@
       <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}">
     </#if>
   <#else>
-// Its NOT external
     <#if model.enum??>
-// Its an enum
       <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}">
       <#assign javaGeneratedBuilderFullyQualifiedClassName="${javaGenPackage}.${javaGeneratedBuilderClassName}">
       <#assign javaClassName=model.camelCapitalizedName>
     <#else>
-// Its NOT an enum
       <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}.newBuilder()">
       <#assign javaClassName=model.camelCapitalizedName>
       <#assign javaFullyQualifiedClassName="${javaFacadePackage}.${javaClassName}">
@@ -619,13 +596,9 @@
  # @param String fieldClassName   Value of ${javaFieldClassName}
  #----------------------------------------------------------------------------------------------------->
 <#macro setClassName model fieldClassName>
-// setClassName model=${model} fieldClassName=${fieldClassName} model.elementType=${model.elementType}
   <#if model.isComponent>
-// its a typedef model.elementType=${model.elementType}
-// its a typedef model.baseSchema=${model.baseSchema}
     <@setTypeDefClassName model.baseSchema/>
   <#else>
-// Its not a typedef ${javaFieldClassName}
     <#assign javaClassName=fieldClassName>
   </#if>
   <#------switch model.elementType>
@@ -668,7 +641,6 @@
 
 <#macro importModelSchemas model>
   <#list model.schemas as object>
-  // object = ${object} parent = ${object.parent}
     <#if object.parent.elementType != "AllOf">
 import ${javaFacadePackage}.${object.camelCapitalizedName};
     </#if>
@@ -798,9 +770,7 @@ import com.google.protobuf.ByteString;
   
   <#list model.referencedTypes as field>
     <@setJavaType field/>
-    // ref type ${field}
     <#list field.attributes as name, value>
-    // attr ${name} = ${value}
     </#list>
     <#if javaFullyQualifiedClassName?has_content>
 import ${javaFullyQualifiedClassName};
@@ -952,9 +922,7 @@ ${indent}}
 <#macro generateCreateFieldFromJsonDomNode indent field var>
   <@setJavaType field/>
   <#if field.isComponent>
-  // J1 isComponent
     <#if field.isObjectSchema>
-    // J2 isObjectSchema
 ${indent}if(node instanceof ImmutableJsonObject)
 ${indent}{
 ${indent}  ${var} = _factory.getModel().get${javaClassName}Factory().newInstance((ImmutableJsonObject)node);
@@ -965,7 +933,6 @@ ${indent}  throw new BadFormatException("${field.camelName} must be an Object no
 ${indent}}
     <#else>
       <#if field.isArraySchema>
-      // J3 isArraySchema
 ${indent}if(node instanceof ImmutableJsonArray)
 ${indent}{
 ${indent}  ${var} = ${javaClassName}.newBuilder().with((ImmutableJsonArray)node).build();
@@ -976,7 +943,6 @@ ${indent}{
 ${indent}  throw new BadFormatException("${field.camelName} must be an Array node not " + node.getClass().getName());
 ${indent}}
       <#else>
-      // J4 default
 ${indent}if(node instanceof I${javaElementClassName}Provider)
 ${indent}{
 ${indent}  ${javaElementClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
@@ -997,9 +963,7 @@ ${indent}}
         </#if>
       </#if>
   <#else>
-    // J5 not typeDef
     <#if field.isArraySchema>
-    // J6 Array
 ${indent}if(node instanceof ImmutableJsonArray)
 ${indent}{
 ${indent}  ${var} = ((ImmutableJsonArray)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
@@ -1009,8 +973,7 @@ ${indent}else
 ${indent}{
 ${indent}  throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
 ${indent}}
-    <#else>
-    // J7 not Array  
+    <#else> 
 ${indent}if(node instanceof I${javaElementClassName}Provider)
 ${indent}{
 ${indent}  ${javaFieldClassName} ${field.camelName} = ${javaConstructTypePrefix}((I${javaElementClassName}Provider)node).as${javaElementClassName}()${javaConstructTypePostfix};
@@ -1042,7 +1005,6 @@ ${indent}}
       <#assign elementType=field.elementType>
     </#if>
   </#if>
-  // BRUCE isGenerated = ${isGenerated?c}
   <#if isGenerated>
     <#switch elementType>
       <#case "Object">

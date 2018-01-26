@@ -35,6 +35,9 @@ public class Component extends Schema
     super(parent, context, elementType, name);
     type_ = type;
     add(type_);
+    
+    // Re-parent the referenced type
+    type.setParent(this);
   }
 
   @Override

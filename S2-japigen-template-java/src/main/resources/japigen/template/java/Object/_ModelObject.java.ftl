@@ -6,8 +6,7 @@
   private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
 </#list>
 
-<#-- Constructor from fields -->  
-// checkLimitsClassThrows ${model} = <@checkLimitsClassThrows model/> 
+<#-- Constructor from fields -->
   protected ${modelJavaClassName}ModelObject(${modelJavaClassName}.Factory _factory, I${model.camelCapitalizedName} _other)<@checkLimitsClassThrows model/>
   {
     super(_other.getJsonObject());

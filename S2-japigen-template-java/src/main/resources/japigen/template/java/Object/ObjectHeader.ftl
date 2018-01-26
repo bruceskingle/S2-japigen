@@ -30,11 +30,16 @@ import org.symphonyoss.s2.common.exception.BadFormatException;
 import ${javaFacadePackage}.I${model.model.camelCapitalizedName};
 import ${javaFacadePackage}.I${modelJavaClassName};
 import ${javaFacadePackage}.${modelJavaClassName};
+<#list model.superClasses as s>
+  <#if s.isComponent>
+import ${javaFacadePackage}.I${s.camelCapitalizedName};
+  </#if>
+</#list>
 
 <#include "Object.ftl">
 @Immutable
 @SuppressWarnings("unused")
-public abstract class ${modelJavaClassName}ModelObject extends ModelObject implements I${modelJavaClassName}
+public abstract class ${modelJavaClassName}ModelObject extends ModelObject implements I${modelJavaClassName}<#list model.superClasses as s><#if s.isComponent>, I${s.camelCapitalizedName}</#if></#list>
 {
   public static final String TYPE_ID = "${model.model.japigenId}#/components/schemas/${model.name}";
 

@@ -33,6 +33,7 @@ public class AllOfSchema extends AbstractContainerSchema
 {
   private ParserContext discriminator_;
   private List<ModelElement>  fields_;
+  private List<Component>  superClasses_;
 
   public AllOfSchema(ModelElement parent, ParserContext context, ParserContext node, String name)
   {
@@ -50,21 +51,23 @@ public class AllOfSchema extends AbstractContainerSchema
     super.validate();
     
     fields_ = new ArrayList<>();
+    superClasses_ = new ArrayList<>();
     
-    gatherFields(this, fields_, true);
+    gatherFields(this, fields_, superClasses_, true);
   }
 
-  private void gatherFields(Schema schema, List<ModelElement> fields, boolean gatherObjects)
+  private void gatherFields(Schema schema, List<ModelElement> fields, List<Component> superClasses, boolean gatherObjects)
   {
     for(ModelElement e : schema.getChildren())
     {
-      if(gatherObjects && e instanceof ReferenceSchema && e.getReference() instanceof ObjectSchema)
+      ModelElement baseSchema = e.getBaseSchema();
+      if(gatherObjects && baseSchema instanceof ObjectSchema)
       {
-        gatherFields((ObjectSchema)e.getReference(), fields, false);
-      }
-      else if(gatherObjects && e instanceof ObjectSchema)
-      {
-        gatherFields((ObjectSchema)e, fields, false);
+        ModelElement p = ((ObjectSchema) baseSchema).getParent();
+        
+        if(p instanceof Component)
+          superClasses.add((Component) p);
+        gatherFields((ObjectSchema)baseSchema, fields, superClasses, false);
       }
       else
       {
@@ -88,6 +91,12 @@ public class AllOfSchema extends AbstractContainerSchema
     //super.getSchemas(result);
     
     result.add(this);
+  }
+  
+  @Override
+  public List<Component> getSuperClasses()
+  {
+    return superClasses_;
   }
 
   /**
