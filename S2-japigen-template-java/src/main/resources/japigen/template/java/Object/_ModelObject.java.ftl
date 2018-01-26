@@ -1,6 +1,5 @@
 <#include "ObjectHeader.ftl">
 
-// model = ${model}
 <#list model.fields as field>
   <@setJavaType field/>
   private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
@@ -157,8 +156,7 @@
         return (${modelJavaClassName}.Factory.Builder)this;
       }
       <#if field.isTypeDef>
-
-//B1
+      
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName}) throws BadFormatException
       {
       <#if field.elementType=="Field" && field.required>
