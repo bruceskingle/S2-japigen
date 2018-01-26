@@ -921,6 +921,64 @@ ${indent}}
  #----------------------------------------------------------------------------------------------------->
 <#macro generateCreateFieldFromJsonDomNode indent field var>
   <@setJavaType field/>
+  <@printField/>
+
+<#----------------    
+  <#if field.isArraySchema>
+${indent}if(node instanceof ImmutableJsonArray)
+${indent}{
+    <#if field.baseSchema.items.isComponent>
+${indent}  ${var} = _factory_.getModel().get${javaElementClassName}Factory().newInstance${javaCardinality}((ImmutableJsonArray)node);
+    <#else>
+    // HERE
+${indent}  ${var} = ((ImmutableJsonArray)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
+    </#if>
+<@checkItemLimits indent field field.camelName var/>  
+${indent}}
+${indent}else
+${indent}{
+${indent}  throw new BadFormatException("${field.camelName} must be an Array node not " + node.getClass().getName());
+${indent}}
+  <#else>
+    <#if field.isObjectSchema>
+    <#if field.isComponent>
+      // BRUCE OK
+    <#else>
+      isObjectSchema  but NOT isComponent
+    </#if>
+${indent}if(node instanceof ImmutableJsonObject)
+${indent}{
+${indent}  ${var} = _factory.getModel().get${javaClassName}Factory().newInstance((ImmutableJsonObject)node);
+${indent}}
+${indent}else
+${indent}{
+${indent}  throw new BadFormatException("${field.camelName} must be an Object node not " + node.getClass().getName());
+${indent}}
+    <#else>
+${indent}if(node instanceof I${javaElementClassName}Provider)
+${indent}{
+${indent}  ${javaElementClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
+
+${indent}  try
+${indent}  {
+${indent}    ${var} = ${javaConstructTypePrefix}value${javaConstructTypePostfix};
+${indent}  }
+${indent}  catch(RuntimeException e)
+${indent}  {
+${indent}    throw new BadFormatException("Value \"" + value + "\" for ${field.camelName} is not a valid value", e);
+${indent}  }
+${indent}}
+${indent}else
+${indent}{
+${indent}    throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
+${indent}}
+    </#if>
+  </#if>
+  
+  
+  
+  // OLD VERSION STARTS
+  ------------------->
   <#if field.isComponent>
     <#if field.isObjectSchema>
 ${indent}if(node instanceof ImmutableJsonObject)
@@ -966,7 +1024,14 @@ ${indent}}
     <#if field.isArraySchema>
 ${indent}if(node instanceof ImmutableJsonArray)
 ${indent}{
+//HERE1
+    <#if field.baseSchema.items.isComponent>
+    // HERE2
+${indent}  ${var} = _factory_.getModel().get${javaElementClassName}Factory().newInstance${javaCardinality}((ImmutableJsonArray)node);
+    <#else>
+    // HERE3
 ${indent}  ${var} = ((ImmutableJsonArray)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
+    </#if>
 <@checkItemLimits indent field field.camelName var/>
 ${indent}}
 ${indent}else
