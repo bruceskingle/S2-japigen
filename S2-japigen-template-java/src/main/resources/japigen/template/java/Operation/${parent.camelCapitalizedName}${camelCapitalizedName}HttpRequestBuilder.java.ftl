@@ -13,9 +13,10 @@ import com.symphony.s2.japigen.runtime.http.ParameterLocation;
 import com.symphony.s2.japigen.runtime.http.client.HttpParameter;
 
 <#list model.parameters as parameter>
-  <@setJavaType parameter.schema/>
-  <#if isGenerated>
-import ${javaFacadePackage}.${javaClassName};
+  <@setJavaType parameter.schema/>  
+  <@printField/>
+  <#if javaFullyQualifiedClassName?has_content>
+import ${javaFullyQualifiedClassName};
   </#if>
 </#list>
 <#if model.payload??>

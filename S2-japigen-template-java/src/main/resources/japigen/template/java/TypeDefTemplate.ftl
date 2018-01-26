@@ -41,27 +41,10 @@ public class ${modelJavaClassName}ModelType<#if isComparable(model)> extends Mod
     if(node == null)
       throw new BadFormatException("value is required.");
       
-  <#switch model.elementType>
-    <#case "Ref">
-    value_ = ${javaConstructTypePrefix}node${javaConstructTypePostfix};
-      <#break>
-      
-    <#case "Array">
-    I dont think this can ever be
-    if(node instanceof JsonArray)
-    {
-      value_ = ((JsonArray<?>)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
-<@checkItemLimits "      " model "value" "value_"/>
-    }
-    else
-    {
-      throw new BadFormatException("value must be an array not " + node.getClass().getName());
-    }
-      <#break>
-    <#default>
+  // T1 model.elementType = ${model.elementType}
     if(node instanceof I${javaElementClassName}Provider)
     {
-      ${javaFieldClassName} value = ${javaConstructTypePrefix}((I${javaElementClassName}Provider)node).as${javaElementClassName}()${javaConstructTypePostfix};
+      ${javaFieldClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
     <#if requiresChecks>
       <@checkLimits "      " model "value"/>
     </#if>
@@ -71,8 +54,6 @@ public class ${modelJavaClassName}ModelType<#if isComparable(model)> extends Mod
     {
       throw new BadFormatException("value must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
     }
-  </#switch>
-
   }
   
   public @Nonnull ${modelJavaFieldClassName} getValue()

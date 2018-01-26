@@ -1,4 +1,5 @@
 <#include "../S2-japigen-proforma-java-Prologue.ftl">
+<#assign model=model.type>
 <@setPrologueJavaType model/>
 import javax.annotation.concurrent.Immutable;
 
@@ -18,7 +19,8 @@ import ${javaGenPackage}.${model.model.camelCapitalizedName}Model;
 @Immutable
 public class ${model.camelCapitalizedName} extends ${model.camelCapitalizedName}ModelObject implements I${model.camelCapitalizedName}
 {
-<#-- Constrictor from fields -->  
+<#-- Constrictor from fields --> 
+// checkLimitsClassThrows ${model} = <@checkLimitsClassThrows model/> 
   private ${model.camelCapitalizedName}(${modelJavaClassName}.Factory _factory, I${model.camelCapitalizedName} _other)<@checkLimitsClassThrows model/>
   {
     super(_factory, _other);

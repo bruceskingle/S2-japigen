@@ -71,9 +71,9 @@ public class OneOfSchema extends AbstractContainerSchema
       {
         AbstractSchema type = ((ReferenceSchema)child).getType();
         
-        if(type instanceof TypeDef)
+        if(type instanceof Component)
         {
-          type = ((TypeDef)type).getType();
+          type = ((Component)type).getType();
         }
         if(!(type instanceof ObjectSchema))
         {

@@ -7,6 +7,7 @@
 </#list>
 
 <#-- Constructor from fields -->  
+// checkLimitsClassThrows ${model} = <@checkLimitsClassThrows model/> 
   protected ${modelJavaClassName}ModelObject(${modelJavaClassName}.Factory _factory, I${model.camelCapitalizedName} _other)<@checkLimitsClassThrows model/>
   {
     super(_other.getJsonObject());
@@ -158,6 +159,7 @@
       }
       <#if field.isTypeDef>
 
+//B1
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName}) throws BadFormatException
       {
       <#if field.elementType=="Field" && field.required>

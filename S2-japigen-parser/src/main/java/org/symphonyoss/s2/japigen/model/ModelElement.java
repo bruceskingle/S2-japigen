@@ -301,6 +301,11 @@ public class ModelElement
     
     return false;
   }
+
+  public boolean getIsComponent()
+  {
+    return false;
+  }
   
   public boolean getIsTypeDef()
   {
@@ -315,6 +320,11 @@ public class ModelElement
   public ModelElement getReference()
   {
     return this;
+  }
+  
+  public EnumSchema getEnum()
+  {
+    return null;
   }
   
   public Set<AbstractSchema> getReferencedTypes()

@@ -53,23 +53,23 @@ public class Schemas extends ModelElement
       
       if(objectSchema instanceof Type)
       {
-        objectSchema = new TypeDef(this, schema, objectSchema, "TypeDef", objectSchema.getName());
+        objectSchema = new TypeDef(this, schema, objectSchema, objectSchema.getName());
       }
       else if(objectSchema instanceof ArraySchema)
       {
-        objectSchema = new TypeDef(this, schema, objectSchema, "Array", objectSchema.getName());
+        objectSchema = new Component(this, schema, objectSchema, "Array", objectSchema.getName());
       }
       else if(objectSchema instanceof ObjectSchema)
       {
-        objectSchema = new TypeDef(this, schema, objectSchema, "Object", objectSchema.getName());
+        objectSchema = new Component(this, schema, objectSchema, "Object", objectSchema.getName());
       }
       else if(objectSchema instanceof OneOfSchema)
       {
-        objectSchema = new TypeDef(this, schema, objectSchema, "OneOf", objectSchema.getName());
+        objectSchema = new Component(this, schema, objectSchema, "OneOf", objectSchema.getName());
       }
       else if(objectSchema instanceof AllOfSchema)
       {
-        objectSchema = new TypeDef(this, schema, objectSchema, "AllOf", objectSchema.getName());
+        objectSchema = new Component(this, schema, objectSchema, "AllOf", objectSchema.getName());
       }
       
       if(objectSchema instanceof ReferenceOrSchema)

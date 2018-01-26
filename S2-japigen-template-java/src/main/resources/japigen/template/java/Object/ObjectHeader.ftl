@@ -38,5 +38,4 @@ public abstract class ${modelJavaClassName}ModelObject extends ModelObject imple
 {
   public static final String TYPE_ID = "${model.model.japigenId}#/components/schemas/${model.name}";
 
-<@generateEnums "  " model/>
   private final ${(modelJavaClassName + ".Factory")?right_pad(25)} _factory_;

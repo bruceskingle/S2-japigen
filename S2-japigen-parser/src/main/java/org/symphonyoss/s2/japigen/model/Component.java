@@ -23,20 +23,16 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import java.util.Set;
-
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 import org.symphonyoss.s2.japigen.parser.error.ParserError;
 
-public class Field extends AbstractSchema
+public class Component extends Schema
 {
-  private final boolean required_;
   private final AbstractSchema    type_;
   
-  public Field(ModelElement parent, ParserContext context, AbstractSchema type, boolean required, String name)
+  public Component(ModelElement parent, ParserContext context, AbstractSchema type, String elementType, String name)
   {
-    super(parent, context, "Field", name);
-    required_ = required;
+    super(parent, context, elementType, name);
     type_ = type;
     add(type_);
   }
@@ -63,12 +59,6 @@ public class Field extends AbstractSchema
   public boolean getIsObjectSchema()
   {
     return type_.getIsObjectSchema();
-  }
-
-  @Override
-  public boolean isRequired()
-  {
-    return required_;
   }
 
   public AbstractSchema getType()
@@ -101,15 +91,9 @@ public class Field extends AbstractSchema
   }
   
   @Override
-  public boolean getIsTypeDef()
-  {
-    return type_.getIsTypeDef();
-  }
-  
-  @Override
   public boolean getIsComponent()
   {
-    return type_.getIsComponent();
+    return true;
   }
   
   @Override
@@ -121,7 +105,7 @@ public class Field extends AbstractSchema
   @Override
   public boolean  getCanFailValidation()
   {
-    return required_ || type_.getCanFailValidation();
+    return type_.getCanFailValidation();
   }
   
   @Override
@@ -130,31 +114,17 @@ public class Field extends AbstractSchema
     super.validate();
     
     if(type_ == null)
-      getContext().raise(new ParserError("Field type must be specified"));
+      getContext().raise(new ParserError("Component type must be specified"));
   }
 
-  public static AbstractSchema create(ModelElement parent, ParserContext context, boolean required)
-  {
-    AbstractSchema schema = AbstractSchema.createSchema(parent, context);
-    
-    return new Field(parent, context, schema, required, context.getName());
-  }
-  
-  // We don;t need this because the type_ is one of our children anyway
-//  @Override
-//  protected void getReferencedTypes(Set<AbstractSchema> result)
+//  public static AbstractSchema create(ModelElement parent, ParserContext context, ParserContext node, String name)
 //  {
-//    super.getReferencedTypes(result);
+//    AbstractSchema schema = Type.create(parent, context, node, name);
 //    
-//    if(type_ instanceof ReferenceSchema ||
-//        type_ instanceof AbstractContainerSchema)
-//    {
-//      result.add(type_);
-//    }
-//    else if(type_ instanceof ArraySchema)
-//    {
-//      result.add(((ArraySchema) type_).getItems());
-//    }
+//    if(schema instanceof Type)
+//      return new Component(parent, context, (Type)schema, context.getName());
+//    else
+//      return schema;
 //  }
 
   @Override
@@ -162,7 +132,6 @@ public class Field extends AbstractSchema
   {
     return toString(new ValueMap<String, Object>()
         .insert("type", type_.getElementType(), "UNDEFINED")
-        .insert("required", required_, null)
         );
   }
 }

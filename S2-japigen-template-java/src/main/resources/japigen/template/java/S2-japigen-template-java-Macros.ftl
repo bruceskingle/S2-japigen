@@ -32,8 +32,6 @@
  # javaElementClassName            Name of Java class for the the elements of a collection. For
  #                                 non-collection types this is the same as javaFieldClassName
  #  
- # isGenerated                     Boolean is true for fields which require range checks otherwise false
- #  
  # isExternal                      Boolean is true for external types otherwise false
  #  
  # requiresChecks                  Boolean is true for fields of generated types otherwise false
@@ -99,6 +97,7 @@
  *    field.hasSet                  ${javaField.hasSet?c}
  *    field.isArraySchema           ${javaField.isArraySchema?c}
  *    field.isObjectSchema          ${javaField.isObjectSchema?c}
+ *    field.isComponent             ${javaField.isComponent?c}
  *    field.isTypeDef               ${javaField.isTypeDef?c}
  *
  *    javaClassName                 ${javaClassName!"NULL"}
@@ -240,7 +239,6 @@
    #-->
    <@decorate model/>
    <@setDescription model/>
-   <@printField/>
 </#macro>
 
 <#------------------------------------------------------------------------------------------------------
@@ -366,27 +364,70 @@
 
 <#macro decorate model>
   // D1
-  <#if model.isTypeDef>
-    <#if model.reference.enum??>
-      //D6
+  <#if model.isComponent>
+  // D2
+    <#if model.enum??>
+      //D3
       <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.valueOf(">
       <#assign javaConstructTypePostfix=")">
+      <#assign javaGetValuePostfix=".toString()">
     <#else>
-      //D7
+      
+      //D4
       <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
       <#assign javaConstructTypePostfix=")">
+      <#if model.isArraySchema>
+        <#assign javaGetValuePostfix=".getElements()">
+        <#assign addJsonNode="addCollectionOf${javaElementClassName}">
+      <#else>
+        <#if isExternal>
+          <#assign javaGetValuePrefix="${javaGeneratedBuilderClassName}.to${javaElementClassName}(">
+          <#assign javaGetValuePostfix=")">
+        <#else>
+          <#if model.isObjectSchema>
+            <#assign javaGetValuePostfix=".getJsonObject()">
+          <#else>
+            <#assign javaGetValuePostfix=".getValue()">
+          </#if>
+        </#if>
+      </#if>
     </#if>
   <#else>
+    //D 5
     <#if model.isArraySchema>
-      //D9
+      //D6
       <@decorateArray model.baseSchema/>
       <#assign javaConstructTypePrefix="${javaClassName}.newBuilder().with(">
       <#assign javaConstructTypePostfix=").build()">
     <#else>
-      //D10
+    //D 7
     </#if>
   </#if>
-  <#------------------
+  
+  
+  
+  
+  
+  
+<#------------------  
+  <#if model.isArraySchema>
+    //D9
+    <@decorateArray model.baseSchema/>
+    <#assign javaConstructTypePrefix="${javaClassName}.newBuilder().with(">
+    <#assign javaConstructTypePostfix=").build()">
+  <#else>
+    <#if model.isComponent>
+      <#if model.reference.enum??>
+        //D6
+        <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.valueOf(">
+        <#assign javaConstructTypePostfix=")">
+      <#else>
+        //D10
+        <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
+        <#assign javaConstructTypePostfix=")">
+      </#if>
+    </#if>
+  </#if>
   
   
   
@@ -395,7 +436,8 @@
   
   
   
-  <#if model.isTypeDef>
+  
+  <#if model.isComponent>
     //D4
     <#assign javaConstructTypePostfix=")">
     <#if javaGeneratedBuilderClassName?has_content>
@@ -423,8 +465,8 @@
   
   <#if model.isArraySchema>
     //D2 model.type=${model.type!"NULL"} model=${model}
-    // D2 isTypeDef=${model.isTypeDef?c}
-    <#if ! model.isTypeDef>
+    // D2 isComponent=${model.isComponent?c}
+    <#if ! model.isComponent>
       <@decorateArray model/>
     </#if>
     <#assign javaGetValuePostfix=".getElements()">
@@ -538,8 +580,10 @@
 </#macro>
 
 <#macro setTypeDefClassName model>
+// STD1
   <#if model.attributes['javaExternalType']??>
 // Its external
+// STD2
     <#assign isExternal=true>
     <#assign javaClassName=model.attributes['javaExternalType']>
     <#assign javaFullyQualifiedClassName="${model.attributes['javaExternalPackage']}.${javaClassName}">
@@ -576,7 +620,7 @@
  #----------------------------------------------------------------------------------------------------->
 <#macro setClassName model fieldClassName>
 // setClassName model=${model} fieldClassName=${fieldClassName} model.elementType=${model.elementType}
-  <#if model.isTypeDef>
+  <#if model.isComponent>
 // its a typedef model.elementType=${model.elementType}
 // its a typedef model.baseSchema=${model.baseSchema}
     <@setTypeDefClassName model.baseSchema/>
@@ -758,7 +802,6 @@ import com.google.protobuf.ByteString;
     <#list field.attributes as name, value>
     // attr ${name} = ${value}
     </#list>
-    <@printField/>
     <#if javaFullyQualifiedClassName?has_content>
 import ${javaFullyQualifiedClassName};
     </#if>
@@ -771,101 +814,6 @@ import ${javaGeneratedBuilderFullyQualifiedClassName};
 </#macro>
 
 <#------------------------------------------------------------------------------------------------------
- # Generate enums if necessary
- #
- # @param indent    An indent string which is output at the start of each line generated
- # @param model     A model element representing the field to generate for
- #----------------------------------------------------------------------------------------------------->
-<#macro generateEnums indent model>
-  <#assign hasEnums=false>
-  <@generateEnumVars indent model/>
-  <#if hasEnums>
-    <@generateEnumValues indent model/>
-  </#if>
-</#macro>
-
-<#------------------------------------------------------------------------------------------------------
- # Generate enums variables
- #
- # This is a macro sub-routine, from templates you probably should be calling generateEnums.
- #
- # @param indent    An indent string which is output at the start of each line generated
- # @param model     A model element representing the field to generate for
- #----------------------------------------------------------------------------------------------------->
-<#macro generateEnumVars indent model>
-  <#list model.fields as field>
-    <#switch field.elementType>
-      <#case "Field">
-        <@generateOneEnumVar indent field.type/>
-        <#break>
-      
-      <#case "Object">
-        <@generateEnumVars indent field/>
-        <#break>
-    </#switch>
-  </#list>
-</#macro>
-
-<#------------------------------------------------------------------------------------------------------
- # Generate a single enum variable
- #
- # This is a macro sub-routine, from templates you probably should be calling generateEnums.
- #
- # @param indent    An indent string which is output at the start of each line generated
- # @param model     A model element representing the field to generate for
- #----------------------------------------------------------------------------------------------------->
-<#macro generateOneEnumVar indent field>
-  <#if field.enum??>
-    <#assign hasEnums=true>
-${indent}private static final Set<String> _enumOf${field.camelName} = new HashSet<>();
-  </#if>
-</#macro>
-
-<#------------------------------------------------------------------------------------------------------
- # Generate enums values
- #
- # This is a macro sub-routine, from templates you probably should be calling generateEnums.
- #
- # @param indent    An indent string which is output at the start of each line generated
- # @param model     A model element representing the field to generate for
- #----------------------------------------------------------------------------------------------------->
-<#macro generateEnumValues indent model>
-
-${indent}static
-${indent}{
-  <#list model.fields as field>
-    <#switch field.elementType>
-      <#case "Field">
-        <@generateOneEnumValue indent field.type/>
-        <#break>
-      
-      <#case "Object">
-        <@generateEnumValues indent field/>
-        <#break>
-    </#switch>
-  </#list>
-${indent}}
-
-</#macro>
-
-<#------------------------------------------------------------------------------------------------------
- # Generate values for a single enums variable
- #
- # This is a macro sub-routine, from templates you probably should be calling generateEnums.
- #
- # @param indent    An indent string which is output at the start of each line generated
- # @param model     A model element representing the field to generate for
- #----------------------------------------------------------------------------------------------------->
-<#macro generateOneEnumValue indent field>
-    <#if field.enum??>
-
-      <#list field.enum.values as value>
-${indent}  _enumOf${field.camelName}.add("${value}");
-      </#list>
-    </#if>
-</#macro>
-
-<#------------------------------------------------------------------------------------------------------
  # 
  # Limit checking.
  #
@@ -874,7 +822,7 @@ ${indent}  _enumOf${field.camelName}.add("${value}");
  #----------------------------------------------------------------------------------------------------->
 
 <#function checkLimitsClass model>
-  <#if model.isTypeDef>
+  <#if model.isComponent>
     <#return true>
   </#if>
   <#list model.fields as field>
@@ -932,11 +880,6 @@ ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is les
   <#if model.maximum??>
 ${indent}if(${name} != null && ${name} > ${model.maximumAsString})
 ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is more than the maximum allowed of ${model.maximum}");
-
-  </#if>
-  <#if model.enum??>
-${indent}if(!_enumOf${name}.contains(${name}))
-${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is not one of the permitted enum constants.");
 
   </#if>
 </#macro>
@@ -1008,19 +951,98 @@ ${indent}}
  #----------------------------------------------------------------------------------------------------->
 <#macro generateCreateFieldFromJsonDomNode indent field var>
   <@setJavaType field/>
+  <#if field.isComponent>
+  // J1 isComponent
+    <#if field.isObjectSchema>
+    // J2 isObjectSchema
+${indent}if(node instanceof ImmutableJsonObject)
+${indent}{
+${indent}  ${var} = _factory.getModel().get${javaClassName}Factory().newInstance((ImmutableJsonObject)node);
+${indent}}
+${indent}else
+${indent}{
+${indent}  throw new BadFormatException("${field.camelName} must be an Object node not " + node.getClass().getName());
+${indent}}
+    <#else>
+      <#if field.isArraySchema>
+      // J3 isArraySchema
+${indent}if(node instanceof ImmutableJsonArray)
+${indent}{
+${indent}  ${var} = ${javaClassName}.newBuilder().with((ImmutableJsonArray)node).build();
+<@checkItemLimits indent field field.camelName var/>
+${indent}}
+${indent}else
+${indent}{
+${indent}  throw new BadFormatException("${field.camelName} must be an Array node not " + node.getClass().getName());
+${indent}}
+      <#else>
+      // J4 default
+${indent}if(node instanceof I${javaElementClassName}Provider)
+${indent}{
+${indent}  ${javaElementClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
+
+${indent}  try
+${indent}  {
+${indent}    ${var} = ${javaConstructTypePrefix}value${javaConstructTypePostfix};
+${indent}  }
+${indent}  catch(RuntimeException e)
+${indent}  {
+${indent}    throw new BadFormatException("Value \"" + value + "\" for ${field.camelName} is not a valid value", e);
+${indent}  }
+${indent}}
+${indent}else
+${indent}{
+${indent}    throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
+${indent}}     
+        </#if>
+      </#if>
+  <#else>
+    // J5 not typeDef
+    <#if field.isArraySchema>
+    // J6 Array
+${indent}if(node instanceof ImmutableJsonArray)
+${indent}{
+${indent}  ${var} = ((ImmutableJsonArray)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
+<@checkItemLimits indent field field.camelName var/>
+${indent}}
+${indent}else
+${indent}{
+${indent}  throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
+${indent}}
+    <#else>
+    // J7 not Array  
+${indent}if(node instanceof I${javaElementClassName}Provider)
+${indent}{
+${indent}  ${javaFieldClassName} ${field.camelName} = ${javaConstructTypePrefix}((I${javaElementClassName}Provider)node).as${javaElementClassName}()${javaConstructTypePostfix};
+      <#if requiresChecks>
+        <@checkLimits "${indent}  " field field.camelName/>
+      </#if>
+${indent}  ${var} = ${javaTypeCopyPrefix}${field.camelName}${javaTypeCopyPostfix};
+${indent}}
+${indent}else
+${indent}{
+${indent}    throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
+${indent}}
+    </#if>
+  </#if>
+</#macro>
+
+<#macro OBSOLETEenerateCreateFieldFromJsonDomNode indent field var>
+  <@setJavaType field/>
   <#if field.elementType=="Field">
     <#if field.type.elementType=="Ref">
-	    <#assign elementType=field.type.reference.elementType>
-	  <#else>
-	    <#assign elementType=field.type.elementType>
-	  </#if>
+      <#assign elementType=field.type.reference.elementType>
+    <#else>
+      <#assign elementType=field.type.elementType>
+    </#if>
   <#else>
-	  <#if field.elementType=="Ref">
-	    <#assign elementType=field.reference.elementType>
-	  <#else>
-	    <#assign elementType=field.elementType>
-	  </#if>
-	</#if>
+    <#if field.elementType=="Ref">
+      <#assign elementType=field.reference.elementType>
+    <#else>
+      <#assign elementType=field.elementType>
+    </#if>
+  </#if>
+  // BRUCE isGenerated = ${isGenerated?c}
   <#if isGenerated>
     <#switch elementType>
       <#case "Object">
