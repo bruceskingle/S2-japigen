@@ -23,28 +23,18 @@
 
 package org.symphonyoss.s2.japigen.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.symphonyoss.s2.japigen.parser.ParserContext;
 
-public abstract class Schema extends ReferenceOrSchema
+public class TypeDef extends Component
 {
-  private List<Component> superClasses_ = new ArrayList<>();
+  public TypeDef(ModelElement parent, ParserContext context, AbstractSchema type, String name)
+  {
+    super(parent, context, type, "TypeDef", name);
+  }
   
-  public Schema(ModelElement parent, ParserContext context, String type, String name)
-  {
-    super(parent, context, type, name);
-  }
-
   @Override
-  public Schema getBaseSchema()
+  public boolean getIsTypeDef()
   {
-    return this;
-  }
-
-  public List<Component> getSuperClasses()
-  {
-    return superClasses_;
+    return true;
   }
 }

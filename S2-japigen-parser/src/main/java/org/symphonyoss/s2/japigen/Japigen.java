@@ -126,6 +126,14 @@ public class Japigen
                 error("--templateDir requires a directory name to follow.");
               break;
             
+            case "sourceDir":
+              i++;
+              if(i<argv.length)
+                sourceDir_ = argv[i];
+              else
+                error("--sourceDir requires a directory name to follow.");
+              break;
+            
           default:
             error("Unrecognized flag \"%s\".", argv[i]);
         }
@@ -148,6 +156,14 @@ public class Japigen
               templateDirs_.add(new File(argv[i]));
             else
               error("-t requires a directory name to follow.");
+            break;
+            
+          case "s":
+            i++;
+            if(i<argv.length)
+              sourceDir_ = argv[i];
+            else
+              error("-s requires a directory name to follow.");
             break;
             
           default:

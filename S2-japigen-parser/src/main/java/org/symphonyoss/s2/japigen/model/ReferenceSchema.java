@@ -118,11 +118,23 @@ public class ReferenceSchema extends ReferenceOrSchema
   {
     return type_;
   }
+
+  @Override
+  public EnumSchema getEnum()
+  {
+    return type_.getEnum();
+  }
   
   @Override
   public boolean getIsTypeDef()
   {
-    return type_ instanceof Type;
+    return type_.getIsTypeDef();
+  }
+  
+  @Override
+  public boolean getIsComponent()
+  {
+    return type_.getIsComponent();
   }
   
   @Override
@@ -136,7 +148,7 @@ public class ReferenceSchema extends ReferenceOrSchema
   {
     super.getReferencedTypes(result);
     
-    result.add(this);
+    result.add(type_);
     //result.add(reference_);
   }
   

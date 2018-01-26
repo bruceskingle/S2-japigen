@@ -86,14 +86,6 @@ public abstract class AbstractParameter extends ModelElement
   {
     return schema_;
   }
-  
-  @Override
-  public void getReferencedTypes(Set<AbstractSchema> result)
-  {
-    super.getReferencedTypes(result);
-    result.add(schema_);
-//    schema_.getReferencedTypes(result);
-  }
 
   @Override
   public String toString()

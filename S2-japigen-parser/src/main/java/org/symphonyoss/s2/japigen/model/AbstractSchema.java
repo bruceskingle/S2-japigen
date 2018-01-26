@@ -80,6 +80,11 @@ public abstract class AbstractSchema extends ModelElement
   
   @Override
   public abstract boolean getIsObjectSchema();
+  
+  public boolean isRequired()
+  {
+    return false;
+  }
 
   public boolean  getIsAnonymousInnerClass()
   {

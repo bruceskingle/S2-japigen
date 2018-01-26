@@ -13,5 +13,6 @@
  *
  * ${model.description}
 </#if>
+ * Generated from ${model} at ${model.context.path}
  */
 <#assign subTemplateName="${.current_template_name!''}"><#include "../S2-japigen-template-java-SubEpilogue.ftl">

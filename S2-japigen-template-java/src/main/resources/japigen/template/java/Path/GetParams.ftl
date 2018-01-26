@@ -17,8 +17,11 @@
       context.error("Parameter \"${parameter.camelName}\" has invalid value \"%s\" (%s)", ${parameter.camelName}Value, e.getMessage());
     }
     <#else>
+    // T0
+    <@printField/>
+    // T1 canFailValidation = ${parameter.schema.canFailValidation?c}
     ${parameter.camelName} = ${javaConstructTypePrefix}${parameter.camelName}Value${javaConstructTypePostfix};
-      <#if canFailValidation>
+      <#if parameter.schema.canFailValidation>
     try
     {
       <@checkLimits "      " parameter.schema parameter.camelName/>

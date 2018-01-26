@@ -46,9 +46,9 @@ public class ObjectSchema extends Schema
     
   public ObjectSchema(ModelElement parent, ParserContext context, String name)
   {
-    super(parent, context, "Object", name);
+    super(parent, context, "ObjectSchema", name);
     
-    if(parent instanceof Schemas)
+    if((parent instanceof Schemas) || (parent instanceof AllOfSchema))
     {
       ParserContext requiredFields = context.get("required");
       if(requiredFields != null)

@@ -5,7 +5,7 @@
   private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
 </#list>
 
-<#-- Constructor from fields -->  
+<#-- Constructor from fields -->
   protected ${modelJavaClassName}ModelObject(${modelJavaClassName}.Factory _factory, I${model.camelCapitalizedName} _other)<@checkLimitsClassThrows model/>
   {
     super(_other.getJsonObject());
@@ -46,7 +46,7 @@
     }
     else
     {
-  <#if isNotNullable>
+  <#if field.required>
       throw new BadFormatException("${field.camelName} is required.");
   <#else>
       ${field.camelName}_ = null;
@@ -156,7 +156,7 @@
         return (${modelJavaClassName}.Factory.Builder)this;
       }
       <#if field.isTypeDef>
-
+      
       public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaFieldClassName} ${field.camelName}) throws BadFormatException
       {
       <#if field.elementType=="Field" && field.required>

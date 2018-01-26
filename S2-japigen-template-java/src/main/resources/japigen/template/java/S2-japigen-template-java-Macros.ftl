@@ -25,18 +25,12 @@
  # javaClassName                   Name of the Java class to be referred to from other code
  #
  # javaFullyQualifiedClassName     Fully qualified name of the Java class to be referred to from other
- #                                 code, e.g. for imports
+ #                                 code for imports NOT SET for non-imported types like String
  #
  # javaFieldClassName              Name of Java class for the field inside a generated class
  #  
  # javaElementClassName            Name of Java class for the the elements of a collection. For
  #                                 non-collection types this is the same as javaFieldClassName
- #  
- # isNotNullable                   Boolean is true for required fields in an object, otherwise false
- #  
- # isArrayType                     Boolean is true for array fields, otherwise false
- #  
- # isGenerated                     Boolean is true for fields which require range checks otherwise false
  #  
  # isExternal                      Boolean is true for external types otherwise false
  #  
@@ -86,20 +80,30 @@
 <#macro printField>
 /* ====================================================================================================
  * Field ${javaField}
- *    name                          ${javaField.name}
- *    camelName                     ${javaField.camelName}
- *    camelCapitalizedName          ${javaField.camelCapitalizedName}
- *    snakeName                     ${javaField.snakeName}
- *    snakeCapitalizedName          ${javaField.snakeCapitalizedName}
- *    elementType                   ${javaField.elementType}
- *    canFailValidation             ${javaField.canFailValidation?c}
+ *    field.name                    ${javaField.name}
+ *    field.camelName               ${javaField.camelName}
+ *    field.camelCapitalizedName    ${javaField.camelCapitalizedName}
+ *    field.snakeName               ${javaField.snakeName}
+ *    field.snakeCapitalizedName    ${javaField.snakeCapitalizedName}
+ *    field.elementType             ${javaField.elementType}
+ *    field.description             ${javaField.description!"NULL"}
+ *    field.baseSchema              ${javaField.baseSchema}
+ *    field.elementSchema           ${javaField.elementSchema}
+ *    field.canFailValidation       ${javaField.canFailValidation?c}
+ *    field.format                  ${javaField.format!"NULL"}
+ *    field.hasByteString           ${javaField.hasByteString?c}
+ *    field.hasCollections          ${javaField.hasCollections?c}
+ *    field.hasList                 ${javaField.hasList?c}
+ *    field.hasSet                  ${javaField.hasSet?c}
+ *    field.isArraySchema           ${javaField.isArraySchema?c}
+ *    field.isObjectSchema          ${javaField.isObjectSchema?c}
+ *    field.isComponent             ${javaField.isComponent?c}
+ *    field.isTypeDef               ${javaField.isTypeDef?c}
  *
  *    javaClassName                 ${javaClassName!"NULL"}
  *    javaFullyQualifiedClassName   ${javaFullyQualifiedClassName!"NULL"}
  *    javaFieldClassName            ${javaFieldClassName!"NULL"}
  *    javaElementClassName          ${javaElementClassName!"NULL"}
- *    isNotNullable                 ${isNotNullable?c}
- *    isArrayType                   ${isArrayType?c}
  *    isGenerated                   ${isGenerated?c}
  *    isExternal                    ${isExternal?c}
  *    requiresChecks                ${requiresChecks?c}
@@ -200,8 +204,6 @@
   <#assign javaConstructTypePostfix="">
   <#assign javaBuilderTypeNew="">
   <#assign addJsonNode="addIfNotNull">
-  <#assign isNotNullable=false>
-  <#assign isArrayType=false>
   <#assign isGenerated=false>
   <#assign isExternal=false>
   <#assign requiresChecks=true>
@@ -239,6 +241,15 @@
  # @param Schema model     A Schema for which the java class name is required.
  #----------------------------------------------------------------------------------------------------->
 <#function getJavaClassName model>
+  <#if model.isArraySchema>
+    <#switch model.cardinality>
+      <#case "SET">
+        <#return "Set<${getJavaClassName(model.elementSchema)}>">
+        
+      <#default>
+        <#return "List<${getJavaClassName(model.elementSchema)}>">
+    </#switch>
+  </#if>
   <#switch model.elementType>
     <#case "Integer">
       <#switch model.format>
@@ -269,15 +280,6 @@
     
     <#case "Boolean">
       <#return "Boolean">
-    
-    <#case "Array">
-      <#switch model.cardinality>
-        <#case "SET">
-          <#return "Set<${getJavaClassName(model.elementSchema)}>">
-          
-        <#default>
-          <#return "List<${getJavaClassName(model.elementSchema)}>">
-      </#switch>
     
     <#default>
       <#return "${model.camelCapitalizedName}">
@@ -328,110 +330,65 @@
   </#switch>
 </#macro>
 
-<#macro decorate model>
-  <#switch model.elementType>
-    <#case "Field">
-      <#if model.required>
-        <#assign isNotNullable=true>
-      </#if>
-      <@decorate model.type/>
+<#macro decorateArray model>
+  <#if model.items.baseSchema.isObjectSchema>
+    <#assign addJsonNode="addCollectionOfDomNode">
+  <#else>
+    <#assign addJsonNode="addCollectionOf${javaElementClassName}">
+  </#if>
+  <#assign javaTypeCopyPostfix=")">
+  <#assign javaBuilderTypeCopyPostfix=")">
+  <#switch model.cardinality>
+    <#case "SET">
+      <#assign javaCardinality="Set">
+      <#assign javaTypeCopyPrefix="ImmutableSet.copyOf(">
+      <#assign javaBuilderTypeCopyPrefix=".addAll(">
+      <#assign javaBuilderTypeNew=" = new HashSet<>()">
       <#break>
       
-    <#case "Array">
-      <@decorateIfArray model/>
-      <#break>
-      
-    <#case "Ref">
-      <#assign javaConstructTypePostfix=")">
-      <#if javaGeneratedBuilderClassName?has_content>
-        <#if model.reference.enum??>
-          <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.valueOf(">
-        <#else>
-          <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
-        </#if>
-      <#else>
-        <#if model.reference.elementType=="Array">
-          <#assign javaConstructTypePrefix="${javaClassName}.newBuilder().with(">
-          <#assign javaConstructTypePostfix=").build()">
-        <#else>
-          <#assign javaConstructTypePrefix="${javaClassName}.newBuilder().build(">
-        </#if>
-      </#if>
-      <#switch model.reference.elementType>
-        <#case "Array">
-          <#assign javaGetValuePostfix=".getElements()">
-          <#break>
-        
-        <#case "Object">
-        <#case "AllOf">
-        <#case "OneOf">
-          <#assign javaGetValuePostfix=".getJsonObject()">
-          <#assign addJsonNode="add">
-          <#break>
-        
-        <#default>
-          <#if isExternal>
-            <#assign javaGetValuePrefix="${javaGeneratedBuilderClassName}.to${javaElementClassName}(">
-            <#assign javaGetValuePostfix=")">
-          <#else>
-            <#assign javaGetValuePostfix=".getValue()">
-          </#if>
-      </#switch>
-      <@decorateIfArray model.reference/>
-      <#break>
-      
-    <#case "Object">
-    <#case "AllOf">
-    <#case "OneOf">
-      <#if javaGeneratedBuilderClassName?has_content>
-        <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
-      <#else>
-        <#assign javaConstructTypePrefix="new ${javaClassName}(">
-      </#if>
-      <#assign javaConstructTypePostfix=")">
-      <#assign javaGetValuePostfix=".getJsonObject()">
-      <#assign addJsonNode="add">
-      <#break>
+    <#default>
+      <#assign javaCardinality="List">
+      <#assign javaTypeCopyPrefix="ImmutableList.copyOf(">
+      <#assign javaBuilderTypeCopyPrefix=".addAll(">
+      <#assign javaBuilderTypeNew=" = new LinkedList<>()">
   </#switch>
 </#macro>
 
-<#macro decorateIfArray model>
-  <#if model.elementType=="Array">
-    <#assign isArrayType=true>
-    <#if model.items.baseSchema.isObjectSchema>
-      <#assign addJsonNode="addCollectionOfDomNode">
+<#macro decorate model>
+  <#if model.isComponent>
+    <#if model.enum??>
+      <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.valueOf(">
+      <#assign javaConstructTypePostfix=")">
+      <#assign javaGetValuePostfix=".toString()">
     <#else>
-      <#assign addJsonNode="addCollectionOf${javaElementClassName}">
+      <#assign javaConstructTypePrefix="${javaGeneratedBuilderClassName}.build(">
+      <#assign javaConstructTypePostfix=")">
+      <#if model.isArraySchema>
+        <#assign javaGetValuePostfix=".getElements()">
+        <#assign addJsonNode="addCollectionOf${javaElementClassName}">
+      <#else>
+        <#if isExternal>
+          <#assign javaGetValuePrefix="${javaGeneratedBuilderClassName}.to${javaElementClassName}(">
+          <#assign javaGetValuePostfix=")">
+        <#else>
+          <#if model.isObjectSchema>
+            <#assign javaGetValuePostfix=".getJsonObject()">
+          <#else>
+            <#assign javaGetValuePostfix=".getValue()">
+          </#if>
+        </#if>
+      </#if>
     </#if>
-    <#if ! isGenerated>
-      <#assign javaTypeCopyPostfix=")">
-      <#assign javaBuilderTypeCopyPostfix=")">
-      <#switch model.cardinality>
-        <#case "SET">
-          <#assign javaTypeCopyPrefix="ImmutableSet.copyOf(">
-          <#assign javaBuilderTypeCopyPrefix=".addAll(">
-          <#assign javaBuilderTypeNew=" = new HashSet<>()">
-          <#break>
-          
-        <#default>
-          <#assign javaTypeCopyPrefix="ImmutableList.copyOf(">
-          <#assign javaBuilderTypeCopyPrefix=".addAll(">
-          <#assign javaBuilderTypeNew=" = new LinkedList<>()">
-      </#switch>
+  <#else>
+    <#if model.isArraySchema>
+      <@decorateArray model.baseSchema/>
+      <#assign javaConstructTypePrefix="${javaClassName}.newBuilder().with(">
+      <#assign javaConstructTypePostfix=").build()">
     </#if>
-    <#switch model.cardinality>
-      <#case "SET">
-        <#assign javaCardinality="Set">
-        <#break>
-        
-      <#default>
-        <#assign javaCardinality="List">
-    </#switch>
   </#if>
 </#macro>
 
-<#macro setClassName2 model>
-  <#assign isGenerated=true>
+<#macro setTypeDefClassName model>
   <#if model.attributes['javaExternalType']??>
     <#assign isExternal=true>
     <#assign javaClassName=model.attributes['javaExternalType']>
@@ -449,42 +406,37 @@
       <#assign javaGeneratedBuilderFullyQualifiedClassName="${javaGenPackage}.${javaGeneratedBuilderClassName}">
       <#assign javaClassName=model.camelCapitalizedName>
     <#else>
+      <#assign javaGeneratedBuilderClassName="${model.camelCapitalizedName}.newBuilder()">
       <#assign javaClassName=model.camelCapitalizedName>
       <#assign javaFullyQualifiedClassName="${javaFacadePackage}.${javaClassName}">
     </#if>
   </#if>
 </#macro>
 
+<#------------------------------------------------------------------------------------------------------
+ # Set javaClassName for the given Schema
+ #
+ # Uses ${javaFieldClassName} and ${javaElementClassName} which must be set before calling this macro
+ #
+ # @param Schema model            A Schema for which the java class name is required.
+ # @param String fieldClassName   Value of ${javaFieldClassName}
+ #----------------------------------------------------------------------------------------------------->
 <#macro setClassName model fieldClassName>
-  <#switch model.elementType>
-    <#case "Ref">
-      <@setClassName model.reference model.reference.camelCapitalizedName/>
-      <@setClassName2 model.reference/>
-			<#break>
-      
-    <#case "Array">
-    <#case "Integer">
-    <#case "Double">
-    <#case "String">
-    <#case "Boolean"> 
-    	  <#assign javaClassName=fieldClassName>
-      <#break>
-         
-    <#case "Object">
-    <#case "AllOf">
-    <#case "OneOf">
-    	  <@setClassName2 model/>
-      <#break>
-    
-    <#case "Field">
-      <@setClassName model.type fieldClassName/>
-      <#break>
-
-  </#switch>
+  <#if model.isComponent>
+    <@setTypeDefClassName model.baseSchema/>
+  <#else>
+    <#assign javaClassName=fieldClassName>
+  </#if>
 </#macro>
 
 
-
+<#macro importModelSchemas model>
+  <#list model.schemas as object>
+    <#if object.parent.elementType != "AllOf">
+import ${javaFacadePackage}.${object.camelCapitalizedName};
+    </#if>
+  </#list>
+</#macro>
 
 <#------------------------------------------------------------------------------------------------------
  # Generate imports for the nested types included in the given model element
@@ -498,6 +450,7 @@
         <#case "Object">
         <#case "AllOf">
         <#case "OneOf">
+        <#case "TypeDef">
 import ${javaFacadePackage}.${field.camelCapitalizedName};
           <@importNestedTypes field/>
           <#break>
@@ -608,6 +561,8 @@ import com.google.protobuf.ByteString;
   
   <#list model.referencedTypes as field>
     <@setJavaType field/>
+    <#list field.attributes as name, value>
+    </#list>
     <#if javaFullyQualifiedClassName?has_content>
 import ${javaFullyQualifiedClassName};
     </#if>
@@ -620,101 +575,6 @@ import ${javaGeneratedBuilderFullyQualifiedClassName};
 </#macro>
 
 <#------------------------------------------------------------------------------------------------------
- # Generate enums if necessary
- #
- # @param indent    An indent string which is output at the start of each line generated
- # @param model     A model element representing the field to generate for
- #----------------------------------------------------------------------------------------------------->
-<#macro generateEnums indent model>
-  <#assign hasEnums=false>
-  <@generateEnumVars indent model/>
-  <#if hasEnums>
-    <@generateEnumValues indent model/>
-  </#if>
-</#macro>
-
-<#------------------------------------------------------------------------------------------------------
- # Generate enums variables
- #
- # This is a macro sub-routine, from templates you probably should be calling generateEnums.
- #
- # @param indent    An indent string which is output at the start of each line generated
- # @param model     A model element representing the field to generate for
- #----------------------------------------------------------------------------------------------------->
-<#macro generateEnumVars indent model>
-  <#list model.fields as field>
-    <#switch field.elementType>
-      <#case "Field">
-        <@generateOneEnumVar indent field.type/>
-        <#break>
-      
-      <#case "Object">
-        <@generateEnumVars indent field/>
-        <#break>
-    </#switch>
-  </#list>
-</#macro>
-
-<#------------------------------------------------------------------------------------------------------
- # Generate a single enum variable
- #
- # This is a macro sub-routine, from templates you probably should be calling generateEnums.
- #
- # @param indent    An indent string which is output at the start of each line generated
- # @param model     A model element representing the field to generate for
- #----------------------------------------------------------------------------------------------------->
-<#macro generateOneEnumVar indent field>
-  <#if field.enum??>
-    <#assign hasEnums=true>
-${indent}private static final Set<String> _enumOf${field.camelName} = new HashSet<>();
-  </#if>
-</#macro>
-
-<#------------------------------------------------------------------------------------------------------
- # Generate enums values
- #
- # This is a macro sub-routine, from templates you probably should be calling generateEnums.
- #
- # @param indent    An indent string which is output at the start of each line generated
- # @param model     A model element representing the field to generate for
- #----------------------------------------------------------------------------------------------------->
-<#macro generateEnumValues indent model>
-
-${indent}static
-${indent}{
-  <#list model.fields as field>
-    <#switch field.elementType>
-      <#case "Field">
-        <@generateOneEnumValue indent field.type/>
-        <#break>
-      
-      <#case "Object">
-        <@generateEnumValues indent field/>
-        <#break>
-    </#switch>
-  </#list>
-${indent}}
-
-</#macro>
-
-<#------------------------------------------------------------------------------------------------------
- # Generate values for a single enums variable
- #
- # This is a macro sub-routine, from templates you probably should be calling generateEnums.
- #
- # @param indent    An indent string which is output at the start of each line generated
- # @param model     A model element representing the field to generate for
- #----------------------------------------------------------------------------------------------------->
-<#macro generateOneEnumValue indent field>
-    <#if field.enum??>
-
-      <#list field.enum.values as value>
-${indent}  _enumOf${field.camelName}.add("${value}");
-      </#list>
-    </#if>
-</#macro>
-
-<#------------------------------------------------------------------------------------------------------
  # 
  # Limit checking.
  #
@@ -723,7 +583,7 @@ ${indent}  _enumOf${field.camelName}.add("${value}");
  #----------------------------------------------------------------------------------------------------->
 
 <#function checkLimitsClass model>
-  <#if model.isTypeDef>
+  <#if model.isComponent>
     <#return true>
   </#if>
   <#list model.fields as field>
@@ -781,11 +641,6 @@ ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is les
   <#if model.maximum??>
 ${indent}if(${name} != null && ${name} > ${model.maximumAsString})
 ${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is more than the maximum allowed of ${model.maximum}");
-
-  </#if>
-  <#if model.enum??>
-${indent}if(!_enumOf${name}.contains(${name}))
-${indent}  throw new BadFormatException("Value " + ${name} + " of ${name} is not one of the permitted enum constants.");
 
   </#if>
 </#macro>
@@ -857,24 +712,8 @@ ${indent}}
  #----------------------------------------------------------------------------------------------------->
 <#macro generateCreateFieldFromJsonDomNode indent field var>
   <@setJavaType field/>
-  <#if field.elementType=="Field">
-    <#if field.type.elementType=="Ref">
-	    <#assign elementType=field.type.reference.elementType>
-	  <#else>
-	    <#assign elementType=field.type.elementType>
-	  </#if>
-  <#else>
-	  <#if field.elementType=="Ref">
-	    <#assign elementType=field.reference.elementType>
-	  <#else>
-	    <#assign elementType=field.elementType>
-	  </#if>
-	</#if>
-  <#if isGenerated>
-    <#switch elementType>
-      <#case "Object">
-      <#case "AllOf">
-      <#case "OneOf">
+  <#if field.isComponent>
+    <#if field.isObjectSchema>
 ${indent}if(node instanceof ImmutableJsonObject)
 ${indent}{
 ${indent}  ${var} = _factory.getModel().get${javaClassName}Factory().newInstance((ImmutableJsonObject)node);
@@ -883,21 +722,18 @@ ${indent}else
 ${indent}{
 ${indent}  throw new BadFormatException("${field.camelName} must be an Object node not " + node.getClass().getName());
 ${indent}}
-        <#break>
-      
-      <#case "Array">
+    <#else>
+      <#if field.isArraySchema>
 ${indent}if(node instanceof ImmutableJsonArray)
 ${indent}{
-${indent}  ${var} = ${javaConstructTypePrefix}(ImmutableJsonArray)node${javaConstructTypePostfix};
+${indent}  ${var} = ${javaClassName}.newBuilder().with((ImmutableJsonArray)node).build();
 <@checkItemLimits indent field field.camelName var/>
 ${indent}}
 ${indent}else
 ${indent}{
 ${indent}  throw new BadFormatException("${field.camelName} must be an Array node not " + node.getClass().getName());
 ${indent}}
-        <#break>
-      
-      <#default>
+      <#else>
 ${indent}if(node instanceof I${javaElementClassName}Provider)
 ${indent}{
 ${indent}  ${javaElementClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
@@ -915,24 +751,24 @@ ${indent}else
 ${indent}{
 ${indent}    throw new BadFormatException("${field.camelName} must be an instance of ${javaFieldClassName} not " + node.getClass().getName());
 ${indent}}     
-        <#break>
-    </#switch>
+        </#if>
+      </#if>
   <#else>
-    <#if isArrayType>
+    <#if field.isArraySchema>
 ${indent}if(node instanceof ImmutableJsonArray)
 ${indent}{
-      <#if field.isObjectSchema>
+    <#if field.baseSchema.items.isComponent>
 ${indent}  ${var} = _factory_.getModel().get${javaElementClassName}Factory().newInstance${javaCardinality}((ImmutableJsonArray)node);
-      <#else>
+    <#else>
 ${indent}  ${var} = ((ImmutableJsonArray)node).asImmutable${javaCardinality}Of(${javaElementClassName}.class);
-      </#if>
+    </#if>
 <@checkItemLimits indent field field.camelName var/>
 ${indent}}
 ${indent}else
 ${indent}{
 ${indent}  throw new BadFormatException("${field.camelName} must be an array not " + node.getClass().getName());
 ${indent}}
-    <#else>  
+    <#else> 
 ${indent}if(node instanceof I${javaElementClassName}Provider)
 ${indent}{
 ${indent}  ${javaFieldClassName} ${field.camelName} = ${javaConstructTypePrefix}((I${javaElementClassName}Provider)node).as${javaElementClassName}()${javaConstructTypePostfix};

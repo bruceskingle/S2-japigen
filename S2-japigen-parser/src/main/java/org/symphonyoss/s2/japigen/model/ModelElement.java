@@ -52,16 +52,16 @@ import freemarker.template.TemplateException;
 
 public class ModelElement
 {
-  private static Logger             log_      = LoggerFactory.getLogger(ModelElement.class);
+  private static Logger                     log_                    = LoggerFactory.getLogger(ModelElement.class);
 
-  private final ModelElement        parent_;
-  private final ParserContext       parserContext_;
-  private final String              elementType_;
-  private final String              name_;
-  private final String              camelName_;
-  private final String              camelCapitalizedName_;
-  private final String              snakeName_;
-  private final String              snakeCapitalizedName_;
+  private ModelElement                      parent_;
+  private final ParserContext               parserContext_;
+  private final String                      elementType_;
+  private final String                      name_;
+  private final String                      camelName_;
+  private final String                      camelCapitalizedName_;
+  private final String                      snakeName_;
+  private final String                      snakeCapitalizedName_;
 
   private List<ModelElement>                children_               = new ArrayList<>();
   private Map<String, ModelElement>         nameMap_                = new HashMap<>();
@@ -301,6 +301,11 @@ public class ModelElement
     
     return false;
   }
+
+  public boolean getIsComponent()
+  {
+    return false;
+  }
   
   public boolean getIsTypeDef()
   {
@@ -315,6 +320,11 @@ public class ModelElement
   public ModelElement getReference()
   {
     return this;
+  }
+  
+  public EnumSchema getEnum()
+  {
+    return null;
   }
   
   public Set<AbstractSchema> getReferencedTypes()
@@ -372,6 +382,11 @@ public class ModelElement
   public ModelElement getParent()
   {
     return parent_;
+  }
+
+  /* package */ void setParent(ModelElement parent)
+  {
+    parent_ = parent;
   }
 
   public ParserContext getContext()

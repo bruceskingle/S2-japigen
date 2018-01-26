@@ -1,4 +1,5 @@
 <#include "../S2-japigen-template-java-Prologue.ftl">
+<#assign model=model.type>
 <@setPrologueJavaType model/>
 import javax.annotation.concurrent.Immutable;
 

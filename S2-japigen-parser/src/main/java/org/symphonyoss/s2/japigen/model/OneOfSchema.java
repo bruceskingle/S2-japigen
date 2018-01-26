@@ -37,7 +37,7 @@ public class OneOfSchema extends AbstractContainerSchema
 
   public OneOfSchema(ModelElement parent, ParserContext context, ParserContext node, String name)
   {
-    super(parent, context, node, "OneOf", name);
+    super(parent, context, node, "OneOfSchema", name);
     
     ParserContext d = context.get(Japigen.DISCRIMINATOR);
     
@@ -69,11 +69,16 @@ public class OneOfSchema extends AbstractContainerSchema
       }
       else if(child instanceof ReferenceSchema)
       {
-        Schema type = ((ReferenceSchema)child).getType();
+        AbstractSchema type = ((ReferenceSchema)child).getType();
         
+        if(type instanceof Component)
+        {
+          type = ((Component)type).getType();
+        }
         if(!(type instanceof ObjectSchema))
         {
-          getContext().raise(new ParserError("OneOf children must be declared as $ref to an object, not a %s", type.getClass().getName()));
+          getContext().raise(new ParserError("OneOf children must be declared as $ref to an object, not a %s",
+              type==null ? "null" : type.getClass().getName()));
         }
       }
     }
