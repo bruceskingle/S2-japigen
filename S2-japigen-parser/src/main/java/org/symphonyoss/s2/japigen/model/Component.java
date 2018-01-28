@@ -45,6 +45,18 @@ public class Component extends Schema
   {
     return type_.getBaseSchema();
   }
+  
+  @Override
+  public Component getComponent()
+  {
+    return this;
+  }
+  
+  @Override
+  public ModelElement getElementComponent()
+  {
+    return this;
+  }
 
   @Override
   public Schema getElementSchema()

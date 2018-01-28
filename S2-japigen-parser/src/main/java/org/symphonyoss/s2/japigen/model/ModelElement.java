@@ -134,6 +134,11 @@ public class ModelElement
   {
     return this;
   }
+  
+  public ModelElement getComponent()
+  {
+    return this;
+  }
 
   /**
    * For an array type this is the schema of a single element of the array.
@@ -141,6 +146,11 @@ public class ModelElement
    * @return The schema of a single element of an array
    */
   public ModelElement getElementSchema()
+  {
+    return this;
+  }
+  
+  public ModelElement getElementComponent()
   {
     return this;
   }
