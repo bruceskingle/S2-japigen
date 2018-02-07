@@ -11,9 +11,8 @@ public interface I${model.camelCapitalizedName}ModelObject extends IModelObject
 {
 <#list model.fields as field>
   <@setJavaType field/>
-  <@printField/>
   
-  ${javaClassName} get${field.camelCapitalizedName}();
+  ${fieldType} get${field.camelCapitalizedName}();
 </#list>
 }
 <#include "../S2-japigen-template-java-Epilogue.ftl">

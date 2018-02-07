@@ -83,11 +83,23 @@ public class ReferenceSchema extends ReferenceOrSchema
   {
     return type_.getBaseSchema();
   }
+  
+  @Override
+  public ModelElement getComponent()
+  {
+    return type_.getComponent();
+  }
 
   @Override
   public Schema getElementSchema()
   {
     return type_.getElementSchema();
+  }
+  
+  @Override
+  public ModelElement getElementComponent()
+  {
+    return type_.getElementComponent();
   }
 
   @Override

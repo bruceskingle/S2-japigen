@@ -37,4 +37,11 @@ public class TypeDef extends Component
   {
     return true;
   }
+
+  @Override
+  public Component getComponent()
+  {
+    // TODO Auto-generated method stub
+    return super.getComponent();
+  }
 }

@@ -46,11 +46,23 @@ public class Field extends AbstractSchema
   {
     return type_.getBaseSchema();
   }
+  
+  @Override
+  public ModelElement getComponent()
+  {
+    return type_.getComponent();
+  }
 
   @Override
   public Schema getElementSchema()
   {
     return type_.getElementSchema();
+  }
+  
+  @Override
+  public ModelElement getElementComponent()
+  {
+    return type_.getElementComponent();
   }
 
   @Override
@@ -109,6 +121,8 @@ public class Field extends AbstractSchema
   @Override
   public boolean getIsComponent()
   {
+    if("directExternalListField".equals(getName()))
+      System.err.println("HERE");
     return type_.getIsComponent();
   }
   

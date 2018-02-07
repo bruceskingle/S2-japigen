@@ -90,6 +90,12 @@ public class ArraySchema extends Schema
   {
     return items_.getBaseSchema();
   }
+  
+  @Override
+  public ModelElement getElementComponent()
+  {
+    return items_.getComponent();
+  }
 
   @Override
   public boolean getIsArraySchema()

@@ -2,7 +2,7 @@
 
 <#list model.fields as field>
   <@setJavaType field/>
-  private final ${javaClassName?right_pad(25)}  ${field.camelName}_;
+  private final ${fieldType?right_pad(25)}  ${field.camelName}_;
 </#list>
 
 <#-- Constructor from fields -->
@@ -58,7 +58,7 @@
   <@setJavaType field/>
   
   @Override
-  public ${javaClassName} get${field.camelCapitalizedName}()
+  public ${fieldType} get${field.camelCapitalizedName}()
   {
     return ${field.camelName}_;
   }
@@ -77,10 +77,10 @@
         throw new BadFormatException("OneOf payload cannot be null");
       }
       <#list field.children as ref>
-      else if(payload instanceof ${javaClassName})
+      else if(payload instanceof ${fieldType})
       {
         <@setJavaType ref/>
-        <@checkLimits "        " ref "(${javaClassName})payload"/>
+        <@checkLimits "        " ref "(${fieldType})payload"/>
         _payload_ = ${javaTypeCopyPrefix}payload${javaTypeCopyPostfix};
         _discriminator_ = "${ref.name}";
       }
@@ -126,7 +126,7 @@
     {
     <#list model.fields as field>
       <@setJavaType field/>
-      private ${javaClassName?right_pad(25)}  ${field.camelName}__${javaBuilderTypeNew};
+      private ${fieldType?right_pad(25)}  ${field.camelName}__${javaBuilderTypeNew};
     </#list>
       
       protected Builder()
@@ -144,12 +144,12 @@
       <@setJavaType field/>
       
       @Override
-      public ${javaClassName} get${field.camelCapitalizedName}()
+      public ${fieldType} get${field.camelCapitalizedName}()
       {
         return ${field.camelName}__;
       }
 
-      public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${javaClassName} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
+      public ${modelJavaClassName}.Factory.Builder with${field.camelCapitalizedName}(${fieldType} ${field.camelName})<#if field.canFailValidation> throws BadFormatException</#if>
       {
       <@checkLimits "        " field field.camelName/>
         ${field.camelName}__${javaBuilderTypeCopyPrefix}${field.camelName}${javaBuilderTypeCopyPostfix};
@@ -181,7 +181,7 @@
     
         if(${field.camelName}__ != null)
         {
-          jsonObject.${addJsonNode}("${field.camelName}", ${javaGetValuePrefix}${field.camelName}__${javaGetValuePostfix});
+          <@generateCreateJsonDomNodeFromField "          " field "jsonObject"/>
         }
     </#list>
     

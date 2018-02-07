@@ -93,6 +93,12 @@ public abstract class Type extends Schema
   {
     return this;
   }
+  
+  @Override
+  public ModelElement getElementComponent()
+  {
+    return this;
+  }
 
   @Override
   public boolean getIsArraySchema()

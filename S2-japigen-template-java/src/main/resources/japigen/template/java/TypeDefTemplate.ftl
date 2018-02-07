@@ -22,7 +22,7 @@ import ${javaFacadePackage}.${modelJavaClassName};
 <#include "TypeDefHeader.ftl">
 <@setJavaType model/>
 @Immutable
-public class ${modelJavaClassName}ModelType<#if isComparable(model)> extends ModelType implements Comparable<${modelJavaClassName}ModelType></#if>
+public class ${modelJavaClassName}ModelType<#if isComparable(model)> extends ModelType implements I${modelJavaFieldClassName}Provider, Comparable<${modelJavaClassName}ModelType></#if>
 {
   private @Nonnull ${modelJavaFieldClassName} value_;
 
@@ -40,11 +40,11 @@ public class ${modelJavaClassName}ModelType<#if isComparable(model)> extends Mod
   {
     if(node == null)
       throw new BadFormatException("value is required.");
-      
+
   // T1 model.elementType = ${model.elementType}
-    if(node instanceof I${javaElementClassName}Provider)
+    if(node instanceof I${javaElementFieldClassName}Provider)
     {
-      ${javaFieldClassName} value = ((I${javaElementClassName}Provider)node).as${javaElementClassName}();
+      ${javaElementFieldClassName} value = ((I${javaElementFieldClassName}Provider)node).as${javaElementFieldClassName}();
     <#if requiresChecks>
       <@checkLimits "      " model "value"/>
     </#if>
@@ -57,6 +57,11 @@ public class ${modelJavaClassName}ModelType<#if isComparable(model)> extends Mod
   }
   
   public @Nonnull ${modelJavaFieldClassName} getValue()
+  {
+    return value_;
+  }
+  
+  public @Nonnull ${modelJavaFieldClassName} as${modelJavaFieldClassName}()
   {
     return value_;
   }

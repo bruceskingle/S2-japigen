@@ -42,6 +42,12 @@ public abstract class Schema extends ReferenceOrSchema
   {
     return this;
   }
+  
+  @Override
+  public ModelElement getComponent()
+  {
+    return this;
+  }
 
   public List<Component> getSuperClasses()
   {
