@@ -1,2 +1,3 @@
 # S2-japigen
-JSON API Generation Tooling
+THIS PROJECT IS NO LONGER MAINTAINED IT HAS MOVED TO
+(https://github.com/symphonyoss/canon)
